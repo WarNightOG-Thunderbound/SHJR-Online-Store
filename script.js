@@ -25,6 +25,7 @@ const productContainer = document.getElementById('product-container');
 const categoryButtons = document.querySelectorAll('.category-button');
 const placeOrderButton = document.getElementById('place-order-button');
 const modalVideoContainer = document.getElementById('modal-video-container'); // New video container
+const modalProductStockStatus = document.getElementById('modal-product-stock-status'); // New stock status element
 
 // COD specific elements
 const codForm = document.getElementById('cod-form');
@@ -40,13 +41,29 @@ const historySection = document.getElementById('history-section');
 const contactUsSection = document.getElementById('contact-us-section');
 const aboutUsSection = document.getElementById('about-us-section');
 
+// Search bar element
+const productSearchInputPublic = document.getElementById('product-search-input-public');
+
+
 let currentProduct = null;
 let allProducts = {}; // Store all products fetched from Firebase
 
 // --- Function to display products ---
 function displayProducts(productsToDisplay) {
     productContainer.innerHTML = ''; // Clear previous products
-    Object.values(productsToDisplay).forEach(product => {
+    const productsArray = Object.values(productsToDisplay);
+
+    if (productsArray.length === 0) {
+        productContainer.innerHTML = '<p>No products found in this category or matching your search.</p>';
+        return;
+    }
+
+    productsArray.forEach(product => {
+        // Only display active products
+        if (!product.isActive) {
+            return;
+        }
+
         const productCard = document.createElement('div');
         productCard.classList.add('product-card');
         productCard.dataset.productId = product.id; // Store product ID for easy access
@@ -84,10 +101,51 @@ categoryButtons.forEach(button => {
         button.classList.add('active');
 
         const category = button.dataset.category;
-        const filteredProducts = Object.values(allProducts).filter(product => product.category === category);
+        let filteredProducts = {};
+
+        if (category === 'All') {
+            filteredProducts = { ...allProducts }; // Clone all products
+        } else {
+            Object.values(allProducts).forEach(product => {
+                if (product.category === category) {
+                    filteredProducts[product.id] = product;
+                }
+            });
+        }
         displayProducts(filteredProducts);
     });
 });
+
+// --- Public Product Search ---
+productSearchInputPublic.addEventListener('input', () => {
+    const query = productSearchInputPublic.value.toLowerCase().trim();
+    if (query === '') {
+        displayProducts(allProducts); // Show all products if search is empty
+        return;
+    }
+
+    const filteredProducts = {};
+    const productsArray = Object.values(allProducts);
+
+    // First, search by title
+    productsArray.forEach(product => {
+        if (product.title.toLowerCase().includes(query)) {
+            filteredProducts[product.id] = product;
+        }
+    });
+
+    // If no title match, search by description among products not yet matched by title
+    if (Object.keys(filteredProducts).length === 0) {
+        productsArray.forEach(product => {
+            if (product.description.toLowerCase().includes(query)) {
+                filteredProducts[product.id] = product;
+            }
+        });
+    }
+
+    displayProducts(filteredProducts);
+});
+
 
 // --- Open Product Modal ---
 function openProductModal(product) {
@@ -95,6 +153,22 @@ function openProductModal(product) {
     document.getElementById('modal-product-title').textContent = product.title;
     document.getElementById('modal-product-description').textContent = product.description;
     document.getElementById('modal-product-price').textContent = `PKR ${product.price.toLocaleString()}`;
+
+    // Display stock status
+    if (product.stock > 0) {
+        modalProductStockStatus.textContent = `In Stock: ${product.stock}`;
+        modalProductStockStatus.style.color = 'var(--color-success-green)';
+        placeOrderButton.disabled = false;
+        placeOrderButton.textContent = 'Place Order';
+        placeOrderButton.style.backgroundColor = 'var(--color-pink-primary)';
+    } else {
+        modalProductStockStatus.textContent = 'Out of Stock';
+        modalProductStockStatus.style.color = 'var(--color-error-red)';
+        placeOrderButton.disabled = true; // Disable order button if out of stock
+        placeOrderButton.textContent = 'Out of Stock';
+        placeOrderButton.style.backgroundColor = 'var(--color-medium-gray)';
+    }
+
 
     // Increment product views (for basic analytics)
     if (product.id) {
@@ -112,7 +186,7 @@ function openProductModal(product) {
     product.images.forEach(imageUrl => {
         const img = document.createElement('img');
         img.src = imageUrl;
-        img.alt = product.title; // Add alt text for accessibility
+        img.alt = product.title;
         imageGallery.appendChild(img);
     });
 
@@ -126,17 +200,17 @@ function openProductModal(product) {
         if (match && match[1]) {
             // It's a YouTube video
             videoElement = document.createElement('iframe');
-            videoElement.setAttribute('src', `https://www.youtube.com/embed/${match[1]}`);
+            videoElement.setAttribute('src', `https://www.youtube.com/embed/${match[1]}`); // Corrected YouTube embed URL
             videoElement.setAttribute('frameborder', '0');
             videoElement.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
             videoElement.setAttribute('allowfullscreen', '');
-            videoElement.classList.add('product-video'); // Apply existing video style
+            videoElement.classList.add('product-video');
         } else {
             // Assume it's a direct video URL
             videoElement = document.createElement('video');
             videoElement.setAttribute('src', product.videoUrl);
             videoElement.setAttribute('controls', '');
-            videoElement.classList.add('product-video'); // Apply existing video style
+            videoElement.classList.add('product-video');
         }
         modalVideoContainer.appendChild(videoElement);
         modalVideoContainer.style.display = 'block';
@@ -152,7 +226,9 @@ closeButtons.forEach(button => {
     button.addEventListener('click', () => {
         productModal.style.display = 'none';
         orderModal.style.display = 'none';
-        codForm.style.display = 'block'; // Ensure form is visible when order modal reopens
+        codNameInput.value = ''; // Clear COD form
+        codPhoneInput.value = '';
+        codAddressInput.value = '';
     });
 });
 
@@ -162,7 +238,9 @@ window.addEventListener('click', (event) => {
     }
     if (event.target == orderModal) {
         orderModal.style.display = 'none';
-        codForm.style.display = 'block';
+        codNameInput.value = ''; // Clear COD form
+        codPhoneInput.value = '';
+        codAddressInput.value = '';
     }
 });
 
@@ -194,6 +272,10 @@ async function placeOrder(paymentMethod, customerDetails) {
         alert('No product selected for order. Please select a product first.');
         return;
     }
+    if (currentProduct.stock <= 0) {
+        alert('This product is out of stock.');
+        return;
+    }
 
     try {
         const newOrderRef = push(ref(database, 'orders')); // Generate unique key for the new order
@@ -209,6 +291,11 @@ async function placeOrder(paymentMethod, customerDetails) {
             orderDate: new Date().toISOString(), // ISO 8601 format for easy sorting/parsing
             status: "Pending" // Initial status for COD
         });
+
+        // Decrement stock
+        const productStockRef = ref(database, `products/${currentProduct.id}/stock`);
+        await update(productStockRef, currentProduct.stock - 1);
+
 
         alert(`Order for "${currentProduct.title}" placed successfully! We will contact you soon for delivery.`);
         orderModal.style.display = 'none'; // Close order modal
