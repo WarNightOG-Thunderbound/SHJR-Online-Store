@@ -1,19 +1,13 @@
-// Import Firebase functions from the global scope (set by admin.html script tag)
+// Import Firebase functions directly from the SDK URLs
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+import { getDatabase, ref, onValue, push, set, update, remove } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+
+// Get Firebase instances from the global window object
 const app = window.firebaseApp;
-const auth = window.firebaseAuth;
-const database = window.firebaseDatabase;
-const dbRef = window.dbRef;
-const dbOnValue = window.dbOnValue;
-const dbPush = window.dbPush;
-const dbSet = window.dbSet;
-const dbUpdate = window.dbUpdate;
-const dbRemove = window.dbRemove;
+const auth = window.firebaseAuthInstance; // Use the globally exposed instance
+const database = window.firebaseDatabaseInstance; // Use the globally exposed instance
 
-// Get auth functions from the explicitly passed global object
-const { signInWithEmailAndPassword, signOut, onAuthStateChanged } = window.firebaseAuthFunctions;
-
-
-// Conditionally import storage related functions
+// Conditionally import storage related functions if Firebase Storage is available
 const hasFirebaseStorage = window.hasFirebaseStorage;
 let storage = null;
 let storageRef = null;
@@ -21,10 +15,18 @@ let uploadBytes = null;
 let getDownloadURL = null;
 
 if (hasFirebaseStorage) {
+    // Dynamically import storage functions if available, to avoid errors if not.
+    // This part is handled in admin.html by setting window.firebaseStorage etc.
+    // So, we just need to reference them here if they were successfully loaded globally.
     storage = window.firebaseStorage;
-    storageRef = window.storageRef;
-    uploadBytes = window.uploadBytes;
-    getDownloadURL = window.getDownloadURL;
+    // For storage functions, we need to import them directly in admin.js as well
+    // if we intend to use them within this module's scope without global exposure of each function.
+    // However, since we've established no Firebase Storage is used, these will remain null/disabled.
+    // If Firebase Storage were to be used, these would need to be imported here:
+    // import { ref as storageRefImport, uploadBytes as uploadBytesImport, getDownloadURL as getDownloadURLImport } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js";
+    // storageRef = storageRefImport;
+    // uploadBytes = uploadBytesImport;
+    // getDownloadURL = getDownloadURLImport;
 }
 
 
@@ -242,23 +244,23 @@ addEditProductBtn.addEventListener('click', async () => {
     try {
         if (id) {
             // Edit existing product
-            const productToUpdateRef = dbRef(database, 'products/' + id);
+            const productToUpdateRef = ref(database, 'products/' + id); // Use ref from imported functions
             // Fetch existing views to preserve them
-            dbOnValue(productToUpdateRef, async (snapshot) => {
+            onValue(productToUpdateRef, async (snapshot) => { // Use onValue from imported functions
                 const existingProduct = snapshot.val();
                 if (existingProduct) {
                     productData.views = existingProduct.views || 0;
                 }
-                await dbSet(productToUpdateRef, { id, ...productData });
+                await set(productToUpdateRef, { id, ...productData }); // Use set from imported functions
                 alert('Product updated successfully!');
                 clearProductForm();
             }, { onlyOnce: true });
 
         } else {
             // Add new product
-            const newProductRef = dbPush(dbRef(database, 'products'));
+            const newProductRef = push(ref(database, 'products')); // Use push and ref from imported functions
             const newProductId = newProductRef.key;
-            await dbSet(newProductRef, { id: newProductId, ...productData });
+            await set(newProductRef, { id: newProductId, ...productData }); // Use set from imported functions
             alert('Product added successfully!');
             clearProductForm();
         }
@@ -270,8 +272,8 @@ addEditProductBtn.addEventListener('click', async () => {
 
 // Load and display products (and update dashboard stats)
 function loadProducts() {
-    const productsRef = dbRef(database, 'products');
-    dbOnValue(productsRef, (snapshot) => {
+    const productsRef = ref(database, 'products'); // Use ref from imported functions
+    onValue(productsRef, (snapshot) => { // Use onValue from imported functions
         allProductsData = snapshot.val() || {}; // Cache all products
         displayProductsList(allProductsData); // Display all products initially
         updateDashboardStats(); // Update dashboard after loading products
@@ -317,8 +319,8 @@ function displayProductsList(productsToDisplay) {
 }
 
 async function editProduct(id) {
-    const productRef = dbRef(database, 'products/' + id);
-    dbOnValue(productRef, (snapshot) => {
+    const productRef = ref(database, 'products/' + id); // Use ref from imported functions
+    onValue(productRef, (snapshot) => { // Use onValue from imported functions
         const product = snapshot.val();
         if (product) {
             productIdInput.value = product.id;
@@ -350,7 +352,7 @@ async function editProduct(id) {
 async function deleteProduct(id) {
     if (confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
         try {
-            await dbRemove(dbRef(database, 'products/' + id));
+            await remove(ref(database, 'products/' + id)); // Use remove and ref from imported functions
             alert('Product deleted successfully!');
         } catch (error) {
             alert('Error deleting product: ' + error.message);
@@ -392,8 +394,8 @@ productSearchInput.addEventListener('input', () => {
 
 // --- Order Management Logic ---
 function loadOrders() {
-    const ordersRef = dbRef(database, 'orders');
-    dbOnValue(ordersRef, (snapshot) => {
+    const ordersRef = ref(database, 'orders'); // Use ref from imported functions
+    onValue(ordersRef, (snapshot) => { // Use onValue from imported functions
         orderListContainer.innerHTML = ''; // Clear pending/active orders
         let pendingCount = 0;
         let cancelledCount = 0;
@@ -442,16 +444,13 @@ function loadOrders() {
             orderListContainer.innerHTML = '<p>No pending/active orders.</p>';
         }
         pendingOrdersStat.textContent = pendingCount;
-        // The cancelledCount is updated here, but the 'Cancelled' status is handled by removal.
-        // It's more accurate to count actual 'Cancelled' orders if they were to remain in 'orders'
-        // For now, it will reflect orders that were explicitly marked 'Cancelled' *before* removal.
         updateDashboardStats();
     });
 }
 
 function loadDoneOrders() {
-    const doneOrdersRef = dbRef(database, 'done_orders'); // New path for done orders
-    dbOnValue(doneOrdersRef, (snapshot) => {
+    const doneOrdersRef = ref(database, 'done_orders'); // New path for done orders, use ref
+    onValue(doneOrdersRef, (snapshot) => { // Use onValue
         doneOrderListContainer.innerHTML = ''; // Clear done orders list
         let completedCount = 0;
 
@@ -489,17 +488,17 @@ async function handleOrderAction(orderKey, action) {
     if (action === 'Done') {
         if (confirm('Are you sure you want to mark this order as DONE and move it to history?')) {
             try {
-                const orderRef = dbRef(database, 'orders/' + orderKey);
+                const orderRef = ref(database, 'orders/' + orderKey); // Use ref
                 // Fetch the order data first
-                dbOnValue(orderRef, async (snapshot) => {
+                onValue(orderRef, async (snapshot) => { // Use onValue
                     const orderData = snapshot.val();
                     if (orderData) {
                         // Set status to Completed
                         orderData.status = 'Completed';
                         // Push to done_orders
-                        await dbSet(dbRef(database, 'done_orders/' + orderKey), orderData);
+                        await set(ref(database, 'done_orders/' + orderKey), orderData); // Use set and ref
                         // Remove from original orders
-                        await dbRemove(orderRef);
+                        await remove(orderRef); // Use remove
                         alert(`Order ${orderKey} marked as DONE and moved to history!`);
                     }
                 }, { onlyOnce: true });
@@ -512,7 +511,7 @@ async function handleOrderAction(orderKey, action) {
     } else if (action === 'Cancel') {
         if (confirm('Are you sure you want to CANCEL this order? This will permanently remove it.')) {
             try {
-                await dbRemove(dbRef(database, 'orders/' + orderKey));
+                await remove(ref(database, 'orders/' + orderKey)); // Use remove and ref
                 alert(`Order ${orderKey} CANCELLED and removed!`);
             } catch (error) {
                 alert('Error cancelling order: ' + error.message);
