@@ -768,18 +768,13 @@
             // No specific JS needed here as Tailwind's fluid classes handle responsiveness
         });
 
-        // --- Data Population Script (Run this once in your browser console to add products) ---
-        /*
-        // IMPORTANT: Do NOT include this in your main HTML file for production,
-        // as it will attempt to add data every time the page loads.
-        // Run this separately in a development environment or Firebase console.
-
-        // Re-initialize Firebase for this script if running standalone
-        // const app = initializeApp(firebaseConfig);
-        // const db = getFirestore(app);
+        // --- Data Population Script (This will run automatically on page load now) ---
+        // !!! IMPORTANT: FOR DEMONSTRATION/INITIAL SETUP ONLY !!!
+        // !!! YOU SHOULD COMMENT OUT OR REMOVE 'addProductsToFirestore();' IN PRODUCTION !!!
+        // !!! OTHERWISE, IT WILL ATTEMPT TO RE-ADD DATA ON EVERY PAGE LOAD, LEADING TO DUPLICATION !!!
 
         // Get the app ID from the environment (or use a default)
-        // const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        // const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'; // This is already defined globally
 
         const productsData = [
             // Add a template product for testing
@@ -787,7 +782,7 @@
                 name: "Test Product",
                 category: "Test",
                 subcategory: "Test",
-                description: "This is a template product for testing the purchase flow. It costs 10 PKR.",
+                description: "This is a template product for testing the purchase flow. It costs 10 PKR. PLEASE REMOVE OR COMMENT OUT THE DATA POPULATION SCRIPT AFTER FIRST SUCCESSFUL RUN IN PRODUCTION!",
                 price: 10,
                 images: [
                     "https://placehold.co/400x300/FF0000/FFFFFF?text=Test+Product+1",
@@ -854,7 +849,7 @@
                 price: 1200,
                 images: [
                     "https://placehold.co/400x300/FFFACD/000000?text=Desi+GHI+1",
-                    "https://placehold.co/400x300/FFEFCD/000000?text=Desi+GHI+2"
+                    "https://placehold.co/400x300/FFEFCD/000000?000000?text=Desi+GHI+2"
                 ]
             },
             // Organics - Honey
@@ -910,21 +905,38 @@
 
         async function addProductsToFirestore() {
             console.log("Adding products to Firestore...");
+            // Check if products already exist to avoid re-adding on every load
+            const productsColRef = collection(db, `artifacts/${appId}/public/data/products`);
+            const existingProductsSnap = await getDoc(productsColRef); // This will only check if the collection itself exists
+
+            // A more robust check would be to query for a specific product, or check if the collection is empty.
+            // For this demonstration, we'll proceed assuming it's okay to add if the collection might be empty.
+            // In a real app, you'd add logic to prevent re-adding if products are already there.
+
             for (const product of productsData) {
                 try {
-                    // Use the public data path as per instructions
-                    const docRef = await addDoc(collection(db, `artifacts/${appId}/public/data/products`), product);
-                    console.log("Document written with ID: ", docRef.id, " for product: ", product.name);
+                    // Check if a product with the same name already exists to prevent duplicates
+                    const q = query(productsColRef, where("name", "==", product.name));
+                    const querySnapshot = await getDocs(q); // Use getDocs for a query
+
+                    if (querySnapshot.empty) {
+                        const docRef = await addDoc(productsColRef, product);
+                        console.log("Document written with ID: ", docRef.id, " for product: ", product.name);
+                    } else {
+                        console.log(`Product '${product.name}' already exists. Skipping.`);
+                    }
                 } catch (e) {
                     console.error("Error adding document ", product.name, ": ", e);
                 }
             }
-            console.log("Finished adding products.");
+            console.log("Finished attempting to add products.");
         }
 
-        // Uncomment the line below and run this script once to populate your database.
-        // addProductsToFirestore();
-        */
+        // !!! IMPORTANT: FOR DEMONSTRATION/INITIAL SETUP ONLY !!!
+        // This line will now run automatically on page load.
+        // YOU SHOULD COMMENT OUT OR REMOVE THIS LINE IN PRODUCTION TO PREVENT DATA DUPLICATION.
+        addProductsToFirestore();
+
     </script>
 </body>
 </html>
