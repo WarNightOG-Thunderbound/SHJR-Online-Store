@@ -27,22 +27,20 @@ body {
     margin: 0;
     padding: 0;
     background: linear-gradient(135deg, var(--color-light-gray) 0%, var(--color-cyan-light) 50%, var(--color-light-gray) 100%);
-    background-size: 200% 200%; /* Make gradient larger than viewport */
-    animation: gradientShift 15s ease infinite alternate; /* Subtle animation */
+    background-size: 200% 200%;
+    animation: gradientShift 15s ease infinite alternate;
     color: var(--color-dark-gray);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden; /* Prevent horizontal scroll due to gradient size */
+    overflow-x: hidden;
 }
 
-/* Background Animation */
 @keyframes gradientShift {
     0% { background-position: 0% 50%; }
     100% { background-position: 100% 50%; }
 }
 
-/* Universal box-sizing for easier layout */
 *, *::before, *::after {
     box-sizing: border-box;
 }
@@ -52,8 +50,8 @@ header {
     color: var(--color-white);
     padding: 1.2rem 0;
     text-align: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Stronger shadow */
-    position: sticky; /* Keeps header at top */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    position: sticky;
     top: 0;
     z-index: 100;
 }
@@ -65,12 +63,11 @@ h1 {
     letter-spacing: 1px;
 }
 
-/* Navigation Bar for Public App */
 .main-nav {
     display: flex;
     justify-content: center;
     padding: 10px 0;
-    background-color: var(--color-dark-gray); /* Match header background */
+    background-color: var(--color-dark-gray);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -102,8 +99,8 @@ main {
     max-width: 100%;
     margin: 20px auto;
     background-color: var(--color-white);
-    border-radius: 16px; /* Cool, rounded corners */
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); /* Softer, deeper shadow */
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
     overflow-x: hidden;
 }
 
@@ -116,7 +113,7 @@ h2 {
     color: var(--color-dark-gray);
     margin-bottom: 20px;
     padding-left: 10px;
-    border-left: 5px solid var(--color-pink-primary); /* Accent border with pink */
+    border-left: 5px solid var(--color-pink-primary);
     letter-spacing: 0.5px;
 }
 
@@ -133,19 +130,19 @@ h2 {
     color: var(--color-white);
     padding: 14px 28px;
     border: none;
-    border-radius: 10px; /* Cool, rounded borders */
+    border-radius: 10px;
     cursor: pointer;
     font-size: 1.15rem;
     font-weight: 500;
     transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
     flex-grow: 1;
     max-width: 48%;
-    box-shadow: 0 4px 12px rgba(0, 188, 212, 0.25); /* Cyan shadow */
+    box-shadow: 0 4px 12px rgba(0, 188, 212, 0.25);
 }
 
 .category-button:hover {
     background-color: var(--color-cyan-dark);
-    transform: translateY(-3px); /* More pronounced lift */
+    transform: translateY(-3px);
     box-shadow: 0 6px 15px rgba(0, 188, 212, 0.35);
 }
 .category-button.active {
@@ -163,24 +160,24 @@ h2 {
 
 .product-card {
     border: 1px solid var(--color-border-light);
-    border-radius: 12px; /* Consistent rounded borders */
+    border-radius: 12px;
     overflow: hidden;
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.3s ease;
     background-color: var(--color-white);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Subtle shadow */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
 }
 
 .product-card:hover {
-    transform: translateY(-8px); /* Greater lift */
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); /* More prominent shadow */
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
 .product-card img {
     width: 100%;
-    height: 180px; /* Slightly taller images */
+    height: 180px;
     object-fit: cover;
     display: block;
     border-bottom: 1px solid var(--color-border-light);
@@ -227,7 +224,7 @@ h2 {
     width: 100%;
     height: 100%;
     overflow-y: auto;
-    background-color: rgba(0, 0, 0, 0.75); /* Slightly darker overlay */
+    background-color: rgba(0, 0, 0, 0.75);
     justify-content: center;
     align-items: flex-start;
     padding-top: 30px;
@@ -238,10 +235,10 @@ h2 {
     background-color: var(--color-white);
     margin: 25px auto;
     padding: 25px;
-    border-radius: 18px; /* Very rounded */
+    border-radius: 18px;
     width: 95%;
     max-width: 700px;
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3); /* Deeper shadow for modal */
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
     position: relative;
     animation: fadeIn 0.3s ease-out;
 }
@@ -251,7 +248,7 @@ h2 {
     position: absolute;
     top: 20px;
     right: 25px;
-    font-size: 36px; /* Larger touch target */
+    font-size: 36px;
     font-weight: bold;
     cursor: pointer;
     transition: color 0.2s ease;
@@ -259,7 +256,7 @@ h2 {
 
 .close-button:hover,
 .close-button:focus {
-    color: var(--color-pink-dark); /* Pink on hover */
+    color: var(--color-pink-dark);
 }
 
 .product-details {
@@ -269,7 +266,7 @@ h2 {
 .product-details h3 {
     font-size: 1.8rem;
     margin-top: 0;
-    color: var(--color-pink-dark); /* Product title in pink */
+    color: var(--color-pink-dark);
     text-align: center;
     margin-bottom: 20px;
 }
@@ -291,7 +288,7 @@ h2 {
     width: 100%;
     height: 90px;
     object-fit: cover;
-    border: 2px solid var(--color-border-light); /* Slightly thicker border */
+    border: 2px solid var(--color-border-light);
     border-radius: 8px;
     cursor: pointer;
     transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
@@ -299,7 +296,7 @@ h2 {
 
 .image-gallery img:hover {
     transform: scale(1.08);
-    border-color: var(--color-cyan-primary); /* Cyan on hover */
+    border-color: var(--color-cyan-primary);
     box-shadow: 0 0 8px rgba(0, 188, 212, 0.4);
 }
 
@@ -316,6 +313,13 @@ h2 {
     margin-bottom: 20px;
 }
 
+.product-stock {
+    font-weight: bold;
+    font-size: 1.1rem;
+    text-align: center;
+    margin-bottom: 10px !important; /* Override default p margin */
+}
+
 .product-price {
     font-weight: bold;
     color: var(--color-success-green);
@@ -325,7 +329,7 @@ h2 {
 }
 
 .place-order-button {
-    background-color: var(--color-pink-primary); /* Pink button */
+    background-color: var(--color-pink-primary);
     color: var(--color-white);
     padding: 16px 30px;
     border: none;
@@ -336,14 +340,20 @@ h2 {
     margin-top: 25px;
     width: 100%;
     box-sizing: border-box;
-    box-shadow: 0 6px 18px rgba(255, 128, 171, 0.4); /* Pink shadow */
+    box-shadow: 0 6px 18px rgba(255, 128, 171, 0.4);
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.place-order-button:hover {
+.place-order-button:hover:not(:disabled) {
     background-color: var(--color-pink-dark);
     transform: translateY(-4px);
 }
+.place-order-button:disabled {
+    cursor: not-allowed;
+    background-color: var(--color-medium-gray) !important;
+    box-shadow: none;
+}
+
 
 /* Payment Form (COD only) */
 .payment-form {
@@ -376,13 +386,13 @@ h2 {
 
 .payment-form input:focus,
 .payment-form textarea:focus {
-    border-color: var(--color-cyan-primary); /* Cyan focus */
+    border-color: var(--color-cyan-primary);
     box-shadow: 0 0 0 4px rgba(0, 188, 212, 0.2);
     outline: none;
 }
 
 .confirm-order-button {
-    background-color: var(--color-cyan-primary); /* Cyan confirmation button */
+    background-color: var(--color-cyan-primary);
     color: var(--color-white);
     padding: 16px 30px;
     border: none;
@@ -392,13 +402,25 @@ h2 {
     font-weight: 600;
     width: 100%;
     box-sizing: border-box;
-    box-shadow: 0 6px 18px rgba(0, 188, 212, 0.4); /* Cyan shadow */
+    box-shadow: 0 6px 18px rgba(0, 188, 212, 0.4);
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .confirm-order-button:hover {
     background-color: var(--color-cyan-dark);
     transform: translateY(-4px);
+}
+
+/* Public Search Bar */
+.public-search-bar {
+    margin-bottom: 25px;
+}
+.public-search-bar input {
+    width: calc(100% - 24px);
+    padding: 12px;
+    border: 1px solid var(--color-border-light);
+    border-radius: 8px;
+    font-size: 1rem;
 }
 
 
@@ -426,7 +448,7 @@ h2 {
     .category-button {
         flex-grow: 0;
         max-width: none;
-        min-width: 160px; /* Ensure buttons don't get too small */
+        min-width: 160px;
     }
 
     .product-grid {
@@ -480,16 +502,15 @@ h2 {
         height: 100px;
     }
 
-    /* Updated video container style for better flexibility */
     #modal-video-container {
         flex-basis: 65%;
         max-width: 65%;
-        display: block; /* Ensure it's block for proper sizing */
+        display: block;
     }
     #modal-video-container .product-video {
         width: 100%;
-        height: 100%; /* Fill parent container */
-        min-height: 280px; /* Ensure a minimum height for visibility */
+        height: 100%;
+        min-height: 280px;
     }
 
 
