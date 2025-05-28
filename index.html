@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHJR Online Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #f8f8f8; /* Light background */
+            color: #333;
+        }
+        /* Custom scrollbar for better mobile feel */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Hide scrollbar for specific elements if needed, example for product detail images */
+        .scroll-hidden::-webkit-scrollbar {
+            display: none;
+        }
+        .scroll-hidden {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        /* Basic transition for modals */
+        .modal-overlay {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal-content {
+            transition: transform 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+    <div id="app" class="flex flex-col flex-grow w-full max-w-md mx-auto bg-white shadow-lg rounded-lg overflow-hidden relative">
+
+        <header class="bg-gradient-to-r from-blue-500 to-indigo-600 p-4 text-white shadow-md flex justify-between items-center z-10">
+            <h1 class="text-xl font-bold">SHJR Online Store</h1>
+            <button id="menuButton" class="text-white focus:outline-none md:hidden">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </header>
+
+        <nav id="navMenu" class="absolute top-0 left-0 w-full h-full bg-white z-20 transform -translate-x-full transition-transform duration-300 ease-in-out md:static md:translate-x-0 md:flex md:flex-row md:justify-around md:items-center md:bg-transparent md:h-auto md:p-0">
+            <div class="p-4 flex justify-end md:hidden">
+                <button id="closeMenuButton" class="text-gray-600 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <ul class="flex flex-col p-4 space-y-4 md:flex-row md:space-y-0 md:space-x-4 md:w-full md:justify-center">
+                <li><a href="#" id="homeLink" class="block py-2 px-4 text-gray-800 hover:bg-blue-100 rounded-md font-medium md:text-white md:hover:bg-blue-600">Home</a></li>
+                <li><a href="#" id="aboutLink" class="block py-2 px-4 text-gray-800 hover:bg-blue-100 rounded-md font-medium md:text-white md:hover:bg-blue-600">About Us</a></li>
+                <li><a href="#" id="contactLink" class="block py-2 px-4 text-gray-800 hover:bg-blue-100 rounded-md font-medium md:text-white md:hover:bg-blue-600">Contact Us</a></li>
+            </ul>
+        </nav>
+
+        <main id="mainContent" class="flex-grow p-4 overflow-y-auto">
+            <section id="homePage" class="page active">
+                <h2 class="text-2xl font-semibold mb-4 text-center text-gray-800">Our Products</h2>
+                <div id="categoriesContainer" class="mb-6 flex flex-wrap justify-center gap-2">
+                    </div>
+                <div id="productGrid" class="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                    </div>
+                <p id="noProductsMessage" class="text-center text-gray-500 mt-8 hidden">No products found for this category.</p>
+            </section>
+
+            <section id="aboutPage" class="page hidden">
+                <h2 class="text-2xl font-semibold mb-4 text-center text-gray-800">About Us</h2>
+                <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                    <p class="text-gray-700 leading-relaxed mb-4">
+                        Welcome to SHJR Online Store, your one-stop shop for high-quality fabrics and organic products. We are dedicated to providing you with the best selection, competitive prices, and an exceptional shopping experience.
+                    </p>
+                    <p class="text-gray-700 leading-relaxed">
+                        Our mission is to bring you carefully curated products, from elegant ladies' and girls' garments to natural organic goods like GHI, Honey, Stevia, Storage Bags, and Sarsoon ka OIL. We believe in quality, sustainability, and customer satisfaction.
+                    </p>
+                </div>
+            </section>
+
+            <section id="contactPage" class="page hidden">
+                <h2 class="text-2xl font-semibold mb-4 text-center text-gray-800">Contact Us</h2>
+                <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                    <p class="text-gray-700 mb-2">Have questions or need assistance? Feel free to reach out to us!</p>
+                    <p class="text-gray-700 mb-2"><strong>Email:</strong> info@shjronlinestore.shop</p>
+                    <p class="text-gray-700 mb-2"><strong>Phone:</strong> +92 3XX XXXXXXX</p>
+                    <p class="text-gray-700 mb-4"><strong>Address:</strong> [Your Store Address Here], Pakistan</p>
+                    <p class="text-gray-700">We aim to respond to all inquiries within 24-48 hours.</p>
+                </div>
+            </section>
+        </main>
+
+        <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white p-6 rounded-lg shadow-xl flex flex-col items-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+                <p class="mt-4 text-gray-700 font-medium">Loading...</p>
+            </div>
+        </div>
+
+        <div id="messageBox" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white p-6 rounded-lg shadow-xl max-w-xs w-full text-center">
+                <p id="messageText" class="text-gray-800 text-lg mb-4"></p>
+                <button id="messageBoxClose" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-200 ease-in-out transform hover:scale-105">
+                    OK
+                </button>
+            </div>
+        </div>
+
+        <div id="productDetailModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-40 hidden opacity-0">
+            <div class="modal-content bg-white p-6 rounded-lg shadow-2xl max-w-sm w-11/12 transform translate-y-full transition duration-300 ease-in-out overflow-y-auto max-h-[90vh]">
+                <button id="closeProductDetail" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+                <div class="mb-4">
+                    <div id="productImages" class="flex overflow-x-auto scroll-hidden snap-x snap-mandatory rounded-lg shadow-inner mb-4">
+                        </div>
+                    <h3 id="productDetailTitle" class="text-2xl font-bold text-gray-900 mb-2"></h3>
+                    <p id="productDetailPrice" class="text-xl font-semibold text-blue-600 mb-3"></p>
+                    <p id="productDetailDescription" class="text-gray-700 leading-relaxed mb-6"></p>
+                    <button id="purchaseButton" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none">
+                        Purchase Now
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="paymentOptionsModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-40 hidden opacity-0">
+            <div class="modal-content bg-white p-6 rounded-lg shadow-2xl max-w-sm w-11/12 transform translate-y-full transition duration-300 ease-in-out overflow-y-auto max-h-[90vh]">
+                <button id="closePaymentOptions" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4 text-center">Select Payment Method</h3>
+                <div class="space-y-4 mb-6">
+                    <button class="payment-option w-full bg-blue-100 hover:bg-blue-200 text-blue-800 font-semibold py-3 px-4 rounded-lg shadow-md transition duration-200 ease-in-out transform hover:scale-105 flex items-center justify-center" data-method="easypaisa">
+                        <img src="https://placehold.co/30x30/00A300/FFFFFF?text=EP" alt="EasyPaisa" class="mr-3 rounded-full">
+                        EasyPaisa
+                    </button>
+                    <button class="payment-option w-full bg-green-100 hover:bg-green-200 text-green-800 font-semibold py-3 px-4 rounded-lg shadow-md transition duration-200 ease-in-out transform hover:scale-105 flex items-center justify-center" data-method="jazzcash">
+                        <img src="https://placehold.co/30x30/D32F2F/FFFFFF?text=JC" alt="JazzCash" class="mr-3 rounded-full">
+                        JazzCash
+                    </button>
+                    <button class="payment-option w-full bg-purple-100 hover:bg-purple-200 text-purple-800 font-semibold py-3 px-4 rounded-lg shadow-md transition duration-200 ease-in-out transform hover:scale-105 flex items-center justify-center" data-method="cod">
+                        <img src="https://placehold.co/30x30/673AB7/FFFFFF?text=COD" alt="Cash on Delivery" class="mr-3 rounded-full">
+                        Cash on Delivery
+                    </button>
+                    <button class="payment-option w-full bg-yellow-100 hover:bg-yellow-200 text-yellow-800 font-semibold py-3 px-4 rounded-lg shadow-md transition duration-200 ease-in-out transform hover:scale-105 flex items-center justify-center" data-method="bank">
+                        <img src="https://placehold.co/30x30/FFC107/FFFFFF?text=BA" alt="Bank Account" class="mr-3 rounded-full">
+                        Bank Account Payment
+                    </button>
+                </div>
+
+                <div id="paymentFormsContainer" class="mt-6 p-4 bg-gray-50 rounded-lg shadow-inner hidden">
+                    <h4 class="text-lg font-bold text-gray-800 mb-2">Payment Instructions:</h4>
+                    <p id="paymentDetailsText" class="text-gray-700 leading-relaxed mb-4"></p>
+                    <button id="copyPaymentInfo" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none mb-4">
+                        Copy Payment Info
+                    </button>
+
+                    <form id="dynamicPaymentForm" class="space-y-4">
+                        </form>
+
+                    <button id="confirmOrderButton" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none mt-4">
+                        Confirm Order
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-2 bg-gray-100 text-gray-600 text-xs text-center border-t border-gray-200">
+            User ID: <span id="userIdDisplay">Loading...</span>
+        </div>
+
+    </div>
+
+    <script type="module">
+        // Firebase SDK imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global variables for Firebase instances and user ID
+        let app;
+        let db;
+        let auth;
+        let userId = 'anonymous'; // Default to anonymous
+
+        // Firebase configuration provided by the user
+        const firebaseConfig = {
+            apiKey: "AIzaSyAmTmPgLYBiPXMTqyTAsw5vIrs-11h7-9A",
+            authDomain: "shjr-online-store.firebaseapp.com",
+            databaseURL: "https://shjr-online-store-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "shjr-online-store",
+            storageBucket: "shjr-online-store.firebasestorage.app",
+            messagingSenderId: "118385940927",
+            appId: "1:118385940927:web:9c34612d688ef0be93a90a",
+            measurementId: "G-BX30KRVHRY"
+        };
+
+        // Canvas environment variables (if available)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfigFromCanvas = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : firebaseConfig;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // DOM Elements
+        const homePage = document.getElementById('homePage');
+        const aboutPage = document.getElementById('aboutPage');
+        const contactPage = document.getElementById('contactPage');
+        const homeLink = document.getElementById('homeLink');
+        const aboutLink = document.getElementById('aboutLink');
+        const contactLink = document.getElementById('contactLink');
+        const productGrid = document.getElementById('productGrid');
+        const categoriesContainer = document.getElementById('categoriesContainer');
+        const noProductsMessage = document.getElementById('noProductsMessage');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+        const messageBoxClose = document.getElementById('messageBoxClose');
+        const productDetailModal = document.getElementById('productDetailModal');
+        const closeProductDetail = document.getElementById('closeProductDetail');
+        const productImagesContainer = document.getElementById('productImages');
+        const productDetailTitle = document.getElementById('productDetailTitle');
+        const productDetailPrice = document.getElementById('productDetailPrice');
+        const productDetailDescription = document.getElementById('productDetailDescription');
+        const purchaseButton = document.getElementById('purchaseButton');
+        const paymentOptionsModal = document.getElementById('paymentOptionsModal');
+        const closePaymentOptions = document.getElementById('closePaymentOptions');
+        const paymentFormsContainer = document.getElementById('paymentFormsContainer');
+        const paymentDetailsText = document.getElementById('paymentDetailsText');
+        const copyPaymentInfoButton = document.getElementById('copyPaymentInfo');
+        const dynamicPaymentForm = document.getElementById('dynamicPaymentForm');
+        const confirmOrderButton = document.getElementById('confirmOrderButton');
+        const userIdDisplay = document.getElementById('userIdDisplay');
+        const menuButton = document.getElementById('menuButton');
+        const navMenu = document.getElementById('navMenu');
+        const closeMenuButton = document.getElementById('closeMenuButton');
+
+        // Payment details and form configurations
+        const paymentInfo = {
+            easypaisa: {
+                instructions: 'Please transfer the exact amount to EasyPaisa account: 03344148636. Then, enter your transaction ID below.',
+                fields: [
+                    { id: 'easypaisaTxnId', label: 'EasyPaisa Transaction ID', type: 'text', placeholder: 'e.g., Txn123456789' },
+                    { id: 'easypaisaSenderName', label: 'Your Name (Optional)', type: 'text', placeholder: 'e.g., Ali Khan' }
+                ]
+            },
+            jazzcash: {
+                instructions: 'Please transfer the exact amount to JazzCash account: 03008682938. Then, enter your transaction ID below.',
+                fields: [
+                    { id: 'jazzcashTxnId', label: 'JazzCash Transaction ID', type: 'text', placeholder: 'e.g., JzC123456789' },
+                    { id: 'jazzcashSenderName', label: 'Your Name (Optional)', type: 'text', placeholder: 'e.g., Sara Ahmed' }
+                ]
+            },
+            bank: {
+                instructions: 'Please transfer the exact amount to Bank Account: 09830010026508610011. Then, enter your transaction reference below.',
+                fields: [
+                    { id: 'bankTxnRef', label: 'Bank Transaction Reference', type: 'text', placeholder: 'e.g., Online Transfer Ref' },
+                    { id: 'bankSenderName', label: 'Your Account Name', type: 'text', placeholder: 'e.g., Your Full Name' }
+                ]
+            },
+            cod: {
+                instructions: 'You will pay Cash on Delivery. Please provide your delivery details below.',
+                fields: [
+                    { id: 'codFullName', label: 'Your Full Name', type: 'text', placeholder: 'e.g., John Doe', required: true },
+                    { id: 'codAddress', label: 'Delivery Address', type: 'text', placeholder: 'House#, Street, City', required: true },
+                    { id: 'codContact', label: 'Contact Number', type: 'tel', placeholder: 'e.g., 03XX-XXXXXXX', required: true }
+                ]
+            }
+        };
+
+        // Current product being viewed for purchase
+        let currentProductData = null;
+        let selectedPaymentMethod = null;
+        let allProducts = []; // Store all products for filtering
+
+        // --- Utility Functions ---
+
+        /**
+         * Displays a custom message box instead of alert().
+         * @param {string} message - The message to display.
+         */
+        function showMessageBox(message) {
+            messageText.textContent = message;
+            messageBox.classList.remove('hidden');
+        }
+
+        /**
+         * Shows the loading overlay.
+         */
+        function showLoading() {
+            loadingOverlay.classList.remove('hidden');
+        }
+
+        /**
+         * Hides the loading overlay.
+         */
+        function hideLoading() {
+            loadingOverlay.classList.add('hidden');
+        }
+
+        /**
+         * Shows a modal with a smooth transition.
+         * @param {HTMLElement} modalElement - The modal element to show.
+         */
+        function showModal(modalElement) {
+            modalElement.classList.remove('hidden');
+            setTimeout(() => {
+                modalElement.classList.remove('opacity-0');
+                modalElement.querySelector('.modal-content').classList.remove('translate-y-full');
+            }, 10); // Small delay to allow hidden to be removed before transition starts
+        }
+
+        /**
+         * Hides a modal with a smooth transition.
+         * @param {HTMLElement} modalElement - The modal element to hide.
+         */
+        function hideModal(modalElement) {
+            modalElement.classList.add('opacity-0');
+            modalElement.querySelector('.modal-content').classList.add('translate-y-full');
+            setTimeout(() => {
+                modalElement.classList.add('hidden');
+            }, 300); // Match transition duration
+        }
+
+        /**
+         * Switches between different pages of the application.
+         * @param {string} pageId - The ID of the page to show (e.g., 'homePage', 'aboutPage').
+         */
+        function showPage(pageId) {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => {
+                if (page.id === pageId) {
+                    page.classList.remove('hidden');
+                    page.classList.add('active');
+                } else {
+                    page.classList.add('hidden');
+                    page.classList.remove('active');
+                }
+            });
+            // Hide navigation menu on mobile after selection
+            navMenu.classList.add('-translate-x-full');
+        }
+
+        /**
+         * Renders product cards on the home page.
+         * @param {Array<Object>} products - Array of product objects.
+         */
+        function renderProducts(products) {
+            productGrid.innerHTML = '';
+            if (products.length === 0) {
+                noProductsMessage.classList.remove('hidden');
+                return;
+            }
+            noProductsMessage.classList.add('hidden');
+
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transform transition duration-300 ease-in-out hover:scale-105';
+                productCard.dataset.productId = product.id; // Store product ID
+
+                const imageUrl = product.images && product.images.length > 0 ? product.images[0] : `https://placehold.co/200x150/E0E0E0/000000?text=${encodeURIComponent(product.name)}`;
+
+                productCard.innerHTML = `
+                    <img src="${imageUrl}" alt="${product.name}" class="w-full h-32 object-cover">
+                    <div class="p-3">
+                        <h3 class="text-md font-semibold text-gray-800 truncate">${product.name}</h3>
+                        <p class="text-sm text-blue-600 font-bold mt-1">PKR ${product.price.toLocaleString()}</p>
+                    </div>
+                `;
+                productGrid.appendChild(productCard);
+
+                // Add click listener to open product detail
+                productCard.addEventListener('click', () => showProductDetail(product.id));
+            });
+        }
+
+        /**
+         * Renders category buttons.
+         * @param {Array<string>} categories - Array of unique category names.
+         */
+        function renderCategories(categories) {
+            categoriesContainer.innerHTML = '';
+            // Add "All" category button
+            const allButton = document.createElement('button');
+            allButton.className = 'bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 px-4 rounded-full shadow-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none';
+            allButton.textContent = 'All';
+            allButton.addEventListener('click', () => filterProductsByCategory('All'));
+            categoriesContainer.appendChild(allButton);
+
+            categories.forEach(category => {
+                const categoryButton = document.createElement('button');
+                categoryButton.className = 'bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm py-2 px-4 rounded-full shadow-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none';
+                categoryButton.textContent = category;
+                categoryButton.addEventListener('click', () => filterProductsByCategory(category));
+                categoriesContainer.appendChild(categoryButton);
+            });
+        }
+
+        /**
+         * Filters products by category and re-renders the grid.
+         * @param {string} category - The category to filter by, or 'All'.
+         */
+        function filterProductsByCategory(category) {
+            let filteredProducts = [];
+            if (category === 'All') {
+                filteredProducts = allProducts;
+            } else {
+                filteredProducts = allProducts.filter(p => p.category === category);
+            }
+            renderProducts(filteredProducts);
+
+            // Update button styles
+            document.querySelectorAll('#categoriesContainer button').forEach(button => {
+                if (button.textContent === category || (category === 'All' && button.textContent === 'All')) {
+                    button.classList.add('bg-blue-500', 'text-white');
+                    button.classList.remove('bg-gray-200', 'text-gray-800');
+                } else {
+                    button.classList.remove('bg-blue-500', 'text-white');
+                    button.classList.add('bg-gray-200', 'text-gray-800');
+                }
+            });
+        }
+
+        /**
+         * Fetches and displays product details in the modal.
+         * @param {string} productId - The ID of the product to display.
+         */
+        async function showProductDetail(productId) {
+            showLoading();
+            try {
+                const productRef = doc(db, `artifacts/${appId}/public/data/products`, productId);
+                const productSnap = await getDoc(productRef);
+
+                if (productSnap.exists()) {
+                    const product = { id: productSnap.id, ...productSnap.data() };
+                    currentProductData = product; // Store for purchase
+                    productDetailTitle.textContent = product.name;
+                    productDetailPrice.textContent = `PKR ${product.price.toLocaleString()}`;
+                    productDetailDescription.textContent = product.description;
+
+                    productImagesContainer.innerHTML = '';
+                    if (product.images && product.images.length > 0) {
+                        product.images.forEach(imgUrl => {
+                            const img = document.createElement('img');
+                            img.src = imgUrl;
+                            img.alt = product.name;
+                            img.className = 'w-full h-64 object-cover flex-shrink-0 snap-center rounded-lg shadow-sm';
+                            img.onerror = () => {
+                                img.src = `https://placehold.co/400x300/E0E0E0/000000?text=Image+Error`;
+                            };
+                            productImagesContainer.appendChild(img);
+                        });
+                    } else {
+                        // Placeholder if no images
+                        const img = document.createElement('img');
+                        img.src = `https://placehold.co/400x300/E0E0E0/000000?text=No+Image`;
+                        img.alt = 'No image available';
+                        img.className = 'w-full h-64 object-cover flex-shrink-0 snap-center rounded-lg shadow-sm';
+                        productImagesContainer.appendChild(img);
+                    }
+                    showModal(productDetailModal);
+                } else {
+                    showMessageBox('Product not found.');
+                }
+            } catch (error) {
+                console.error("Error fetching product details:", error);
+                showMessageBox('Failed to load product details. Please try again.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        /**
+         * Displays the payment options modal.
+         */
+        function showPaymentOptions() {
+            hideModal(productDetailModal); // Hide product detail first
+            paymentFormsContainer.classList.add('hidden'); // Hide details initially
+            dynamicPaymentForm.innerHTML = ''; // Clear previous form
+            selectedPaymentMethod = null; // Reset selected method
+            // Reset button styles
+            document.querySelectorAll('.payment-option').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-blue-500');
+            });
+            showModal(paymentOptionsModal);
+        }
+
+        /**
+         * Generates and displays the appropriate payment form.
+         * @param {string} method - The selected payment method (e.g., 'easypaisa', 'cod').
+         */
+        function renderPaymentForm(method) {
+            const config = paymentInfo[method];
+            if (!config) {
+                dynamicPaymentForm.innerHTML = '<p class="text-red-500">Invalid payment method selected.</p>';
+                return;
+            }
+
+            dynamicPaymentForm.innerHTML = ''; // Clear existing form fields
+            config.fields.forEach(field => {
+                const div = document.createElement('div');
+                div.className = 'flex flex-col';
+                const label = document.createElement('label');
+                label.htmlFor = field.id;
+                label.className = 'text-sm font-medium text-gray-700 mb-1';
+                label.textContent = field.label + (field.required ? ' *' : '');
+                const input = document.createElement('input');
+                input.type = field.type;
+                input.id = field.id;
+                input.name = field.id; // Set name attribute for form submission
+                input.placeholder = field.placeholder;
+                input.className = 'p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500';
+                if (field.required) {
+                    input.required = true;
+                }
+                div.appendChild(label);
+                div.appendChild(input);
+                dynamicPaymentForm.appendChild(div);
+            });
+        }
+
+        /**
+         * Handles payment option selection and displays relevant details and form.
+         * @param {Event} event - The click event.
+         */
+        function handlePaymentSelection(event) {
+            const method = event.currentTarget.dataset.method;
+            selectedPaymentMethod = method;
+            const details = paymentInfo[method].instructions;
+            paymentDetailsText.textContent = details;
+            paymentFormsContainer.classList.remove('hidden');
+
+            renderPaymentForm(method); // Render the specific form
+
+            // Highlight selected button
+            document.querySelectorAll('.payment-option').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-blue-500');
+            });
+            event.currentTarget.classList.add('ring-2', 'ring-blue-500');
+        }
+
+        /**
+         * Copies payment information to the clipboard.
+         */
+        function copyPaymentInfo() {
+            const textToCopy = paymentDetailsText.textContent;
+            if (textToCopy) {
+                // Using document.execCommand('copy') for better iframe compatibility
+                const textarea = document.createElement('textarea');
+                textarea.value = textToCopy;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    const successful = document.execCommand('copy');
+                    const msg = successful ? 'Copied to clipboard!' : 'Failed to copy.';
+                    showMessageBox(msg);
+                } catch (err) {
+                    console.error('Fallback: Oops, unable to copy', err);
+                    showMessageBox('Failed to copy. Please manually copy the text.');
+                } finally {
+                    document.body.removeChild(textarea);
+                }
+            }
+        }
+
+        /**
+         * Places the order by saving it to Firestore.
+         */
+        async function placeOrder() {
+            if (!currentProductData || !selectedPaymentMethod) {
+                showMessageBox('Please select a product and payment method first.');
+                return;
+            }
+
+            // Collect form data
+            const paymentFormData = {};
+            const formElements = dynamicPaymentForm.elements;
+            let formIsValid = true;
+
+            for (let i = 0; i < formElements.length; i++) {
+                const element = formElements[i];
+                if (element.tagName === 'INPUT') {
+                    paymentFormData[element.id] = element.value.trim();
+                    if (element.required && !element.value.trim()) {
+                        formIsValid = false;
+                        element.classList.add('border-red-500'); // Highlight empty required fields
+                    } else {
+                        element.classList.remove('border-red-500');
+                    }
+                }
+            }
+
+            if (!formIsValid) {
+                showMessageBox('Please fill in all required fields.');
+                return;
+            }
+
+            showLoading();
+            try {
+                const orderData = {
+                    userId: userId,
+                    productId: currentProductData.id,
+                    productName: currentProductData.name,
+                    productPrice: currentProductData.price,
+                    productImages: currentProductData.images, // Store images for reference
+                    paymentMethod: selectedPaymentMethod,
+                    paymentDetailsProvided: paymentFormData, // User-entered details
+                    orderDate: serverTimestamp(), // Firestore timestamp
+                    status: 'Pending', // Initial status
+                    // Add other relevant details like quantity if implemented
+                };
+
+                // Save order to Firestore in the public data path
+                const ordersColRef = collection(db, `artifacts/${appId}/public/data/orders`);
+                await addDoc(ordersColRef, orderData);
+
+                showMessageBox('Your order has been placed successfully! We will contact you shortly.');
+                hideModal(paymentOptionsModal); // Close payment modal
+                showPage('homePage'); // Go back to home page
+            } catch (error) {
+                console.error("Error placing order:", error);
+                showMessageBox('Failed to place order. Please try again.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // --- Event Listeners ---
+
+        // Navigation links
+        homeLink.addEventListener('click', (e) => { e.preventDefault(); showPage('homePage'); });
+        aboutLink.addEventListener('click', (e) => { e.preventDefault(); showPage('aboutPage'); });
+        contactLink.addEventListener('click', (e) => { e.preventDefault(); showPage('contactPage'); });
+
+        // Message box close button
+        messageBoxClose.addEventListener('click', () => messageBox.classList.add('hidden'));
+
+        // Product detail modal close button
+        closeProductDetail.addEventListener('click', () => hideModal(productDetailModal));
+
+        // Purchase button in product detail modal
+        purchaseButton.addEventListener('click', showPaymentOptions);
+
+        // Payment options modal close button
+        closePaymentOptions.addEventListener('click', () => hideModal(paymentOptionsModal));
+
+        // Payment option buttons
+        document.querySelectorAll('.payment-option').forEach(button => {
+            button.addEventListener('click', handlePaymentSelection);
+        });
+
+        // Copy payment info button
+        copyPaymentInfoButton.addEventListener('click', copyPaymentInfo);
+
+        // Confirm Order button
+        confirmOrderButton.addEventListener('click', placeOrder);
+
+        // Mobile menu toggle
+        menuButton.addEventListener('click', () => {
+            navMenu.classList.remove('-translate-x-full');
+        });
+
+        // Mobile menu close
+        closeMenuButton.addEventListener('click', () => {
+            navMenu.classList.add('-translate-x-full');
+        });
+
+
+        // --- Firebase Initialization and Data Loading ---
+
+        /**
+         * Initializes Firebase and sets up authentication.
+         */
+        async function initializeFirebaseAndLoadData() {
+            showLoading();
+            try {
+                // Initialize Firebase app
+                app = initializeApp(firebaseConfigFromCanvas);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Authenticate user
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                // Listen for auth state changes to get the user ID
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        userIdDisplay.textContent = userId;
+                        console.log("User authenticated:", userId);
+                    } else {
+                        // If for some reason auth fails or user signs out, generate a random ID
+                        userId = crypto.randomUUID();
+                        userIdDisplay.textContent = `Anon: ${userId.substring(0, 8)}...`;
+                        console.log("Signed in anonymously or auth failed, using random ID:", userId);
+                    }
+                    // Once auth is ready, start listening for products
+                    listenForProducts();
+                });
+
+            } catch (error) {
+                console.error("Error initializing Firebase or authenticating:", error);
+                showMessageBox('Failed to connect to the store. Please check your internet connection or try again later.');
+                hideLoading();
+            }
+        }
+
+        /**
+         * Sets up a real-time listener for products from Firestore.
+         */
+        function listenForProducts() {
+            // Query for products in the public data path
+            const productsColRef = collection(db, `artifacts/${appId}/public/data/products`);
+            const q = query(productsColRef);
+
+            onSnapshot(q, (snapshot) => {
+                const products = [];
+                const categories = new Set();
+                snapshot.forEach(doc => {
+                    const product = { id: doc.id, ...doc.data() };
+                    products.push(product);
+                    if (product.category) {
+                        categories.add(product.category);
+                    }
+                });
+                allProducts = products; // Store all products
+                renderProducts(products); // Render all products initially
+                renderCategories(Array.from(categories)); // Render category buttons
+                hideLoading();
+            }, (error) => {
+                console.error("Error fetching real-time products:", error);
+                showMessageBox('Failed to load products. Please try refreshing the page.');
+                hideLoading();
+            });
+        }
+
+        // Initialize Firebase and load data when the window loads
+        window.onload = initializeFirebaseAndLoadData;
+
+        // Ensure the app container adjusts to screen size (Tailwind handles this well, but good to ensure)
+        window.addEventListener('resize', () => {
+            // No specific JS needed here as Tailwind's fluid classes handle responsiveness
+        });
+
+        // --- Data Population Script (Run this once in your browser console to add products) ---
+        /*
+        // IMPORTANT: Do NOT include this in your main HTML file for production,
+        // as it will attempt to add data every time the page loads.
+        // Run this separately in a development environment or Firebase console.
+
+        // Re-initialize Firebase for this script if running standalone
+        // const app = initializeApp(firebaseConfig);
+        // const db = getFirestore(app);
+
+        // Get the app ID from the environment (or use a default)
+        // const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        const productsData = [
+            // Fabric - Ladies Garments
+            {
+                name: "Elegant Silk Saree",
+                category: "Fabric",
+                subcategory: "Ladies Garments",
+                description: "A luxurious silk saree with intricate embroidery, perfect for special occasions. Comes with a matching blouse piece.",
+                price: 7500,
+                images: [
+                    "https://placehold.co/400x300/FFDDC1/000000?text=Silk+Saree+1",
+                    "https://placehold.co/400x300/FFC1DD/000000?text=Silk+Saree+2",
+                    "https://placehold.co/400x300/FFB3C1/000000?text=Silk+Saree+3",
+                    "https://placehold.co/400x300/FFA0B3/000000?text=Silk+Saree+4"
+                ]
+            },
+            {
+                name: "Casual Cotton Kurta",
+                category: "Fabric",
+                subcategory: "Ladies Garments",
+                description: "Comfortable and stylish cotton kurta for daily wear. Breathable fabric with a modern design.",
+                price: 1800,
+                images: [
+                    "https://placehold.co/400x300/D1FFC1/000000?text=Cotton+Kurta+1",
+                    "https://placehold.co/400x300/C1FFD1/000000?text=Cotton+Kurta+2",
+                    "https://placehold.co/400x300/B3FFC1/000000?text=Cotton+Kurta+3"
+                ]
+            },
+            // Fabric - Girls Garments
+            {
+                name: "Girls' Party Frock",
+                category: "Fabric",
+                subcategory: "Girls Garments",
+                description: "Adorable party frock for girls, featuring a net overlay and sequin details. Available in multiple sizes.",
+                price: 3500,
+                images: [
+                    "https://placehold.co/400x300/C1D1FF/000000?text=Girls+Frock+1",
+                    "https://placehold.co/400x300/B3C1FF/000000?text=Girls+Frock+2",
+                    "https://placehold.co/400x300/A0B3FF/000000?text=Girls+Frock+3"
+                ]
+            },
+            {
+                name: "Kids' Casual Shirt",
+                category: "Fabric",
+                subcategory: "Girls Garments",
+                description: "Soft and durable casual shirt for young girls. Ideal for everyday play.",
+                price: 950,
+                images: [
+                    "https://placehold.co/400x300/DDC1FF/000000?text=Kids+Shirt+1",
+                    "https://placehold.co/400x300/C1D1FF/000000?text=Kids+Shirt+2"
+                ]
+            },
+            // Organics - GHI
+            {
+                name: "Pure Desi GHI (500g)",
+                category: "Organics",
+                subcategory: "GHI",
+                description: "100% pure, homemade desi GHI from grass-fed cows. Rich in flavor and nutrients.",
+                price: 1200,
+                images: [
+                    "https://placehold.co/400x300/FFFACD/000000?text=Desi+GHI+1",
+                    "https://placehold.co/400x300/FFEFCD/000000?text=Desi+GHI+2"
+                ]
+            },
+            // Organics - Honey
+            {
+                name: "Natural Sidr Honey (250g)",
+                category: "Organics",
+                subcategory: "Honey",
+                description: "Premium quality Sidr honey, sourced from natural beehives. Known for its medicinal properties.",
+                price: 900,
+                images: [
+                    "https://placehold.co/400x300/FFDDAA/000000?text=Sidr+Honey+1",
+                    "https://placehold.co/400x300/FFCC99/000000?text=Sidr+Honey+2",
+                    "https://placehold.co/400x300/FFBB88/000000?text=Sidr+Honey+3"
+                ]
+            },
+            // Organics - Stevia
+            {
+                name: "Organic Stevia Powder (100g)",
+                category: "Organics",
+                subcategory: "Stevia",
+                description: "Natural calorie-free sweetener derived from the stevia plant. A healthy alternative to sugar.",
+                price: 600,
+                images: [
+                    "https://placehold.co/400x300/DDFFAA/000000?text=Stevia+Powder+1",
+                    "https://placehold.co/400x300/CCEEAA/000000?text=Stevia+Powder+2"
+                ]
+            },
+            // Organics - Storage Bags
+            {
+                name: "Reusable Produce Storage Bags (Set of 5)",
+                category: "Organics",
+                subcategory: "Storage Bags",
+                description: "Eco-friendly mesh bags for storing fruits and vegetables. Keeps produce fresh longer.",
+                price: 450,
+                images: [
+                    "https://placehold.co/400x300/C1FFC1/000000?text=Storage+Bags+1",
+                    "https://placehold.co/400x300/B3FFB3/000000?text=Storage+Bags+2"
+                ]
+            },
+            // Organics - Sarsoon ka OIL
+            {
+                name: "Pure Sarsoon ka OIL (1 Liter)",
+                category: "Organics",
+                subcategory: "Sarsoon ka OIL",
+                description: "Cold-pressed mustard oil, ideal for cooking and traditional remedies. Rich in Omega-3 fatty acids.",
+                price: 850,
+                images: [
+                    "https://placehold.co/400x300/FFDDAA/000000?text=Sarsoon+Oil+1",
+                    "https://placehold.co/400x300/FFCC99/000000?text=Sarsoon+Oil+2"
+                ]
+            }
+        ];
+
+        async function addProductsToFirestore() {
+            console.log("Adding products to Firestore...");
+            for (const product of productsData) {
+                try {
+                    // Use the public data path as per instructions
+                    const docRef = await addDoc(collection(db, `artifacts/${appId}/public/data/products`), product);
+                    console.log("Document written with ID: ", docRef.id, " for product: ", product.name);
+                } catch (e) {
+                    console.error("Error adding document ", product.name, ": ", e);
+                }
+            }
+            console.log("Finished adding products.");
+        }
+
+        // Uncomment the line below and run this script once to populate your database.
+        // addProductsToFirestore();
+        */
+    </script>
+</body>
+</html>
