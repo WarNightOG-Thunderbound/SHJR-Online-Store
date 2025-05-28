@@ -1,274 +1,388 @@
-// Import Firebase functions from the global scope (set by admin.html script tag)
-const app = window.firebaseApp;
-const auth = window.firebaseAuth;
-const database = window.firebaseDatabase;
-const dbRef = window.dbRef;
-const dbOnValue = window.dbOnValue;
-const dbPush = window.dbPush;
-const dbSet = window.dbSet;
-const dbUpdate = window.dbUpdate;
-const dbRemove = window.dbRemove;
-const signInWithEmailAndPassword = window.signInWithEmailAndPassword;
-const signOut = window.signOut;
-const onAuthStateChanged = window.onAuthStateChanged;
-
-
-// Admin UI Elements
-const authSection = document.getElementById('auth-section');
-const adminDashboard = document.getElementById('admin-dashboard');
-const adminEmailInput = document.getElementById('admin-email');
-const adminPasswordInput = document.getElementById('admin-password');
-const adminLoginBtn = document.getElementById('admin-login-btn');
-const adminLogoutBtn = document.getElementById('admin-logout-btn');
-
-const productIdInput = document.getElementById('product-id');
-const productTitleInput = document.getElementById('product-title');
-const productDescriptionInput = document.getElementById('product-description');
-const productCategorySelect = document.getElementById('product-category');
-const productPriceInput = document.getElementById('product-price');
-const productImagesInput = document.getElementById('product-images');
-const productVideoInput = document.getElementById('product-video');
-const addEditProductBtn = document.getElementById('add-edit-product-btn');
-const clearFormBtn = document.getElementById('clear-form-btn');
-const productListContainer = document.getElementById('product-list-container');
-const orderListContainer = document.getElementById('order-list-container');
-
-let currentAdminUID = null; // Store the admin's UID
-
-// --- Authentication Logic ---
-adminLoginBtn.addEventListener('click', async () => {
-    const email = adminEmailInput.value;
-    const password = adminPasswordInput.value;
-
-    try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        // User is signed in, onAuthStateChanged listener will handle UI update
-        console.log('Admin logged in:', userCredential.user.email);
-    } catch (error) {
-        alert('Login failed: ' + error.message);
-        console.error('Login error:', error);
-    }
-});
-
-adminLogoutBtn.addEventListener('click', async () => {
-    try {
-        await signOut(auth);
-        console.log('Admin logged out');
-        // UI will be updated by onAuthStateChanged listener
-    } catch (error) {
-        console.error('Logout error:', error);
-    }
-});
-
-// Listen for authentication state changes
-onAuthStateChanged(auth, (user) => {
-    // IMPORTANT: Replace 'warnightog.thunderbound@gmail.com' with the actual ADMIN EMAIL if different
-    if (user && user.email === 'warnightog.thunderbound@gmail.com') {
-        currentAdminUID = user.uid; // Save admin UID
-        authSection.style.display = 'none';
-        adminDashboard.style.display = 'block';
-        loadProducts(); // Load products when admin logs in
-        loadOrders(); // Load orders when admin logs in
-        console.log("Admin UID for Firebase Rules:", currentAdminUID); // Log UID for rule configuration
-    } else {
-        currentAdminUID = null;
-        authSection.style.display = 'block';
-        adminDashboard.style.display = 'none';
-        adminEmailInput.value = 'warnightog.thunderbound@gmail.com'; // Pre-fill admin email
-        adminPasswordInput.value = '';
-        productListContainer.innerHTML = ''; // Clear product list
-        orderListContainer.innerHTML = ''; // Clear order list
-    }
-});
-
-// --- Product Management Logic ---
-function clearProductForm() {
-    productIdInput.value = '';
-    productTitleInput.value = '';
-    productDescriptionInput.value = '';
-    productCategorySelect.value = 'Fabric';
-    productPriceInput.value = '';
-    productImagesInput.value = '';
-    productVideoInput.value = '';
-    addEditProductBtn.textContent = 'Add Product';
-}
-
-clearFormBtn.addEventListener('click', clearProductForm);
-
-addEditProductBtn.addEventListener('click', async () => {
-    const id = productIdInput.value;
-    const title = productTitleInput.value.trim();
-    const description = productDescriptionInput.value.trim();
-    const category = productCategorySelect.value;
-    const price = parseFloat(productPriceInput.value);
-    const images = productImagesInput.value.split(',').map(url => url.trim()).filter(url => url !== '');
-    const videoUrl = productVideoInput.value.trim();
-
-    if (!title || !description || !category || isNaN(price) || price <= 0 || images.length === 0) {
-        alert('Please fill in all required product fields (Title, Description, Category, Price, at least one Image URL).');
-        return;
-    }
-
-    const productData = {
-        title,
-        description,
-        category,
-        price,
-        images,
-        videoUrl: videoUrl || '' // Ensure videoUrl is empty string if not provided
-    };
-
-    try {
-        if (id) {
-            // Edit existing product
-            await dbSet(dbRef(database, 'products/' + id), { id, ...productData });
-            alert('Product updated successfully!');
-        } else {
-            // Add new product
-            const newProductRef = dbPush(dbRef(database, 'products'));
-            const newProductId = newProductRef.key;
-            await dbSet(newProductRef, { id: newProductId, ...productData });
-            alert('Product added successfully!');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHJR Online Store Studio APP</title>
+    <link rel="stylesheet" href="style.css"> <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Admin specific styles */
+        body { background-color: var(--color-light-gray); } /* Using defined color variable */
+        .admin-container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 25px;
+            background-color: var(--color-white); /* Using defined color variable */
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
         }
-        clearProductForm();
-    } catch (error) {
-        alert('Error saving product: ' + error.message);
-        console.error('Product save error:', error);
-    }
-});
+        .admin-form-group {
+            margin-bottom: 15px;
+        }
+        .admin-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--color-medium-gray); /* Using defined color variable */
+        }
+        .admin-form-group input[type="text"],
+        .admin-form-group input[type="number"],
+        .admin-form-group textarea,
+        .admin-form-group select {
+            width: calc(100% - 24px); /* Account for padding */
+            padding: 12px;
+            border: 1px solid var(--color-border-light); /* Using defined color variable */
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        .admin-form-group input:focus,
+        .admin-form-group textarea:focus,
+        .admin-form-group select:focus {
+            border-color: var(--color-cyan-primary); /* Using defined color variable */
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+        }
+        .admin-button {
+            background-color: var(--color-cyan-primary); /* Using defined color variable */
+            color: var(--color-white); /* Using defined color variable */
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-top: 10px;
+            width: 100%;
+        }
+        .admin-button:hover {
+            background-color: var(--color-cyan-dark); /* Using defined color variable */
+            transform: translateY(-2px);
+        }
+        .admin-product-list {
+            margin-top: 30px;
+            border-top: 1px solid var(--color-border-light); /* Using defined color variable */
+            padding-top: 20px;
+        }
+        .admin-product-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px dashed #f0f0f0;
+        }
+        .admin-product-item:last-child {
+            border-bottom: none;
+        }
+        .admin-product-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-right: 15px;
+        }
+        .admin-product-details {
+            flex-grow: 1;
+        }
+        .admin-product-details h4 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--color-dark-gray); /* Using defined color variable */
+        }
+        .admin-product-details p {
+            margin: 5px 0 0;
+            font-size: 0.9rem;
+            color: var(--color-medium-gray); /* Using defined color variable */
+        }
+        .admin-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-left: 10px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+        .admin-actions .edit-btn {
+            color: var(--color-cyan-primary); /* Using defined color variable */
+            border: 1px solid var(--color-cyan-primary); /* Using defined color variable */
+        }
+        .admin-actions .edit-btn:hover {
+            background-color: var(--color-cyan-light); /* Using defined color variable */
+        }
+        .admin-actions .delete-btn {
+            color: var(--color-error-red); /* Using defined color variable */
+            border: 1px solid var(--color-error-red); /* Using defined color variable */
+        }
+        .admin-actions .delete-btn:hover {
+            background-color: #fce8e8;
+        }
+        .auth-section {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--color-border-light); /* Using defined color variable */
+            margin-bottom: 20px;
+        }
+        .auth-section input {
+            width: calc(100% - 24px);
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid var(--color-border-light); /* Using defined color variable */
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .admin-logout-btn {
+            background-color: var(--color-medium-gray); /* Using defined color variable */
+            color: var(--color-white); /* Using defined color variable */
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 15px;
+        }
+        .admin-logout-btn:hover {
+            background-color: #5a6268;
+        }
+        #order-management {
+            margin-top: 40px;
+        }
+        .order-item {
+            background-color: var(--color-off-white); /* Using defined color variable */
+            border: 1px solid var(--color-border-light); /* Using defined color variable */
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .order-item h4 {
+            margin-top: 0;
+            color: var(--color-cyan-primary); /* Using defined color variable */
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        .order-item p {
+            margin: 5px 0;
+            font-size: 0.95rem;
+            color: var(--color-medium-gray); /* Using defined color variable */
+        }
+        .order-item .status {
+            font-weight: bold;
+        }
+        .order-item .status.pending {
+            color: var(--color-warning-yellow); /* Using defined color variable */
+        }
+        .order-item .status.completed {
+            color: var(--color-success-green); /* Using defined color variable */
+        }
+        .order-item .status.cancelled {
+            color: var(--color-error-red); /* Using defined color variable */
+        }
+        .order-actions button {
+            background-color: var(--color-success-green); /* Using defined color variable */
+            color: var(--color-white); /* Using defined color variable */
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+        .order-actions button:hover {
+            background-color: #218838;
+        }
+        .order-actions .mark-pending {
+            background-color: var(--color-warning-yellow); /* Using defined color variable */
+        }
+        .order-actions .mark-pending:hover {
+            background-color: #e0a800;
+        }
+        .order-actions .mark-cancelled {
+            background-color: var(--color-error-red); /* Using defined color variable */
+        }
+        .order-actions .mark-cancelled:hover {
+            background-color: #c82333;
+        }
+        /* New styles for image/video upload */
+        .image-upload-group, .video-upload-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .image-upload-group input[type="file"], .video-upload-group input[type="file"] {
+            flex-grow: 0;
+            width: auto;
+            padding: 8px;
+            border: 1px solid var(--color-border-light);
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        .image-upload-group input[type="text"], .video-upload-group input[type="text"] {
+            flex-grow: 1;
+        }
+        .upload-loading {
+            display: none;
+            color: var(--color-cyan-primary);
+            font-weight: 500;
+        }
+        .product-analytics p {
+            font-size: 0.9rem;
+            color: var(--color-medium-gray);
+            margin-left: 15px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SHJR Online Store Studio APP</h1>
+    </header>
 
-// Load and display products
-function loadProducts() {
-    const productsRef = dbRef(database, 'products');
-    dbOnValue(productsRef, (snapshot) => {
-        productListContainer.innerHTML = ''; // Clear previous list
-        const products = snapshot.val();
-        if (products) {
-            // Sort products by title for better readability
-            const sortedProducts = Object.values(products).sort((a, b) => a.title.localeCompare(b.title));
+    <main class="admin-container">
+        <section id="auth-section" class="auth-section">
+            <h2>Admin Login</h2>
+            <div class="admin-form-group">
+                <label for="admin-email">Email:</label>
+                <input type="email" id="admin-email" value="warnightog.thunderbound@gmail.com" required>
+            </div>
+            <div class="admin-form-group">
+                <label for="admin-password">Password:</label>
+                <input type="password" id="admin-password" required>
+            </div>
+            <button id="admin-login-btn" class="admin-button">Login</button>
+        </section>
 
-            sortedProducts.forEach(product => {
-                const productItem = document.createElement('div');
-                productItem.classList.add('admin-product-item');
-                productItem.innerHTML = `
-                    <img src="${product.images[0] || 'https://via.placeholder.com/60'}" alt="${product.title}">
-                    <div class="admin-product-details">
-                        <h4>${product.title}</h4>
-                        <p>${product.category} - PKR ${product.price.toLocaleString()}</p>
+        <section id="admin-dashboard" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Product Management</h2>
+                <button id="admin-logout-btn" class="admin-logout-btn">Logout</button>
+            </div>
+
+            <h3>Add/Edit Product</h3>
+            <div class="admin-form-group">
+                <label for="product-id">Product ID (auto-generated for new, required for edit):</label>
+                <input type="text" id="product-id" placeholder="Leave empty for new product" disabled>
+            </div>
+            <div class="admin-form-group">
+                <label for="product-title">Title:</label>
+                <input type="text" id="product-title" required>
+            </div>
+            <div class="admin-form-group">
+                <label for="product-description">Description:</label>
+                <textarea id="product-description" rows="4" required></textarea>
+            </div>
+            <div class="admin-form-group">
+                <label for="product-category">Category:</label>
+                <select id="product-category" required>
+                    <option value="Fabric">Fabric</option>
+                    <option value="Organic">Organic</option>
+                </select>
+            </div>
+            <div class="admin-form-group">
+                <label for="product-price">Price (PKR):</label>
+                <input type="number" id="product-price" min="1" required>
+            </div>
+
+            <div class="admin-form-group">
+                <label>Product Images:</label>
+                <p style="font-size: 0.9rem; color: var(--color-medium-gray); margin-bottom: 10px;">Enter URL or Upload File (up to 5 images)</p>
+                <div class="image-upload-group">
+                    <input type="text" class="product-image-url" placeholder="Image URL 1">
+                    <input type="file" class="product-image-file" accept="image/*">
+                </div>
+                <div class="image-upload-group">
+                    <input type="text" class="product-image-url" placeholder="Image URL 2">
+                    <input type="file" class="product-image-file" accept="image/*">
+                </div>
+                <div class="image-upload-group">
+                    <input type="text" class="product-image-url" placeholder="Image URL 3">
+                    <input type="file" class="product-image-file" accept="image/*">
+                </div>
+                <div class="image-upload-group">
+                    <input type="text" class="product-image-url" placeholder="Image URL 4">
+                    <input type="file" class="product-image-file" accept="image/*">
+                </div>
+                <div class="image-upload-group">
+                    <input type="text" class="product-image-url" placeholder="Image URL 5">
+                    <input type="file" class="product-image-file" accept="image/*">
+                </div>
+                <p id="image-upload-loading" class="upload-loading">Uploading images...</p>
+            </div>
+
+            <div class="admin-form-group">
+                <label>Product Video:</label>
+                <p style="font-size: 0.9rem; color: var(--color-medium-gray); margin-bottom: 10px;">Enter YouTube URL or Direct Video URL (Optional)</p>
+                <div class="video-upload-group">
+                    <input type="text" id="product-video-url" placeholder="YouTube URL or Direct Video URL">
+                    <input type="file" id="product-video-file" accept="video/*">
+                </div>
+                <p id="video-upload-loading" class="upload-loading">Uploading video...</p>
+            </div>
+
+            <button id="add-edit-product-btn" class="admin-button">Add Product</button>
+            <button id="clear-form-btn" class="admin-button" style="background-color: var(--color-medium-gray);">Clear Form</button>
+
+            <div class="admin-product-list">
+                <h3>Current Products</h3>
+                <div id="product-list-container">
                     </div>
-                    <div class="admin-actions">
-                        <button class="edit-btn" data-id="${product.id}">Edit</button>
-                        <button class="delete-btn" data-id="${product.id}">Delete</button>
+            </div>
+
+            <section id="order-management">
+                <h3>Order Management</h3>
+                <div id="order-list-container">
                     </div>
-                `;
-                productListContainer.appendChild(productItem);
-            });
+            </section>
+        </section>
+    </main>
 
-            // Add event listeners for edit and delete buttons
-            productListContainer.querySelectorAll('.edit-btn').forEach(button => {
-                button.addEventListener('click', (e) => editProduct(e.target.dataset.id));
-            });
-            productListContainer.querySelectorAll('.delete-btn').forEach(button => {
-                button.addEventListener('click', (e) => deleteProduct(e.target.dataset.id));
-            });
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+        import { getDatabase, ref, onValue, push, set, update, remove } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js";
 
-        } else {
-            productListContainer.innerHTML = '<p>No products available.</p>';
-        }
-    });
-}
 
-async function editProduct(id) {
-    const productRef = dbRef(database, 'products/' + id);
-    // Use once() equivalent (onValue with {onlyOnce: true}) to fetch data for editing
-    dbOnValue(productRef, (snapshot) => {
-        const product = snapshot.val();
-        if (product) {
-            productIdInput.value = product.id;
-            productTitleInput.value = product.title;
-            productDescriptionInput.value = product.description;
-            productCategorySelect.value = product.category;
-            productPriceInput.value = product.price;
-            productImagesInput.value = product.images.join(', ');
-            productVideoInput.value = product.videoUrl;
-            addEditProductBtn.textContent = 'Update Product';
-        } else {
-            alert('Product not found.');
-            clearProductForm(); // Clear form if product not found
-        }
-    }, {
-        onlyOnce: true // Fetch data once for editing
-    });
-}
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAmTmPgLYBiPXMTqyTAsw5vIrs-11h7-9A",
+            authDomain: "shjr-online-store.firebaseapp.com",
+            databaseURL: "https://shjr-online-store-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "shjr-online-store",
+            storageBucket: "shjr-online-store.appspot.com",
+            messagingSenderId: "118385940927",
+            appId: "1:118385940927:web:9c34612d688ef0be93a90a",
+            measurementId: "G-BX30KRVHRY"
+        };
 
-async function deleteProduct(id) {
-    if (confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
-        try {
-            await dbRemove(dbRef(database, 'products/' + id));
-            alert('Product deleted successfully!');
-        } catch (error) {
-            alert('Error deleting product: ' + error.message);
-            console.error('Product delete error:', error);
-        }
-    }
-}
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+        const storage = getStorage(app); // Initialize Storage
 
-// --- Order Management Logic ---
-function loadOrders() {
-    const ordersRef = dbRef(database, 'orders');
-    dbOnValue(ordersRef, (snapshot) => {
-        orderListContainer.innerHTML = ''; // Clear previous list
-        const orders = snapshot.val();
-        if (orders) {
-            const sortedOrders = Object.values(orders).sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate)); // Sort by date desc
-            sortedOrders.forEach(order => {
-                const orderItem = document.createElement('div');
-                orderItem.classList.add('order-item');
-                // Display JazzCash Txn ID only if it exists and is not 'N/A'
-                const jazzCashTxnDisplay = (order.jazzCashTransactionId && order.jazzCashTransactionId !== 'N/A') ? `<p><strong>JazzCash Txn ID:</strong> ${order.jazzCashTransactionId}</p>` : '';
 
-                orderItem.innerHTML = `
-                    <h4>Order for: ${order.productTitle} (PKR ${order.productPrice.toLocaleString()})</h4>
-                    <p><strong>Order ID:</strong> ${order.id || 'N/A'}</p>
-                    <p><strong>Customer:</strong> ${order.customerName}</p>
-                    <p><strong>Phone:</strong> ${order.customerPhone}</p>
-                    <p><strong>Address:</strong> ${order.customerAddress}</p>
-                    <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
-                    ${jazzCashTxnDisplay}
-                    <p><strong>Order Date:</strong> ${new Date(order.orderDate).toLocaleString()}</p>
-                    <p><strong>Status:</strong> <span class="status ${order.status.toLowerCase().replace(' ', '-')}">${order.status}</span></p>
-                    <div class="order-actions">
-                        <button class="mark-completed" data-order-key="${order.id}">Mark Completed</button>
-                        <button class="mark-pending" data-order-key="${order.id}">Mark Pending</button>
-                        <button class="mark-cancelled" data-order-key="${order.id}">Mark Cancelled</button>
-                    </div>
-                `;
-                orderListContainer.appendChild(orderItem);
-            });
-
-            // Add event listeners for order status buttons
-            orderListContainer.querySelectorAll('.mark-completed').forEach(button => {
-                button.addEventListener('click', (e) => updateOrderStatus(e.target.dataset.orderKey, 'Completed'));
-            });
-            orderListContainer.querySelectorAll('.mark-pending').forEach(button => {
-                button.addEventListener('click', (e) => updateOrderStatus(e.target.dataset.orderKey, 'Pending'));
-            });
-            orderListContainer.querySelectorAll('.mark-cancelled').forEach(button => {
-                button.addEventListener('click', (e) => updateOrderStatus(e.target.dataset.orderKey, 'Cancelled'));
-            });
-
-        } else {
-            orderListContainer.innerHTML = '<p>No orders received yet.</p>';
-        }
-    });
-}
-
-async function updateOrderStatus(orderKey, newStatus) {
-    try {
-        await dbUpdate(dbRef(database, 'orders/' + orderKey), { status: newStatus });
-        alert(`Order ${orderKey} status updated to ${newStatus}!`);
-    } catch (error) {
-        alert('Error updating order status: ' + error.message);
-        console.error('Order status update error:', error);
-    }
-}
+        // Make Firebase instances available globally for admin.js
+        window.firebaseApp = app;
+        window.firebaseAuth = auth;
+        window.firebaseDatabase = database;
+        window.firebaseStorage = storage; // Make storage available
+        window.dbRef = ref;
+        window.dbOnValue = onValue;
+        window.dbPush = push;
+        window.dbSet = set;
+        window.dbUpdate = update;
+        window.dbRemove = remove;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.signOut = signOut;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.storageRef = storageRef; // Make storageRef available
+        window.uploadBytes = uploadBytes; // Make uploadBytes available
+        window.getDownloadURL = getDownloadURL; // Make getDownloadURL available
+    </script>
+    <script type="module" src="admin.js"></script>
+</body>
+</html>
