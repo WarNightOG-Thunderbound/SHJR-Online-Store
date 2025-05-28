@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SHJR.shop Admin</title>
-    <link rel="stylesheet" href="style.css"> <style>
+    <link rel="stylesheet" href="style.css"> <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
         /* Admin specific styles */
-        body { background-color: #e9ebee; }
+        body { background-color: var(--color-light-gray); } /* Using defined color variable */
         .admin-container {
             max-width: 800px;
             margin: 30px auto;
             padding: 25px;
-            background-color: #fff;
+            background-color: var(--color-white); /* Using defined color variable */
             border-radius: 12px;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
         }
@@ -22,7 +23,7 @@
             display: block;
             margin-bottom: 8px;
             font-weight: bold;
-            color: #555;
+            color: var(--color-medium-gray); /* Using defined color variable */
         }
         .admin-form-group input[type="text"],
         .admin-form-group input[type="number"],
@@ -30,7 +31,7 @@
         .admin-form-group select {
             width: calc(100% - 24px); /* Account for padding */
             padding: 12px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--color-border-light); /* Using defined color variable */
             border-radius: 8px;
             font-size: 1rem;
             transition: border-color 0.2s;
@@ -38,13 +39,13 @@
         .admin-form-group input:focus,
         .admin-form-group textarea:focus,
         .admin-form-group select:focus {
-            border-color: #007bff;
+            border-color: var(--color-cyan-primary); /* Using defined color variable */
             outline: none;
             box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
         }
         .admin-button {
-            background-color: #007bff;
-            color: white;
+            background-color: var(--color-cyan-primary); /* Using defined color variable */
+            color: var(--color-white); /* Using defined color variable */
             padding: 12px 25px;
             border: none;
             border-radius: 8px;
@@ -56,12 +57,12 @@
             width: 100%;
         }
         .admin-button:hover {
-            background-color: #0056b3;
+            background-color: var(--color-cyan-dark); /* Using defined color variable */
             transform: translateY(-2px);
         }
         .admin-product-list {
             margin-top: 30px;
-            border-top: 1px solid #eee;
+            border-top: 1px solid var(--color-border-light); /* Using defined color variable */
             padding-top: 20px;
         }
         .admin-product-item {
@@ -87,12 +88,12 @@
         .admin-product-details h4 {
             margin: 0;
             font-size: 1.1rem;
-            color: #333;
+            color: var(--color-dark-gray); /* Using defined color variable */
         }
         .admin-product-details p {
             margin: 5px 0 0;
             font-size: 0.9rem;
-            color: #777;
+            color: var(--color-medium-gray); /* Using defined color variable */
         }
         .admin-actions button {
             background: none;
@@ -105,15 +106,15 @@
             transition: background-color 0.2s;
         }
         .admin-actions .edit-btn {
-            color: #007bff;
-            border: 1px solid #007bff;
+            color: var(--color-cyan-primary); /* Using defined color variable */
+            border: 1px solid var(--color-cyan-primary); /* Using defined color variable */
         }
         .admin-actions .edit-btn:hover {
-            background-color: #e7f3ff;
+            background-color: var(--color-cyan-light); /* Using defined color variable */
         }
         .admin-actions .delete-btn {
-            color: #dc3545;
-            border: 1px solid #dc3545;
+            color: var(--color-error-red); /* Using defined color variable */
+            border: 1px solid var(--color-error-red); /* Using defined color variable */
         }
         .admin-actions .delete-btn:hover {
             background-color: #fce8e8;
@@ -121,20 +122,20 @@
         .auth-section {
             text-align: center;
             padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--color-border-light); /* Using defined color variable */
             margin-bottom: 20px;
         }
         .auth-section input {
             width: calc(100% - 24px);
             padding: 12px;
             margin-bottom: 10px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--color-border-light); /* Using defined color variable */
             border-radius: 8px;
             font-size: 1rem;
         }
         .admin-logout-btn {
-            background-color: #6c757d;
-            color: white;
+            background-color: var(--color-medium-gray); /* Using defined color variable */
+            color: var(--color-white); /* Using defined color variable */
             padding: 10px 20px;
             border: none;
             border-radius: 8px;
@@ -149,8 +150,8 @@
             margin-top: 40px;
         }
         .order-item {
-            background-color: #f8f9fa;
-            border: 1px solid #e0e0e0;
+            background-color: var(--color-off-white); /* Using defined color variable */
+            border: 1px solid var(--color-border-light); /* Using defined color variable */
             border-radius: 8px;
             padding: 15px;
             margin-bottom: 15px;
@@ -158,31 +159,30 @@
         }
         .order-item h4 {
             margin-top: 0;
-            color: #007bff;
+            color: var(--color-cyan-primary); /* Using defined color variable */
             font-size: 1.2rem;
             margin-bottom: 10px;
         }
         .order-item p {
             margin: 5px 0;
             font-size: 0.95rem;
-            color: #555;
+            color: var(--color-medium-gray); /* Using defined color variable */
         }
         .order-item .status {
             font-weight: bold;
-            color: #28a745;
         }
         .order-item .status.pending {
-            color: #ffc107;
+            color: var(--color-warning-yellow); /* Using defined color variable */
         }
         .order-item .status.completed {
-            color: #28a745;
+            color: var(--color-success-green); /* Using defined color variable */
         }
         .order-item .status.cancelled {
-            color: #dc3545;
+            color: var(--color-error-red); /* Using defined color variable */
         }
         .order-actions button {
-            background-color: #28a745;
-            color: white;
+            background-color: var(--color-success-green); /* Using defined color variable */
+            color: var(--color-white); /* Using defined color variable */
             border: none;
             padding: 8px 15px;
             border-radius: 5px;
@@ -195,13 +195,13 @@
             background-color: #218838;
         }
         .order-actions .mark-pending {
-            background-color: #ffc107;
+            background-color: var(--color-warning-yellow); /* Using defined color variable */
         }
         .order-actions .mark-pending:hover {
             background-color: #e0a800;
         }
         .order-actions .mark-cancelled {
-            background-color: #dc3545;
+            background-color: var(--color-error-red); /* Using defined color variable */
         }
         .order-actions .mark-cancelled:hover {
             background-color: #c82333;
@@ -267,7 +267,7 @@
                 <input type="text" id="product-video" placeholder="https://example.com/video.mp4">
             </div>
             <button id="add-edit-product-btn" class="admin-button">Add Product</button>
-            <button id="clear-form-btn" class="admin-button" style="background-color: #6c757d;">Clear Form</button>
+            <button id="clear-form-btn" class="admin-button" style="background-color: var(--color-medium-gray);">Clear Form</button>
 
             <div class="admin-product-list">
                 <h3>Current Products</h3>
