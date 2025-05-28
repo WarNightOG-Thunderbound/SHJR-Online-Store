@@ -289,13 +289,18 @@ function displayProductsList(productsToDisplay) {
         const sortedProducts = productsArray.sort((a, b) => a.title.localeCompare(b.title));
 
         sortedProducts.forEach(product => {
+            // Ensure product.price is a number before calling toLocaleString()
+            const displayPrice = typeof product.price === 'number' ? product.price.toLocaleString() : 'N/A';
+            const displayStock = typeof product.stock === 'number' ? product.stock : 'N/A';
+            const displayImage = product.images && product.images[0] ? product.images[0] : 'https://via.placeholder.com/60';
+
             const productItem = document.createElement('div');
             productItem.classList.add('admin-product-item');
             productItem.innerHTML = `
-                <img src="${product.images[0] || 'https://via.placeholder.com/60'}" alt="${product.title}">
+                <img src="${displayImage}" alt="${product.title || 'Product Image'}">
                 <div class="admin-product-details">
-                    <h4>${product.title}</h4>
-                    <p>${product.category} - PKR ${product.price.toLocaleString()} | Stock: ${product.stock || 0} | Status: ${product.isActive ? 'Active' : 'Inactive'}</p>
+                    <h4>${product.title || 'No Title'}</h4>
+                    <p>${product.category || 'N/A'} - PKR ${displayPrice} | Stock: ${displayStock} | Status: ${product.isActive ? 'Active' : 'Inactive'}</p>
                     <p class="product-analytics">Views: ${product.views || 0}</p>
                 </div>
                 <div class="admin-actions">
@@ -374,7 +379,7 @@ productSearchInput.addEventListener('input', () => {
 
     // First, search by title
     productsArray.forEach(product => {
-        if (product.title.toLowerCase().includes(query)) {
+        if (product.title && product.title.toLowerCase().includes(query)) {
             filteredProducts[product.id] = product;
         }
     });
@@ -382,7 +387,7 @@ productSearchInput.addEventListener('input', () => {
     // If no title match, search by description
     if (Object.keys(filteredProducts).length === 0) {
         productsArray.forEach(product => {
-            if (product.description.toLowerCase().includes(query)) {
+            if (product.description && product.description.toLowerCase().includes(query)) {
                 filteredProducts[product.id] = product;
             }
         });
@@ -408,16 +413,20 @@ function loadOrders() {
                 orderItem.classList.add('order-item');
                 const jazzCashTxnDisplay = (order.jazzCashTransactionId && order.jazzCashTransactionId !== 'N/A') ? `<p><strong>JazzCash Txn ID:</strong> ${order.jazzCashTransactionId}</p>` : '';
 
+                const displayProductPrice = typeof order.productPrice === 'number' ? order.productPrice.toLocaleString() : 'N/A';
+                const displayOrderId = order.id || 'N/A';
+                const displayOrderDate = order.orderDate ? new Date(order.orderDate).toLocaleString() : 'N/A';
+
                 orderItem.innerHTML = `
-                    <h4>Order for: ${order.productTitle} (PKR ${order.productPrice.toLocaleString()})</h4>
-                    <p><strong>Order ID:</strong> ${order.id || 'N/A'}</p>
-                    <p><strong>Customer:</strong> ${order.customerName}</p>
-                    <p><strong>Phone:</strong> ${order.customerPhone}</p>
-                    <p><strong>Address:</strong> ${order.customerAddress}</p>
-                    <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
+                    <h4>Order for: ${order.productTitle || 'N/A'} (PKR ${displayProductPrice})</h4>
+                    <p><strong>Order ID:</strong> ${displayOrderId}</p>
+                    <p><strong>Customer:</strong> ${order.customerName || 'N/A'}</p>
+                    <p><strong>Phone:</strong> ${order.customerPhone || 'N/A'}</p>
+                    <p><strong>Address:</strong> ${order.customerAddress || 'N/A'}</p>
+                    <p><strong>Payment Method:</strong> ${order.paymentMethod || 'N/A'}</p>
                     ${jazzCashTxnDisplay}
-                    <p><strong>Order Date:</strong> ${new Date(order.orderDate).toLocaleString()}</p>
-                    <p><strong>Status:</strong> <span class="status ${order.status.toLowerCase().replace(' ', '-')}">${order.status}</span></p>
+                    <p><strong>Order Date:</strong> ${displayOrderDate}</p>
+                    <p><strong>Status:</strong> <span class="status ${order.status ? order.status.toLowerCase().replace(' ', '-') : 'N/A'}">${order.status || 'N/A'}</span></p>
                     <div class="order-actions">
                         <button class="mark-done" data-order-key="${order.id}">Done</button>
                         <button class="mark-cancelled" data-order-key="${order.id}">Cancel</button>
@@ -462,16 +471,20 @@ function loadDoneOrders() {
                 orderItem.classList.add('order-item');
                 const jazzCashTxnDisplay = (order.jazzCashTransactionId && order.jazzCashTransactionId !== 'N/A') ? `<p><strong>JazzCash Txn ID:</strong> ${order.jazzCashTransactionId}</p>` : '';
 
+                const displayProductPrice = typeof order.productPrice === 'number' ? order.productPrice.toLocaleString() : 'N/A';
+                const displayOrderId = order.id || 'N/A';
+                const displayOrderDate = order.orderDate ? new Date(order.orderDate).toLocaleString() : 'N/A';
+
                 orderItem.innerHTML = `
-                    <h4>Order for: ${order.productTitle} (PKR ${order.productPrice.toLocaleString()})</h4>
-                    <p><strong>Order ID:</strong> ${order.id || 'N/A'}</p>
-                    <p><strong>Customer:</strong> ${order.customerName}</p>
-                    <p><strong>Phone:</strong> ${order.customerPhone}</p>
-                    <p><strong>Address:</strong> ${order.customerAddress}</p>
-                    <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
+                    <h4>Order for: ${order.productTitle || 'N/A'} (PKR ${displayProductPrice})</h4>
+                    <p><strong>Order ID:</strong> ${displayOrderId}</p>
+                    <p><strong>Customer:</strong> ${order.customerName || 'N/A'}</p>
+                    <p><strong>Phone:</strong> ${order.customerPhone || 'N/A'}</p>
+                    <p><strong>Address:</strong> ${order.customerAddress || 'N/A'}</p>
+                    <p><strong>Payment Method:</strong> ${order.paymentMethod || 'N/A'}</p>
                     ${jazzCashTxnDisplay}
-                    <p><strong>Order Date:</strong> ${new Date(order.orderDate).toLocaleString()}</p>
-                    <p><strong>Status:</strong> <span class="status completed">${order.status}</span></p>
+                    <p><strong>Order Date:</strong> ${displayOrderDate}</p>
+                    <p><strong>Status:</strong> <span class="status completed">${order.status || 'N/A'}</span></p>
                 `;
                 doneOrderListContainer.appendChild(orderItem);
                 completedCount++;
