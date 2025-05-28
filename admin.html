@@ -491,29 +491,13 @@
         if (window.hasFirebaseStorage) {
             storage = getStorage(app); // Initialize Storage only if available
             window.firebaseStorage = storage;
-            window.storageRef = storageRef;
-            window.uploadBytes = uploadBytes;
-            window.getDownloadURL = getDownloadURL;
+            // No need to expose storageRef, uploadBytes, getDownloadURL globally as admin.js will import them directly.
         }
 
-
-        // Make Firebase instances and functions available globally for admin.js
+        // Expose core Firebase instances globally for admin.js to use
         window.firebaseApp = app;
-        window.firebaseAuth = auth;
-        window.firebaseDatabase = database;
-        window.dbRef = ref;
-        window.dbOnValue = onValue;
-        window.dbPush = push;
-        window.dbSet = set;
-        window.dbUpdate = update;
-        window.dbRemove = remove;
-
-        // Explicitly pass auth functions
-        window.firebaseAuthFunctions = {
-            signInWithEmailAndPassword: signInWithEmailAndPassword,
-            signOut: signOut,
-            onAuthStateChanged: onAuthStateChanged
-        };
+        window.firebaseAuthInstance = auth; // Renamed to avoid conflict with 'auth' function
+        window.firebaseDatabaseInstance = database; // Renamed to avoid conflict with 'database' function
 
     </script>
     <script type="module" src="admin.js"></script>
