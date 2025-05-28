@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SHJR.shop</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
@@ -46,28 +47,13 @@
     <div id="order-modal" class="modal">
         <div class="modal-content">
             <span class="close-button">&times;</span>
-            <h3>Choose Payment Method</h3>
-            <div class="payment-options">
-                <button id="cash-on-delivery-button" class="payment-button">Cash on Delivery</button>
-                <button id="jazzcash-button" class="payment-button">JazzCash</button>
-            </div>
-            <div id="cod-form" class="payment-form" style="display: none;">
-                <h4>Cash on Delivery Details</h4>
-                <input type="text" id="cod-name" placeholder="Your Name" required>
-                <input type="tel" id="cod-phone" placeholder="Your Phone Number" required>
-                <textarea id="cod-address" placeholder="Your Delivery Address" required></textarea>
-                <button id="confirm-cod-order" class="confirm-order-button">Confirm Order</button>
-            </div>
-            <div id="jazzcash-form" class="payment-form" style="display: none;">
-                <h4>JazzCash Payment (Simulated)</h4>
-                <p>Please transfer the amount to **03344148636**.</p>
-                <p>Total amount: <span id="jazzcash-amount"></span></p>
-                <input type="text" id="jazzcash-transaction-id" placeholder="Enter JazzCash Transaction ID" required>
-                <input type="text" id="jazzcash-name" placeholder="Your Name" required>
-                <input type="tel" id="jazzcash-phone" placeholder="Your Phone Number" required>
-                <textarea id="jazzcash-address" placeholder="Your Delivery Address" required></textarea>
-                <button id="confirm-jazzcash-order" class="confirm-order-button">Confirm Order</button>
-                <p class="jazzcash-note">**Note:** This is a simulated payment. In a real scenario, this would involve a server-side integration with JazzCash API.</p>
+            <h3>Cash on Delivery</h3>
+            <div id="cod-form" class="payment-form">
+                <h4>Please provide your delivery details:</h4>
+                <input type="text" id="cod-name" placeholder="Your Full Name" required>
+                <input type="tel" id="cod-phone" placeholder="Your Phone Number (e.g., 03XX-XXXXXXX)" required>
+                <textarea id="cod-address" placeholder="Your Delivery Address" rows="3" required></textarea>
+                <button id="confirm-cod-order" class="confirm-order-button">Confirm Order (Cash on Delivery)</button>
             </div>
         </div>
     </div>
