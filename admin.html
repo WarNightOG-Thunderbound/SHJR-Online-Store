@@ -372,7 +372,7 @@
                     <select id="product-category" required>
                         <option value="Fabric">Fabric</option>
                         <option value="Organic">Organic</option>
-                    </select>
+                        <option value="Other Brands">Other Brands</option> </select>
                 </div>
                 <div class="admin-form-group">
                     <label for="product-price">Price (PKR):</label>
@@ -497,7 +497,7 @@
         }
 
 
-        // Make Firebase instances available globally for admin.js
+        // Make Firebase instances and functions available globally for admin.js
         window.firebaseApp = app;
         window.firebaseAuth = auth;
         window.firebaseDatabase = database;
@@ -507,9 +507,13 @@
         window.dbSet = set;
         window.dbUpdate = update;
         window.dbRemove = remove;
-        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
-        window.signOut = signOut;
-        window.onAuthStateChanged = onAuthStateChanged;
+
+        // Explicitly pass auth functions
+        window.firebaseAuthFunctions = {
+            signInWithEmailAndPassword: signInWithEmailAndPassword,
+            signOut: signOut,
+            onAuthStateChanged: onAuthStateChanged
+        };
 
     </script>
     <script type="module" src="admin.js"></script>
