@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHJR.shop Admin</title>
+    <title>SHJR Online Store Studio APP</title>
     <link rel="stylesheet" href="style.css"> <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* Admin specific styles */
@@ -206,12 +206,39 @@
         .order-actions .mark-cancelled:hover {
             background-color: #c82333;
         }
-
+        /* New styles for image/video upload */
+        .image-upload-group, .video-upload-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .image-upload-group input[type="file"], .video-upload-group input[type="file"] {
+            flex-grow: 0;
+            width: auto;
+            padding: 8px;
+            border: 1px solid var(--color-border-light);
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        .image-upload-group input[type="text"], .video-upload-group input[type="text"] {
+            flex-grow: 1;
+        }
+        .upload-loading {
+            display: none;
+            color: var(--color-cyan-primary);
+            font-weight: 500;
+        }
+        .product-analytics p {
+            font-size: 0.9rem;
+            color: var(--color-medium-gray);
+            margin-left: 15px;
+        }
     </style>
 </head>
 <body>
     <header>
-        <h1>SHJR.shop Admin Panel</h1>
+        <h1>SHJR Online Store Studio APP</h1>
     </header>
 
     <main class="admin-container">
@@ -258,14 +285,43 @@
                 <label for="product-price">Price (PKR):</label>
                 <input type="number" id="product-price" min="1" required>
             </div>
+
             <div class="admin-form-group">
-                <label for="product-images">Image URLs (comma-separated):</label>
-                <textarea id="product-images" rows="3" placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg"></textarea>
+                <label>Product Images:</label>
+                <p style="font-size: 0.9rem; color: var(--color-medium-gray); margin-bottom: 10px;">Enter URL or Upload File (up to 5 images)</p>
+                <div class="image-upload-group">
+                    <input type="text" class="product-image-url" placeholder="Image URL 1">
+                    <input type="file" class="product-image-file" accept="image/*">
+                </div>
+                <div class="image-upload-group">
+                    <input type="text" class="product-image-url" placeholder="Image URL 2">
+                    <input type="file" class="product-image-file" accept="image/*">
+                </div>
+                <div class="image-upload-group">
+                    <input type="text" class="product-image-url" placeholder="Image URL 3">
+                    <input type="file" class="product-image-file" accept="image/*">
+                </div>
+                <div class="image-upload-group">
+                    <input type="text" class="product-image-url" placeholder="Image URL 4">
+                    <input type="file" class="product-image-file" accept="image/*">
+                </div>
+                <div class="image-upload-group">
+                    <input type="text" class="product-image-url" placeholder="Image URL 5">
+                    <input type="file" class="product-image-file" accept="image/*">
+                </div>
+                <p id="image-upload-loading" class="upload-loading">Uploading images...</p>
             </div>
+
             <div class="admin-form-group">
-                <label for="product-video">Video URL (optional):</label>
-                <input type="text" id="product-video" placeholder="https://example.com/video.mp4">
+                <label>Product Video:</label>
+                <p style="font-size: 0.9rem; color: var(--color-medium-gray); margin-bottom: 10px;">Enter YouTube URL or Direct Video URL (Optional)</p>
+                <div class="video-upload-group">
+                    <input type="text" id="product-video-url" placeholder="YouTube URL or Direct Video URL">
+                    <input type="file" id="product-video-file" accept="video/*">
+                </div>
+                <p id="video-upload-loading" class="upload-loading">Uploading video...</p>
             </div>
+
             <button id="add-edit-product-btn" class="admin-button">Add Product</button>
             <button id="clear-form-btn" class="admin-button" style="background-color: var(--color-medium-gray);">Clear Form</button>
 
@@ -287,6 +343,8 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
         import { getDatabase, ref, onValue, push, set, update, remove } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js";
+
 
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -304,11 +362,14 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const database = getDatabase(app);
+        const storage = getStorage(app); // Initialize Storage
+
 
         // Make Firebase instances available globally for admin.js
         window.firebaseApp = app;
         window.firebaseAuth = auth;
         window.firebaseDatabase = database;
+        window.firebaseStorage = storage; // Make storage available
         window.dbRef = ref;
         window.dbOnValue = onValue;
         window.dbPush = push;
@@ -318,6 +379,9 @@
         window.signInWithEmailAndPassword = signInWithEmailAndPassword;
         window.signOut = signOut;
         window.onAuthStateChanged = onAuthStateChanged;
+        window.storageRef = storageRef; // Make storageRef available
+        window.uploadBytes = uploadBytes; // Make uploadBytes available
+        window.getDownloadURL = getDownloadURL; // Make getDownloadURL available
     </script>
     <script type="module" src="admin.js"></script>
 </body>
