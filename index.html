@@ -25,11 +25,14 @@
                 <div class="category-list">
                     <button class="category-button" data-category="Fabric">Fabric</button>
                     <button class="category-button" data-category="Organic">Organic</button>
-                </div>
+                    <button class="category-button active" data-category="All">All Products</button> </div>
             </section>
 
             <section class="product-listing">
-                <h2>Products</h2>
+                <h2>Our Collection</h2>
+                <div class="public-search-bar">
+                    <input type="text" id="product-search-input-public" placeholder="Search products by title or description...">
+                </div>
                 <div id="product-container" class="product-grid">
                     </div>
             </section>
@@ -60,7 +63,7 @@
             <p>At SHJR.shop, we are passionate about delivering exceptional quality and sustainable choices directly to you. We specialize in two core categories: premium fabrics and organic products.</p>
             <p>Our fabric collection features a diverse range of textures, colors, and patterns, perfect for all your creative projects, fashion needs, or home decor. We meticulously select each fabric to ensure durability, comfort, and aesthetic appeal.</p>
             <p>In our organic section, you'll discover a curated selection of environmentally friendly and health-conscious items. We are committed to supporting sustainable practices and offering products that are good for you and the planet.</p>
-            <p>Customer satisfaction is our top priority. We strive to provide a seamless shopping experience, from browsing our collection to receiving your order. Thank you for choosing SHJR.shop!</p>
+            <p>Customer satisfaction is our top priority. We strive to provide a seamless shopping experience, from Browse our collection to receiving your order. Thank you for choosing SHJR.shop!</p>
         </section>
     </main>
 
@@ -71,9 +74,10 @@
                 <h3 id="modal-product-title"></h3>
                 <div class="product-media">
                     <div id="modal-product-images" class="image-gallery"></div>
-                    <div id="modal-video-container"></div> </div>
+                    <div id="modal-video-container"></div>
+                </div>
                 <p id="modal-product-description"></p>
-                <p class="product-price" id="modal-product-price"></p>
+                <p class="product-stock" id="modal-product-stock-status"></p> <p class="product-price" id="modal-product-price"></p>
                 <button id="place-order-button" class="place-order-button">Place Order</button>
             </div>
         </div>
