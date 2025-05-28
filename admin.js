@@ -62,13 +62,14 @@ adminLogoutBtn.addEventListener('click', async () => {
 
 // Listen for authentication state changes
 onAuthStateChanged(auth, (user) => {
-    if (user && user.email === 'warnightog.thunderbound@gmail.com') { // ONLY allow this specific email
+    // IMPORTANT: Replace 'warnightog.thunderbound@gmail.com' with the actual ADMIN EMAIL if different
+    if (user && user.email === 'warnightog.thunderbound@gmail.com') {
         currentAdminUID = user.uid; // Save admin UID
         authSection.style.display = 'none';
         adminDashboard.style.display = 'block';
         loadProducts(); // Load products when admin logs in
         loadOrders(); // Load orders when admin logs in
-        console.log("Admin UID:", currentAdminUID); // Log UID for rule configuration
+        console.log("Admin UID for Firebase Rules:", currentAdminUID); // Log UID for rule configuration
     } else {
         currentAdminUID = null;
         authSection.style.display = 'block';
@@ -96,8 +97,8 @@ clearFormBtn.addEventListener('click', clearProductForm);
 
 addEditProductBtn.addEventListener('click', async () => {
     const id = productIdInput.value;
-    const title = productTitleInput.value;
-    const description = productDescriptionInput.value;
+    const title = productTitleInput.value.trim();
+    const description = productDescriptionInput.value.trim();
     const category = productCategorySelect.value;
     const price = parseFloat(productPriceInput.value);
     const images = productImagesInput.value.split(',').map(url => url.trim()).filter(url => url !== '');
@@ -143,8 +144,10 @@ function loadProducts() {
         productListContainer.innerHTML = ''; // Clear previous list
         const products = snapshot.val();
         if (products) {
-            Object.keys(products).forEach(key => {
-                const product = products[key];
+            // Sort products by title for better readability
+            const sortedProducts = Object.values(products).sort((a, b) => a.title.localeCompare(b.title));
+
+            sortedProducts.forEach(product => {
                 const productItem = document.createElement('div');
                 productItem.classList.add('admin-product-item');
                 productItem.innerHTML = `
@@ -177,6 +180,7 @@ function loadProducts() {
 
 async function editProduct(id) {
     const productRef = dbRef(database, 'products/' + id);
+    // Use once() equivalent (onValue with {onlyOnce: true}) to fetch data for editing
     dbOnValue(productRef, (snapshot) => {
         const product = snapshot.val();
         if (product) {
@@ -190,6 +194,7 @@ async function editProduct(id) {
             addEditProductBtn.textContent = 'Update Product';
         } else {
             alert('Product not found.');
+            clearProductForm(); // Clear form if product not found
         }
     }, {
         onlyOnce: true // Fetch data once for editing
@@ -197,7 +202,7 @@ async function editProduct(id) {
 }
 
 async function deleteProduct(id) {
-    if (confirm('Are you sure you want to delete this product?')) {
+    if (confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
         try {
             await dbRemove(dbRef(database, 'products/' + id));
             alert('Product deleted successfully!');
@@ -219,19 +224,23 @@ function loadOrders() {
             sortedOrders.forEach(order => {
                 const orderItem = document.createElement('div');
                 orderItem.classList.add('order-item');
+                // Display JazzCash Txn ID only if it exists and is not 'N/A'
+                const jazzCashTxnDisplay = (order.jazzCashTransactionId && order.jazzCashTransactionId !== 'N/A') ? `<p><strong>JazzCash Txn ID:</strong> ${order.jazzCashTransactionId}</p>` : '';
+
                 orderItem.innerHTML = `
                     <h4>Order for: ${order.productTitle} (PKR ${order.productPrice.toLocaleString()})</h4>
+                    <p><strong>Order ID:</strong> ${order.id || 'N/A'}</p>
                     <p><strong>Customer:</strong> ${order.customerName}</p>
                     <p><strong>Phone:</strong> ${order.customerPhone}</p>
                     <p><strong>Address:</strong> ${order.customerAddress}</p>
                     <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
-                    ${order.jazzCashTransactionId && order.jazzCashTransactionId !== 'N/A' ? `<p><strong>JazzCash Txn ID:</strong> ${order.jazzCashTransactionId}</p>` : ''}
+                    ${jazzCashTxnDisplay}
                     <p><strong>Order Date:</strong> ${new Date(order.orderDate).toLocaleString()}</p>
                     <p><strong>Status:</strong> <span class="status ${order.status.toLowerCase().replace(' ', '-')}">${order.status}</span></p>
                     <div class="order-actions">
-                        <button class="mark-completed" data-id="${order.productId}" data-order-key="${order.id}">Mark Completed</button>
-                        <button class="mark-pending" data-id="${order.productId}" data-order-key="${order.id}">Mark Pending</button>
-                        <button class="mark-cancelled" data-id="${order.productId}" data-order-key="${order.id}">Mark Cancelled</button>
+                        <button class="mark-completed" data-order-key="${order.id}">Mark Completed</button>
+                        <button class="mark-pending" data-order-key="${order.id}">Mark Pending</button>
+                        <button class="mark-cancelled" data-order-key="${order.id}">Mark Cancelled</button>
                     </div>
                 `;
                 orderListContainer.appendChild(orderItem);
@@ -263,6 +272,3 @@ async function updateOrderStatus(orderKey, newStatus) {
         console.error('Order status update error:', error);
     }
 }
-
-// Initial check for admin login state on page load
-// The onAuthStateChanged listener will handle showing/hiding the dashboard.
