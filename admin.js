@@ -8,9 +8,10 @@ const dbPush = window.dbPush;
 const dbSet = window.dbSet;
 const dbUpdate = window.dbUpdate;
 const dbRemove = window.dbRemove;
-const signInWithEmailAndPassword = window.signInWithEmailAndPassword;
-const signOut = window.signOut;
-const onAuthStateChanged = window.onAuthStateChanged;
+
+// Get auth functions from the explicitly passed global object
+const { signInWithEmailAndPassword, signOut, onAuthStateChanged } = window.firebaseAuthFunctions;
+
 
 // Conditionally import storage related functions
 const hasFirebaseStorage = window.hasFirebaseStorage;
@@ -434,15 +435,17 @@ function loadOrders() {
                 button.addEventListener('click', (e) => handleOrderAction(e.target.dataset.orderKey, 'Done'));
             });
             orderListContainer.querySelectorAll('.mark-cancelled').forEach(button => {
-                button.addEventListener('click', (e) => handleOrderAction(e.target.dataset.order-key, 'Cancel'));
+                button.addEventListener('click', (e) => handleOrderAction(e.target.dataset.orderKey, 'Cancel'));
             });
 
         } else {
             orderListContainer.innerHTML = '<p>No pending/active orders.</p>';
         }
         pendingOrdersStat.textContent = pendingCount;
-        cancelledOrdersStat.textContent = cancelledCount;
-        updateDashboardStats(); // Update dashboard after loading orders
+        // The cancelledCount is updated here, but the 'Cancelled' status is handled by removal.
+        // It's more accurate to count actual 'Cancelled' orders if they were to remain in 'orders'
+        // For now, it will reflect orders that were explicitly marked 'Cancelled' *before* removal.
+        updateDashboardStats();
     });
 }
 
@@ -478,7 +481,7 @@ function loadDoneOrders() {
             doneOrderListContainer.innerHTML = '<p>No completed orders yet.</p>';
         }
         completedOrdersStat.textContent = completedCount;
-        updateDashboardStats(); // Update dashboard after loading done orders
+        updateDashboardStats();
     });
 }
 
