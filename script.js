@@ -60,19 +60,27 @@ function displayProducts(productsToDisplay) {
 
     productsArray.forEach(product => {
         // Only display active products
-        if (!product.isActive) {
+        if (product.isActive === false) { // Explicitly check for false, as undefined/true should display
             return;
         }
 
         const productCard = document.createElement('div');
         productCard.classList.add('product-card');
         productCard.dataset.productId = product.id; // Store product ID for easy access
+
+        // Ensure product.images[0] exists, otherwise use placeholder
+        const imageUrl = (product.images && product.images[0]) ? product.images[0] : 'https://via.placeholder.com/200';
+        const productTitle = product.title || 'No Title';
+        const productDescription = product.description ? product.description.substring(0, 100) + '...' : 'No description available.';
+        const productPrice = typeof product.price === 'number' ? product.price.toLocaleString() : 'N/A';
+
+
         productCard.innerHTML = `
-            <img src="${product.images[0] || 'https://via.placeholder.com/200'}" alt="${product.title}">
+            <img src="${imageUrl}" alt="${productTitle}">
             <div class="product-info">
-                <h3>${product.title}</h3>
-                <p>${product.description.substring(0, 100)}...</p>
-                <p class="price">PKR ${product.price.toLocaleString()}</p>
+                <h3>${productTitle}</h3>
+                <p>${productDescription}</p>
+                <p class="price">PKR ${productPrice}</p>
             </div>
         `;
         productCard.addEventListener('click', () => openProductModal(product));
@@ -129,7 +137,7 @@ productSearchInputPublic.addEventListener('input', () => {
 
     // First, search by title
     productsArray.forEach(product => {
-        if (product.title.toLowerCase().includes(query)) {
+        if (product.title && product.title.toLowerCase().includes(query)) {
             filteredProducts[product.id] = product;
         }
     });
@@ -137,7 +145,7 @@ productSearchInputPublic.addEventListener('input', () => {
     // If no title match, search by description among products not yet matched by title
     if (Object.keys(filteredProducts).length === 0) {
         productsArray.forEach(product => {
-            if (product.description.toLowerCase().includes(query)) {
+            if (product.description && product.description.toLowerCase().includes(query)) {
                 filteredProducts[product.id] = product;
             }
         });
@@ -150,9 +158,9 @@ productSearchInputPublic.addEventListener('input', () => {
 // --- Open Product Modal ---
 function openProductModal(product) {
     currentProduct = product; // Set the current product for order placement
-    document.getElementById('modal-product-title').textContent = product.title;
-    document.getElementById('modal-product-description').textContent = product.description;
-    document.getElementById('modal-product-price').textContent = `PKR ${product.price.toLocaleString()}`;
+    document.getElementById('modal-product-title').textContent = product.title || 'Product Details';
+    document.getElementById('modal-product-description').textContent = product.description || 'No description available.';
+    document.getElementById('modal-product-price').textContent = `PKR ${typeof product.price === 'number' ? product.price.toLocaleString() : 'N/A'}`;
 
     // Display stock status
     if (product.stock > 0) {
@@ -173,22 +181,27 @@ function openProductModal(product) {
     // Increment product views (for basic analytics)
     if (product.id) {
         const productViewsRef = ref(database, `products/${product.id}/views`);
-        // Use a transaction to safely increment the counter
+        // Use onValue with onlyOnce to get current value, then set the new value
         onValue(productViewsRef, (snapshot) => {
             const currentViews = snapshot.val() || 0;
-            update(productViewsRef, currentViews + 1);
+            set(productViewsRef, currentViews + 1); // Use set to update the value directly
         }, { onlyOnce: true });
     }
 
     // Display images
     const imageGallery = document.getElementById('modal-product-images');
     imageGallery.innerHTML = ''; // Clear previous images
-    product.images.forEach(imageUrl => {
-        const img = document.createElement('img');
-        img.src = imageUrl;
-        img.alt = product.title;
-        imageGallery.appendChild(img);
-    });
+    if (product.images && product.images.length > 0) {
+        product.images.forEach(imageUrl => {
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.alt = product.title || 'Product Image';
+            imageGallery.appendChild(img);
+        });
+    } else {
+        imageGallery.innerHTML = '<img src="https://via.placeholder.com/200" alt="No Image Available">';
+    }
+
 
     // Display video (YouTube or direct URL)
     modalVideoContainer.innerHTML = ''; // Clear previous video content
@@ -292,9 +305,9 @@ async function placeOrder(paymentMethod, customerDetails) {
             status: "Pending" // Initial status for COD
         });
 
-        // Decrement stock
+        // Decrement stock using set()
         const productStockRef = ref(database, `products/${currentProduct.id}/stock`);
-        await update(productStockRef, currentProduct.stock - 1);
+        await set(productStockRef, currentProduct.stock - 1); // Use set to update the value directly
 
 
         alert(`Order for "${currentProduct.title}" placed successfully! We will contact you soon for delivery.`);
