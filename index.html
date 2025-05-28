@@ -3,162 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHJR Online Store</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <title>SHJR.shop</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="logo">SHJR.shop</div>
-        <div class="nav-icons">
-            <i class="fas fa-search"></i>
-            <i class="fas fa-shopping-cart"></i>
-            <i class="fas fa-bars" id="menu-toggle"></i>
-        </div>
+    <header>
+        <h1>SHJR.shop</h1>
     </header>
 
-    <!-- Mobile Menu -->
-    <div class="mobile-menu" id="mobile-menu">
-        <a href="index.html">Home</a>
-        <a href="about.html">About Us</a>
-        <a href="contact.html">Contact Us</a>
-    </div>
-
-    <!-- Hero Section -->
-    <section class="hero">
-        <h1>Welcome to SHJR Online Store</h1>
-        <p>Quality Fabrics & Organic Products</p>
-    </section>
-
-    <!-- Categories -->
-    <section class="categories">
-        <h2>Our Categories</h2>
-        <div class="category-grid">
-            <div class="category-card" onclick="showProducts('fabric')">
-                <img src="https://via.placeholder.com/150?text=Fabric" alt="Fabric">
-                <h3>Fabric</h3>
+    <main>
+        <section class="categories">
+            <h2>Categories</h2>
+            <div class="category-list">
+                <button class="category-button" data-category="Fabric">Fabric</button>
+                <button class="category-button" data-category="Organic">Organic</button>
             </div>
-            <div class="category-card" onclick="showProducts('organics')">
-                <img src="https://via.placeholder.com/150?text=Organics" alt="Organics">
-                <h3>Organics</h3>
-            </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Products Section -->
-    <section class="products" id="products-section">
-        <h2 id="category-title">Featured Products</h2>
-        <div class="product-grid" id="product-container">
-            <!-- Products will be loaded here dynamically -->
-        </div>
-    </section>
+        <section class="product-listing">
+            <h2>Products</h2>
+            <div id="product-container" class="product-grid">
+                </div>
+        </section>
+    </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-links">
-            <a href="index.html">Home</a>
-            <a href="about.html">About Us</a>
-            <a href="contact.html">Contact Us</a>
-        </div>
-        <div class="payment-methods">
-            <img src="https://via.placeholder.com/50?text=COD" alt="Cash on Delivery">
-            <img src="https://via.placeholder.com/50?text=JC" alt="JazzCash">
-            <img src="https://via.placeholder.com/50?text=EP" alt="EasyPaisa">
-            <img src="https://via.placeholder.com/50?text=Bank" alt="Bank Transfer">
-        </div>
-        <p>&copy; 2023 SHJR Online Store. All rights reserved.</p>
-    </footer>
-
-    <!-- Product Modal -->
-    <div class="modal" id="product-modal">
+    <div id="product-modal" class="modal">
         <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <div class="product-images" id="product-images">
-                <!-- Product images will be loaded here -->
-            </div>
+            <span class="close-button">&times;</span>
             <div class="product-details">
-                <h2 id="product-title">Product Title</h2>
-                <p class="price" id="product-price">Rs. 0</p>
-                <p class="description" id="product-description">Product description goes here.</p>
-                <button class="buy-now" id="buy-now-btn">Purchase Now</button>
+                <h3 id="modal-product-title"></h3>
+                <div class="product-media">
+                    <div id="modal-product-images" class="image-gallery"></div>
+                    <video id="modal-product-video" controls class="product-video"></video>
+                </div>
+                <p id="modal-product-description"></p>
+                <p class="product-price" id="modal-product-price"></p>
+                <button id="place-order-button" class="place-order-button">Place Order</button>
             </div>
         </div>
     </div>
 
-    <!-- Payment Modal -->
-    <div class="modal" id="payment-modal">
+    <div id="order-modal" class="modal">
         <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2>Select Payment Method</h2>
+            <span class="close-button">&times;</span>
+            <h3>Choose Payment Method</h3>
             <div class="payment-options">
-                <div class="payment-option" onclick="selectPayment('easypaisa')">
-                    <img src="https://via.placeholder.com/50?text=EP" alt="EasyPaisa">
-                    <span>EasyPaisa</span>
-                </div>
-                <div class="payment-option" onclick="selectPayment('jazzcash')">
-                    <img src="https://via.placeholder.com/50?text=JC" alt="JazzCash">
-                    <span>JazzCash</span>
-                </div>
-                <div class="payment-option" onclick="selectPayment('cod')">
-                    <img src="https://via.placeholder.com/50?text=COD" alt="Cash on Delivery">
-                    <span>Cash on Delivery</span>
-                </div>
-                <div class="payment-option" onclick="selectPayment('bank')">
-                    <img src="https://via.placeholder.com/50?text=Bank" alt="Bank Transfer">
-                    <span>Bank Transfer</span>
-                </div>
+                <button id="cash-on-delivery-button" class="payment-button">Cash on Delivery</button>
+                <button id="jazzcash-button" class="payment-button">JazzCash</button>
+            </div>
+            <div id="cod-form" class="payment-form" style="display: none;">
+                <h4>Cash on Delivery Details</h4>
+                <input type="text" id="cod-name" placeholder="Your Name" required>
+                <input type="tel" id="cod-phone" placeholder="Your Phone Number" required>
+                <textarea id="cod-address" placeholder="Your Delivery Address" required></textarea>
+                <button id="confirm-cod-order" class="confirm-order-button">Confirm Order</button>
+            </div>
+            <div id="jazzcash-form" class="payment-form" style="display: none;">
+                <h4>JazzCash Payment (Simulated)</h4>
+                <p>Please transfer the amount to **03344148636**.</p>
+                <p>Total amount: <span id="jazzcash-amount"></span></p>
+                <input type="text" id="jazzcash-transaction-id" placeholder="Enter JazzCash Transaction ID" required>
+                <input type="text" id="jazzcash-name" placeholder="Your Name" required>
+                <input type="tel" id="jazzcash-phone" placeholder="Your Phone Number" required>
+                <textarea id="jazzcash-address" placeholder="Your Delivery Address" required></textarea>
+                <button id="confirm-jazzcash-order" class="confirm-order-button">Confirm Order</button>
+                <p class="jazzcash-note">**Note:** This is a simulated payment. In a real scenario, this would involve a server-side integration with JazzCash API.</p>
             </div>
         </div>
     </div>
 
-    <!-- Payment Details Modal -->
-    <div class="modal" id="payment-details-modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2 id="payment-method-title">Payment Instructions</h2>
-            <div class="payment-instructions" id="payment-instructions">
-                <!-- Payment instructions will be loaded here -->
-            </div>
-            <div class="order-summary">
-                <h3>Order Summary</h3>
-                <p id="order-product-name">Product: </p>
-                <p id="order-product-price">Price: </p>
-                <p id="order-total">Total: </p>
-            </div>
-            <button class="confirm-order" onclick="confirmOrder()">Confirm Order</button>
-        </div>
-    </div>
-
-    <!-- Firebase SDK -->
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
-
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAmTmPgLYBiPXMTqyTAsw5vIrs-11h7-9A",
-            authDomain: "shjr-online-store.firebaseapp.com",
-            databaseURL: "https://shjr-online-store-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "shjr-online-store",
-            storageBucket: "shjr-online-store.appspot.com",
-            messagingSenderId: "118385940927",
-            appId: "1:118385940927:web:9c34612d688ef0be93a90a",
-            measurementId: "G-BX30KRVHRY"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-
-        // Make database available globally
-        window.database = database;
-        window.ref = ref;
-        window.onValue = onValue;
-    </script>
-
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
