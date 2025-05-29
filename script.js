@@ -290,3 +290,61 @@ confirmCodOrderButton.addEventListener('click', async () => {
         confirmCodOrderButton.textContent = 'Confirm Order (Cash on Delivery)';
     }
 });
+// Add this to your existing script.js file
+
+document.addEventListener('DOMContentLoaded', () => {
+    const homeView = document.getElementById('home-view');
+    const supportView = document.getElementById('support-view');
+    const supportNavLink = document.getElementById('support-nav-link');
+    const backToHomeButton = document.getElementById('back-to-home');
+    const navLinks = document.querySelectorAll('.nav-link'); // Select all other nav links
+
+    function showView(viewToShow, viewToHide) {
+        viewToHide.style.display = 'none';
+        viewToShow.style.display = 'block'; // Or 'flex' if you use flexbox for its internal layout
+    }
+
+    // Event listener for the "Support" navigation link
+    if (supportNavLink) {
+        supportNavLink.addEventListener('click', (event) => {
+            event.preventDefault(); // Prevent default link behavior (like jumping to #)
+            showView(supportView, homeView);
+            window.scrollTo(0, 0); // Scroll to top when switching view
+        });
+    }
+
+    // Event listener for the "Back" button within the Support view
+    if (backToHomeButton) {
+        backToHomeButton.addEventListener('click', () => {
+            showView(homeView, supportView);
+            window.scrollTo(0, 0); // Scroll to top when switching back
+        });
+    }
+
+    // Ensure other nav links show the home view and scroll to target section
+    navLinks.forEach(link => {
+        link.addEventListener('click', (event) => {
+            // Check if we are currently in the support view
+            if (supportView.style.display === 'block' || supportView.style.display === 'flex') {
+                showView(homeView, supportView); // First switch back to home view
+                // Then let the default link behavior (or manual scroll) handle the hash
+                setTimeout(() => {
+                    const targetId = event.target.getAttribute('href');
+                    if (targetId && targetId !== '#') {
+                        document.querySelector(targetId).scrollIntoView({ behavior: 'smooth' });
+                    }
+                }, 50); // Small delay to allow view transition
+            } else {
+                // If already in home view, just scroll
+                const targetId = event.target.getAttribute('href');
+                if (targetId && targetId !== '#') {
+                    document.querySelector(targetId).scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+    });
+
+    // You might also want to adjust your product modal logic if it's affected
+    // by display: none on the main content. Ensure it's outside the #home-view.
+    // (It already is based on your provided code, which is good).
+});
