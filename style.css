@@ -671,4 +671,37 @@ h2 {
     width: 100%;
     /* Add any other common styles for content views */
 }
+/* Styles for the new Support Iframe Section */
+.support-iframe-section {
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9; /* Consistent with other info sections */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center; /* Center the title and paragraph */
+}
 
+.support-iframe-section h2 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.support-iframe-section p {
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.support-app-iframe-embed {
+    width: 100%; /* Make iframe fill the width of its container */
+    height: 400px; /* Set a fixed height, adjust as needed */
+    border: 1px solid #ccc; /* Add a slight border */
+    border-radius: 8px;
+    overflow: hidden; /* Hide potential scrollbars if content is smaller */
+}
+
+/* For very small mobile screens, you might want to adjust iframe height */
+@media (max-width: 600px) {
+    .support-app-iframe-embed {
+        height: 300px; /* Shorter height on smaller screens */
+    }
+}
