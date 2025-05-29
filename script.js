@@ -321,30 +321,3 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Ensure other nav links show the home view and scroll to target section
-    navLinks.forEach(link => {
-        link.addEventListener('click', (event) => {
-            // Check if we are currently in the support view
-            if (supportView.style.display === 'block' || supportView.style.display === 'flex') {
-                showView(homeView, supportView); // First switch back to home view
-                // Then let the default link behavior (or manual scroll) handle the hash
-                setTimeout(() => {
-                    const targetId = event.target.getAttribute('href');
-                    if (targetId && targetId !== '#') {
-                        document.querySelector(targetId).scrollIntoView({ behavior: 'smooth' });
-                    }
-                }, 50); // Small delay to allow view transition
-            } else {
-                // If already in home view, just scroll
-                const targetId = event.target.getAttribute('href');
-                if (targetId && targetId !== '#') {
-                    document.querySelector(targetId).scrollIntoView({ behavior: 'smooth' });
-                }
-            }
-        });
-    });
-
-    // You might also want to adjust your product modal logic if it's affected
-    // by display: none on the main content. Ensure it's outside the #home-view.
-    // (It already is based on your provided code, which is good).
-});
