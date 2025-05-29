@@ -6,18 +6,33 @@
     <title>SHJR.shop</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <header>
         <h1>SHJR.shop</h1>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="#history-section">Our History</a></li>
+                <li><a href="#about-us-section">About Us</a></li>
+                <li><a href="#contact-us-section">Contact Us</a></li>
+            </ul>
+        </nav>
     </header>
 
     <main>
+        <section class="search-section">
+            <h2>Search Products</h2>
+            <input type="text" id="search-bar" class="search-input" placeholder="Search by name or description...">
+        </section>
+
         <section class="categories">
             <h2>Categories</h2>
             <div class="category-list">
+                <button class="category-button" data-category="All Products">All Products</button>
                 <button class="category-button" data-category="Fabric">Fabric</button>
                 <button class="category-button" data-category="Organic">Organic</button>
+                <button class="category-button" data-category="Other Brands">Other Brands</button>
             </div>
         </section>
 
@@ -27,15 +42,20 @@
                 </div>
         </section>
 
-        <section class="history-section">
+        <section id="history-section" class="info-section history-section">
             <h2>Our History</h2>
-            <p>SHJR.shop started its journey in **2017**, aiming to provide quality products to our valued customers.</p>
+            <p>SHJR.shop started its journey in <strong>2017</strong>, aiming to provide quality products to our valued customers. We have consistently grown by focusing on customer satisfaction and expanding our range of unique and high-quality items. Our commitment is to bring the best to your doorstep.</p>
         </section>
 
-        <section class="contact-us-section">
+        <section id="about-us-section" class="info-section about-us-section">
+            <h2>About Us</h2>
+            <p>Welcome to SHJR.shop! We are passionate about bringing you a curated selection of fine fabrics, organic goods, and products from other distinctive brands. Our mission is to offer high-quality items that enhance your lifestyle, combined with a seamless online shopping experience. We believe in quality, transparency, and customer delight.</p>
+        </section>
+
+        <section id="contact-us-section" class="info-section contact-us-section">
             <h2>Contact Us</h2>
-            <p><strong>Email:</strong> khalidja2010@gmail.com</p>
-            <p><strong>Phone:</strong> 03344148636, 03356566933</p>
+            <p><strong>Email:</strong> <a href="mailto:khalidja2010@gmail.com">khalidja2010@gmail.com</a></p>
+            <p><strong>Phone:</strong> <a href="tel:03344148636">0334-4148636</a>, <a href="tel:03356566933">0335-6566933</a></p>
             <p><strong>Address:</strong> House no 2, C block PASCO society Canal road lahore Pakistan & House no 57, C block PASCO society Canal road lahore Pakistan.</p>
         </section>
     </main>
@@ -47,9 +67,11 @@
                 <h3 id="modal-product-title"></h3>
                 <div class="product-media">
                     <div id="modal-product-images" class="image-gallery"></div>
-                    <video id="modal-product-video" controls class="product-video"></video>
+                    <video id="modal-product-video" controls class="product-video" style="display:none;"></video>
                 </div>
+                <p><strong>Brand:</strong> <span id="modal-product-brand"></span></p>
                 <p id="modal-product-description"></p>
+                <p><strong>Stock:</strong> <span id="modal-product-stock"></span></p>
                 <p class="product-price" id="modal-product-price"></p>
                 <button id="place-order-button" class="place-order-button">Place Order</button>
             </div>
