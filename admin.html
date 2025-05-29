@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHJR Online Store Studio APP</title>
+    <title>SHJR.shop Admin</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* Admin specific styles */
-        body { background-color: var(--color-light-gray); }
+        body { background-color: var(--color-light-gray); } /* Using defined color variable */
         .admin-container {
-            max-width: 900px; /* Increased max-width for more content */
+            max-width: 800px;
             margin: 30px auto;
             padding: 25px;
-            background-color: var(--color-white);
+            background-color: var(--color-white); /* Using defined color variable */
             border-radius: 12px;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
         }
@@ -24,16 +24,15 @@
             display: block;
             margin-bottom: 8px;
             font-weight: bold;
-            color: var(--color-medium-gray);
+            color: var(--color-medium-gray); /* Using defined color variable */
         }
         .admin-form-group input[type="text"],
         .admin-form-group input[type="number"],
         .admin-form-group textarea,
-        .admin-form-group select,
-        .admin-form-group input[type="checkbox"] {
-            width: calc(100% - 24px);
+        .admin-form-group select {
+            width: calc(100% - 24px); /* Account for padding */
             padding: 12px;
-            border: 1px solid var(--color-border-light);
+            border: 1px solid var(--color-border-light); /* Using defined color variable */
             border-radius: 8px;
             font-size: 1rem;
             transition: border-color 0.2s;
@@ -41,17 +40,13 @@
         .admin-form-group input:focus,
         .admin-form-group textarea:focus,
         .admin-form-group select:focus {
-            border-color: var(--color-cyan-primary);
+            border-color: var(--color-cyan-primary); /* Using defined color variable */
             outline: none;
             box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
         }
-        .admin-form-group input[type="checkbox"] {
-            width: auto; /* Checkbox should not take full width */
-            margin-right: 10px;
-        }
         .admin-button {
-            background-color: var(--color-cyan-primary);
-            color: var(--color-white);
+            background-color: var(--color-cyan-primary); /* Using defined color variable */
+            color: var(--color-white); /* Using defined color variable */
             padding: 12px 25px;
             border: none;
             border-radius: 8px;
@@ -63,27 +58,22 @@
             width: 100%;
         }
         .admin-button:hover {
-            background-color: var(--color-cyan-dark);
+            background-color: var(--color-cyan-dark); /* Using defined color variable */
             transform: translateY(-2px);
         }
         .admin-product-list {
             margin-top: 30px;
-            border-top: 1px solid var(--color-border-light);
+            border-top: 1px solid var(--color-border-light); /* Using defined color variable */
             padding-top: 20px;
         }
-        .admin-product-item, .order-item {
+        .admin-product-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 15px 0;
             border-bottom: 1px dashed #f0f0f0;
-            background-color: var(--color-off-white);
-            border-radius: 8px;
-            margin-bottom: 10px;
-            padding: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
         }
-        .admin-product-item:last-child, .order-item:last-child {
+        .admin-product-item:last-child {
             border-bottom: none;
         }
         .admin-product-item img {
@@ -93,20 +83,20 @@
             border-radius: 6px;
             margin-right: 15px;
         }
-        .admin-product-details, .order-details {
+        .admin-product-details {
             flex-grow: 1;
         }
-        .admin-product-details h4, .order-item h4 {
+        .admin-product-details h4 {
             margin: 0;
             font-size: 1.1rem;
-            color: var(--color-dark-gray);
+            color: var(--color-dark-gray); /* Using defined color variable */
         }
-        .admin-product-details p, .order-item p {
+        .admin-product-details p {
             margin: 5px 0 0;
             font-size: 0.9rem;
-            color: var(--color-medium-gray);
+            color: var(--color-medium-gray); /* Using defined color variable */
         }
-        .admin-actions button, .order-actions button {
+        .admin-actions button {
             background: none;
             border: none;
             cursor: pointer;
@@ -117,15 +107,15 @@
             transition: background-color 0.2s;
         }
         .admin-actions .edit-btn {
-            color: var(--color-cyan-primary);
-            border: 1px solid var(--color-cyan-primary);
+            color: var(--color-cyan-primary); /* Using defined color variable */
+            border: 1px solid var(--color-cyan-primary); /* Using defined color variable */
         }
         .admin-actions .edit-btn:hover {
-            background-color: var(--color-cyan-light);
+            background-color: var(--color-cyan-light); /* Using defined color variable */
         }
         .admin-actions .delete-btn {
-            color: var(--color-error-red);
-            border: 1px solid var(--color-error-red);
+            color: var(--color-error-red); /* Using defined color variable */
+            border: 1px solid var(--color-error-red); /* Using defined color variable */
         }
         .admin-actions .delete-btn:hover {
             background-color: #fce8e8;
@@ -133,20 +123,20 @@
         .auth-section {
             text-align: center;
             padding-bottom: 20px;
-            border-bottom: 1px solid var(--color-border-light);
+            border-bottom: 1px solid var(--color-border-light); /* Using defined color variable */
             margin-bottom: 20px;
         }
         .auth-section input {
             width: calc(100% - 24px);
             padding: 12px;
             margin-bottom: 10px;
-            border: 1px solid var(--color-border-light);
+            border: 1px solid var(--color-border-light); /* Using defined color variable */
             border-radius: 8px;
             font-size: 1rem;
         }
         .admin-logout-btn {
-            background-color: var(--color-medium-gray);
-            color: var(--color-white);
+            background-color: var(--color-medium-gray); /* Using defined color variable */
+            color: var(--color-white); /* Using defined color variable */
             padding: 10px 20px;
             border: none;
             border-radius: 8px;
@@ -157,27 +147,43 @@
         .admin-logout-btn:hover {
             background-color: #5a6268;
         }
-        /* Order management specific styles */
+        #order-management {
+            margin-top: 40px;
+        }
+        .order-item {
+            background-color: var(--color-off-white); /* Using defined color variable */
+            border: 1px solid var(--color-border-light); /* Using defined color variable */
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
         .order-item h4 {
-            color: var(--color-cyan-primary);
-            font-size: 1.1rem;
-            margin-bottom: 5px;
+            margin-top: 0;
+            color: var(--color-cyan-primary); /* Using defined color variable */
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        .order-item p {
+            margin: 5px 0;
+            font-size: 0.95rem;
+            color: var(--color-medium-gray); /* Using defined color variable */
         }
         .order-item .status {
             font-weight: bold;
         }
         .order-item .status.pending {
-            color: var(--color-warning-yellow);
+            color: var(--color-warning-yellow); /* Using defined color variable */
         }
         .order-item .status.completed {
-            color: var(--color-success-green);
+            color: var(--color-success-green); /* Using defined color variable */
         }
         .order-item .status.cancelled {
-            color: var(--color-error-red);
+            color: var(--color-error-red); /* Using defined color variable */
         }
         .order-actions button {
-            background-color: var(--color-success-green); /* Done button */
-            color: var(--color-white);
+            background-color: var(--color-success-green); /* Using defined color variable */
+            color: var(--color-white); /* Using defined color variable */
             border: none;
             padding: 8px 15px;
             border-radius: 5px;
@@ -186,122 +192,27 @@
             font-size: 0.9rem;
             transition: background-color 0.2s;
         }
-        .order-actions .mark-cancelled {
-            background-color: var(--color-error-red); /* Cancel button */
-        }
         .order-actions button:hover {
-            opacity: 0.9;
+            background-color: #218838;
         }
-        /* New styles for image/video upload */
-        .image-upload-group, .video-upload-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
+        .order-actions .mark-pending {
+            background-color: var(--color-warning-yellow); /* Using defined color variable */
         }
-        .image-upload-group input[type="file"], .video-upload-group input[type="file"] {
-            flex-grow: 0;
-            width: auto;
-            padding: 8px;
-            border: 1px solid var(--color-border-light);
-            border-radius: 5px;
-            font-size: 0.9rem;
+        .order-actions .mark-pending:hover {
+            background-color: #e0a800;
         }
-        .image-upload-group input[type="text"], .video-upload-group input[type="text"] {
-            flex-grow: 1;
+        .order-actions .mark-cancelled {
+            background-color: var(--color-error-red); /* Using defined color variable */
         }
-        .upload-loading {
-            display: none;
-            color: var(--color-cyan-primary);
-            font-weight: 500;
-            margin-top: -5px;
-            margin-left: 5px;
-        }
-        .product-analytics p {
-            font-size: 0.9rem;
-            color: var(--color-medium-gray);
-            margin-left: 15px;
-        }
-        /* Admin Navigation Tabs */
-        .admin-nav-tabs {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 30px;
-            border-bottom: 1px solid var(--color-border-light);
-            padding-bottom: 10px;
-        }
-        .admin-tab-button {
-            background-color: var(--color-light-gray);
-            color: var(--color-medium-gray);
-            border: none;
-            padding: 12px 25px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            border-radius: 8px 8px 0 0;
-            transition: background-color 0.3s ease, color 0.3s ease;
-            margin: 0 5px;
-        }
-        .admin-tab-button.active {
-            background-color: var(--color-cyan-primary);
-            color: var(--color-white);
-            box-shadow: 0 -2px 8px rgba(0, 188, 212, 0.2);
-        }
-        .admin-tab-button:hover:not(.active) {
-            background-color: var(--color-border-light);
-        }
-        .admin-tab-content {
-            display: none;
-        }
-        .admin-tab-content.active {
-            display: block;
-        }
-        /* Dashboard Stats */
-        .dashboard-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        .stat-card {
-            background-color: var(--color-off-white);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            text-align: center;
-        }
-        .stat-card h5 {
-            margin-top: 0;
-            font-size: 1rem;
-            color: var(--color-medium-gray);
-        }
-        .stat-card p {
-            font-size: 2.2rem;
-            font-weight: bold;
-            margin: 10px 0 0;
-            color: var(--color-cyan-primary);
-        }
-        .stat-card.pending p { color: var(--color-warning-yellow); }
-        .stat-card.completed p { color: var(--color-success-green); }
-        .stat-card.cancelled p { color: var(--color-error-red); }
-
-        /* Search Bar */
-        .admin-search-bar {
-            margin-bottom: 20px;
-        }
-        .admin-search-bar input {
-            width: calc(100% - 24px);
-            padding: 12px;
-            border: 1px solid var(--color-border-light);
-            border-radius: 8px;
-            font-size: 1rem;
+        .order-actions .mark-cancelled:hover {
+            background-color: #c82333;
         }
 
     </style>
 </head>
 <body>
     <header>
-        <h1>SHJR Online Store Studio APP</h1>
+        <h1>SHJR.shop Admin Panel</h1>
     </header>
 
     <main class="admin-container">
@@ -320,186 +231,59 @@
 
         <section id="admin-dashboard" style="display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2>Studio Dashboard</h2>
+                <h2>Product Management</h2>
                 <button id="admin-logout-btn" class="admin-logout-btn">Logout</button>
             </div>
 
-            <div class="dashboard-stats">
-                <div class="stat-card">
-                    <h5>Total Products</h5>
-                    <p id="total-products-stat">0</p>
-                </div>
-                <div class="stat-card">
-                    <h5>Active Products</h5>
-                    <p id="active-products-stat">0</p>
-                </div>
-                <div class="stat-card stat-card-orders pending">
-                    <h5>Pending Orders</h5>
-                    <p id="pending-orders-stat">0</p>
-                </div>
-                <div class="stat-card stat-card-orders completed">
-                    <h5>Completed Orders</h5>
-                    <p id="completed-orders-stat">0</p>
-                </div>
-                <div class="stat-card stat-card-orders cancelled">
-                    <h5>Cancelled Orders</h5>
-                    <p id="cancelled-orders-stat">0</p>
-                </div>
+            <h3>Add/Edit Product</h3>
+            <div class="admin-form-group">
+                <label for="product-id">Product ID (auto-generated for new, required for edit):</label>
+                <input type="text" id="product-id" placeholder="Leave empty for new product" disabled>
+            </div>
+            <div class="admin-form-group">
+                <label for="product-title">Title:</label>
+                <input type="text" id="product-title" required>
+            </div>
+            <div class="admin-form-group">
+                <label for="product-description">Description:</label>
+                <textarea id="product-description" rows="4" required></textarea>
+            </div>
+            <div class="admin-form-group">
+                <label for="product-category">Category:</label>
+                <select id="product-category" required>
+                    <option value="Fabric">Fabric</option>
+                    <option value="Organic">Organic</option>
+                </select>
+            </div>
+            <div class="admin-form-group">
+                <label for="product-price">Price (PKR):</label>
+                <input type="number" id="product-price" min="1" required>
+            </div>
+            <div class="admin-form-group">
+                <label for="product-images">Image URLs (comma-separated):</label>
+                <textarea id="product-images" rows="3" placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg"></textarea>
+            </div>
+            <div class="admin-form-group">
+                <label for="product-video">Video URL (optional):</label>
+                <input type="text" id="product-video" placeholder="https://example.com/video.mp4">
+            </div>
+            <button id="add-edit-product-btn" class="admin-button">Add Product</button>
+            <button id="clear-form-btn" class="admin-button" style="background-color: var(--color-medium-gray);">Clear Form</button>
+
+            <div class="admin-product-list">
+                <h3>Current Products</h3>
+                <div id="product-list-container">
+                    </div>
             </div>
 
-            <div class="admin-nav-tabs">
-                <button class="admin-tab-button active" data-tab="product-management">Product Management</button>
-                <button class="admin-tab-button" data-tab="order-management">Order Management</button>
-                <button class="admin-tab-button" data-tab="done-orders">Done Orders</button>
-            </div>
-
-            <div id="product-management-tab" class="admin-tab-content active">
-                <h3>Add/Edit Product</h3>
-                <div class="admin-form-group">
-                    <label for="product-id">Product ID (auto-generated for new, required for edit):</label>
-                    <input type="text" id="product-id" placeholder="Leave empty for new product" disabled>
-                </div>
-                <div class="admin-form-group">
-                    <label for="product-title">Title:</label>
-                    <input type="text" id="product-title" required>
-                </div>
-                <div class="admin-form-group">
-                    <label for="product-description">Description:</label>
-                    <textarea id="product-description" rows="4" required></textarea>
-                </div>
-                <div class="admin-form-group">
-                    <label for="product-category">Category:</label>
-                    <select id="product-category" required>
-                        <option value="Fabric">Fabric</option>
-                        <option value="Organic">Organic</option>
-                        <option value="Other Brands">Other Brands</option> </select>
-                </div>
-                <div class="admin-form-group">
-                    <label for="product-price">Price (PKR):</label>
-                    <input type="number" id="product-price" min="1" required>
-                </div>
-                <div class="admin-form-group">
-                    <label for="product-stock">Stock Quantity:</label>
-                    <input type="number" id="product-stock" min="0" value="1" required>
-                </div>
-                <div class="admin-form-group">
-                    <label for="product-is-active">
-                        <input type="checkbox" id="product-is-active" checked>
-                        Product is Active (Visible on Public App)
-                    </label>
-                </div>
-
-                <div class="admin-form-group">
-                    <label>Product Images (up to 5):</label>
-                    <p style="font-size: 0.9rem; color: var(--color-medium-gray); margin-bottom: 10px;">Enter URL only if not using Firebase Storage</p>
-                    <div class="image-upload-group">
-                        <input type="text" class="product-image-url" placeholder="Image URL 1">
-                        <input type="file" class="product-image-file" accept="image/*" disabled> </div>
-                    <div class="image-upload-group">
-                        <input type="text" class="product-image-url" placeholder="Image URL 2">
-                        <input type="file" class="product-image-file" accept="image/*" disabled>
-                    </div>
-                    <div class="image-upload-group">
-                        <input type="text" class="product-image-url" placeholder="Image URL 3">
-                        <input type="file" class="product-image-file" accept="image/*" disabled>
-                    </div>
-                    <div class="image-upload-group">
-                        <input type="text" class="product-image-url" placeholder="Image URL 4">
-                        <input type="file" class="product-image-file" accept="image/*" disabled>
-                    </div>
-                    <div class="image-upload-group">
-                        <input type="text" class="product-image-url" placeholder="Image URL 5">
-                        <input type="file" class="product-image-file" accept="image/*" disabled>
-                    </div>
-                    <p id="image-upload-loading" class="upload-loading">Uploading images...</p>
-                </div>
-
-                <div class="admin-form-group">
-                    <label>Product Video (Optional):</label>
-                    <p style="font-size: 0.9rem; color: var(--color-medium-gray); margin-bottom: 10px;">Enter YouTube URL or Direct Video URL (or upload if using Firebase Storage)</p>
-                    <div class="video-upload-group">
-                        <input type="text" id="product-video-url" placeholder="YouTube URL or Direct Video URL">
-                        <input type="file" id="product-video-file" accept="video/*" disabled> </div>
-                    <p id="video-upload-loading" class="upload-loading">Uploading video...</p>
-                </div>
-
-                <button id="add-edit-product-btn" class="admin-button">Add Product</button>
-                <button id="clear-form-btn" class="admin-button" style="background-color: var(--color-medium-gray);">Clear Form</button>
-
-                <div class="admin-product-list">
-                    <h3>Current Products</h3>
-                    <div class="admin-search-bar">
-                        <input type="text" id="product-search-input" placeholder="Search products by title or description...">
-                    </div>
-                    <div id="product-list-container">
-                        </div>
-                </div>
-            </div>
-
-            <div id="order-management-tab" class="admin-tab-content">
-                <h3>Pending/Active Orders</h3>
+            <section id="order-management">
+                <h3>Order Management</h3>
                 <div id="order-list-container">
                     </div>
-            </div>
-
-            <div id="done-orders-tab" class="admin-tab-content">
-                <h3>Completed Orders History</h3>
-                <div id="done-order-list-container">
-                    </div>
-            </div>
+            </section>
         </section>
     </main>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-        import { getDatabase, ref, onValue, push, set, update, remove } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
-        // Conditionally import Firebase Storage if needed
-        let getStorage, storageRef, uploadBytes, getDownloadURL;
-        try {
-            // Attempt to import Storage. If this fails, it means Storage is not included/configured.
-            const storageModule = await import("https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js");
-            getStorage = storageModule.getStorage;
-            storageRef = storageModule.ref;
-            uploadBytes = storageModule.uploadBytes;
-            getDownloadURL = storageModule.getDownloadURL;
-            window.hasFirebaseStorage = true; // Flag to indicate Storage is available
-        } catch (e) {
-            console.warn("Firebase Storage module not found or initialized. Direct file uploads will be disabled.");
-            window.hasFirebaseStorage = false;
-        }
-
-
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAmTmPgLYBiPXMTqyTAsw5vIrs-11h7-9A",
-            authDomain: "shjr-online-store.firebaseapp.com",
-            databaseURL: "https://shjr-online-store-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "shjr-online-store",
-            storageBucket: "shjr-online-store.appspot.com",
-            messagingSenderId: "118385940927",
-            appId: "1:118385940927:web:9c34612d688ef0be93a90a",
-            measurementId: "G-BX30KRVHRY"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const database = getDatabase(app);
-        let storage = null;
-
-        if (window.hasFirebaseStorage) {
-            storage = getStorage(app); // Initialize Storage only if available
-            window.firebaseStorage = storage;
-            // No need to expose storageRef, uploadBytes, getDownloadURL globally as admin.js will import them directly.
-        }
-
-        // Expose core Firebase instances globally for admin.js to use
-        window.firebaseApp = app;
-        window.firebaseAuthInstance = auth; // Renamed to avoid conflict with 'auth' function
-        window.firebaseDatabaseInstance = database; // Renamed to avoid conflict with 'database' function
-
-    </script>
     <script type="module" src="admin.js"></script>
 </body>
 </html>
