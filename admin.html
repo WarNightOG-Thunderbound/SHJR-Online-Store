@@ -6,27 +6,31 @@
     <title>SHJR.shop Admin</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         /* Admin specific styles */
         body { background-color: var(--color-light-gray); } /* Using defined color variable */
         .admin-container {
-            max-width: 800px;
+            max-width: 900px; /* Increased max-width for more content */
             margin: 30px auto;
-            padding: 25px;
+            padding: 30px; /* Increased padding */
             background-color: var(--color-white); /* Using defined color variable */
             border-radius: 12px;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
         }
         .admin-form-group {
-            margin-bottom: 15px;
+            margin-bottom: 18px; /* Increased margin */
         }
         .admin-form-group label {
             display: block;
             margin-bottom: 8px;
             font-weight: bold;
-            color: var(--color-medium-gray); /* Using defined color variable */
+            color: var(--color-dark-gray); /* Darker label color */
+            font-size: 0.95rem;
         }
         .admin-form-group input[type="text"],
+        .admin-form-group input[type="email"],
+        .admin-form-group input[type="password"],
         .admin-form-group input[type="number"],
         .admin-form-group textarea,
         .admin-form-group select {
@@ -35,14 +39,15 @@
             border: 1px solid var(--color-border-light); /* Using defined color variable */
             border-radius: 8px;
             font-size: 1rem;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background-color: var(--color-off-white); /* Light background for inputs */
         }
         .admin-form-group input:focus,
         .admin-form-group textarea:focus,
         .admin-form-group select:focus {
             border-color: var(--color-cyan-primary); /* Using defined color variable */
             outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+            box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.25); /* Cyan shadow on focus */
         }
         .admin-button {
             background-color: var(--color-cyan-primary); /* Using defined color variable */
@@ -53,161 +58,257 @@
             cursor: pointer;
             font-size: 1.1rem;
             font-weight: 500;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
             margin-top: 10px;
             width: 100%;
+            box-shadow: 0 4px 10px rgba(0, 188, 212, 0.2);
         }
         .admin-button:hover {
             background-color: var(--color-cyan-dark); /* Using defined color variable */
             transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 188, 212, 0.3);
         }
-        .admin-product-list {
-            margin-top: 30px;
-            border-top: 1px solid var(--color-border-light); /* Using defined color variable */
-            padding-top: 20px;
+        .admin-button.secondary {
+            background-color: var(--color-medium-gray);
+            box-shadow: 0 4px 10px rgba(85, 85, 85, 0.2);
+        }
+        .admin-button.secondary:hover {
+            background-color: #5a6268;
+            box-shadow: 0 6px 15px rgba(85, 85, 85, 0.3);
+        }
+
+        .admin-product-list, #order-management, #completed-orders-history {
+            margin-top: 40px; /* Increased margin */
+            padding-top: 25px;
+            border-top: 1px solid var(--color-border-light);
         }
         .admin-product-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 15px 0;
-            border-bottom: 1px dashed #f0f0f0;
+            border-bottom: 1px dashed #e0e0e0; /* Lighter dashed border */
         }
         .admin-product-item:last-child {
             border-bottom: none;
         }
         .admin-product-item img {
-            width: 60px;
-            height: 60px;
+            width: 70px; /* Larger thumbnail */
+            height: 70px;
             object-fit: cover;
-            border-radius: 6px;
+            border-radius: 8px; /* More rounded */
             margin-right: 15px;
+            border: 1px solid var(--color-border-light);
         }
         .admin-product-details {
             flex-grow: 1;
         }
         .admin-product-details h4 {
             margin: 0;
-            font-size: 1.1rem;
-            color: var(--color-dark-gray); /* Using defined color variable */
+            font-size: 1.15rem; /* Slightly larger title */
+            color: var(--color-dark-gray);
         }
         .admin-product-details p {
             margin: 5px 0 0;
             font-size: 0.9rem;
-            color: var(--color-medium-gray); /* Using defined color variable */
+            color: var(--color-medium-gray);
         }
         .admin-actions button {
             background: none;
-            border: none;
+            border: 1px solid; /* Add border to all action buttons */
             cursor: pointer;
             font-size: 0.9rem;
             margin-left: 10px;
-            padding: 5px 10px;
-            border-radius: 5px;
-            transition: background-color 0.2s;
+            padding: 8px 12px; /* More padding */
+            border-radius: 6px; /* Slightly more rounded */
+            transition: background-color 0.2s, color 0.2s;
         }
         .admin-actions .edit-btn {
-            color: var(--color-cyan-primary); /* Using defined color variable */
-            border: 1px solid var(--color-cyan-primary); /* Using defined color variable */
+            color: var(--color-cyan-primary);
+            border-color: var(--color-cyan-primary);
         }
         .admin-actions .edit-btn:hover {
-            background-color: var(--color-cyan-light); /* Using defined color variable */
+            background-color: var(--color-cyan-light);
+            color: var(--color-dark-gray);
         }
         .admin-actions .delete-btn {
-            color: var(--color-error-red); /* Using defined color variable */
-            border: 1px solid var(--color-error-red); /* Using defined color variable */
+            color: var(--color-error-red);
+            border-color: var(--color-error-red);
         }
         .admin-actions .delete-btn:hover {
             background-color: #fce8e8;
+            color: var(--color-error-red);
         }
         .auth-section {
             text-align: center;
             padding-bottom: 20px;
-            border-bottom: 1px solid var(--color-border-light); /* Using defined color variable */
+            border-bottom: 1px solid var(--color-border-light);
             margin-bottom: 20px;
         }
         .auth-section input {
-            width: calc(100% - 24px);
-            padding: 12px;
-            margin-bottom: 10px;
-            border: 1px solid var(--color-border-light); /* Using defined color variable */
-            border-radius: 8px;
-            font-size: 1rem;
+            margin-bottom: 15px;
         }
         .admin-logout-btn {
-            background-color: var(--color-medium-gray); /* Using defined color variable */
-            color: var(--color-white); /* Using defined color variable */
+            background-color: var(--color-error-red); /* Red logout button */
+            color: var(--color-white);
             padding: 10px 20px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             font-size: 1rem;
             margin-top: 15px;
+            transition: background-color 0.3s ease;
         }
         .admin-logout-btn:hover {
-            background-color: #5a6268;
+            background-color: #dc3545;
         }
-        #order-management {
-            margin-top: 40px;
-        }
+
         .order-item {
-            background-color: var(--color-off-white); /* Using defined color variable */
-            border: 1px solid var(--color-border-light); /* Using defined color variable */
+            background-color: var(--color-off-white);
+            border: 1px solid var(--color-border-light);
             border-radius: 8px;
-            padding: 15px;
+            padding: 20px; /* More padding */
             margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); /* Slightly more prominent shadow */
         }
         .order-item h4 {
             margin-top: 0;
-            color: var(--color-cyan-primary); /* Using defined color variable */
-            font-size: 1.2rem;
+            color: var(--color-cyan-primary);
+            font-size: 1.25rem;
             margin-bottom: 10px;
+            border-bottom: 1px solid var(--color-border-light);
+            padding-bottom: 8px;
         }
         .order-item p {
-            margin: 5px 0;
+            margin: 8px 0; /* More vertical spacing */
             font-size: 0.95rem;
-            color: var(--color-medium-gray); /* Using defined color variable */
+            color: var(--color-medium-gray);
         }
         .order-item .status {
             font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 5px;
+            display: inline-block;
         }
         .order-item .status.pending {
-            color: var(--color-warning-yellow); /* Using defined color variable */
+            color: #856404;
+            background-color: #fff3cd;
         }
         .order-item .status.completed {
-            color: var(--color-success-green); /* Using defined color variable */
+            color: #155724;
+            background-color: #d4edda;
         }
         .order-item .status.cancelled {
-            color: var(--color-error-red); /* Using defined color variable */
+            color: #721c24;
+            background-color: #f8d7da;
         }
         .order-actions button {
-            background-color: var(--color-success-green); /* Using defined color variable */
-            color: var(--color-white); /* Using defined color variable */
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-right: 10px;
-            font-size: 0.9rem;
-            transition: background-color 0.2s;
+            padding: 10px 18px; /* Larger buttons */
+            margin-right: 12px; /* More spacing */
+            font-size: 1rem;
+            border-radius: 6px;
         }
-        .order-actions button:hover {
+        .order-actions .mark-completed {
+            background-color: var(--color-success-green);
+            border-color: var(--color-success-green);
+            color: var(--color-white);
+        }
+        .order-actions .mark-completed:hover {
             background-color: #218838;
-        }
-        .order-actions .mark-pending {
-            background-color: var(--color-warning-yellow); /* Using defined color variable */
-        }
-        .order-actions .mark-pending:hover {
-            background-color: #e0a800;
+            border-color: #218838;
         }
         .order-actions .mark-cancelled {
-            background-color: var(--color-error-red); /* Using defined color variable */
+            background-color: var(--color-error-red);
+            border-color: var(--color-error-red);
+            color: var(--color-white);
         }
         .order-actions .mark-cancelled:hover {
             background-color: #c82333;
+            border-color: #c82333;
         }
 
+        /* Dashboard Summary */
+        .dashboard-summary {
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: var(--color-off-white);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .summary-card {
+            text-align: center;
+            flex: 1;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: var(--color-white);
+            box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+            border: 1px solid var(--color-border-light);
+        }
+        .summary-card h5 {
+            margin-top: 0;
+            font-size: 1rem;
+            color: var(--color-medium-gray);
+            margin-bottom: 10px;
+        }
+        .summary-card p {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0;
+            color: var(--color-cyan-primary);
+        }
+        .summary-card.products p { color: var(--color-success-green); }
+        .summary-card.pending p { color: var(--color-warning-yellow); }
+        .summary-card.completed p { color: var(--color-pink-primary); }
+
+        /* Image URL inputs with previews */
+        .image-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .image-input-group input {
+            flex-grow: 1;
+            margin-bottom: 0; /* Remove default margin */
+        }
+        .image-input-group img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid var(--color-border-light);
+            background-color: #f0f0f0;
+        }
+        .image-input-group .placeholder-icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f0f0f0;
+            border: 1px solid var(--color-border-light);
+            border-radius: 4px;
+            color: var(--color-medium-gray);
+            font-size: 1.5rem;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+            transform: scale(1.2);
+            accent-color: var(--color-cyan-primary);
+        }
+        .checkbox-group label {
+            margin-bottom: 0;
+            font-weight: normal;
+        }
     </style>
 </head>
 <body>
@@ -231,8 +332,23 @@
 
         <section id="admin-dashboard" style="display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2>Product Management</h2>
+                <h2>Admin Dashboard</h2>
                 <button id="admin-logout-btn" class="admin-logout-btn">Logout</button>
+            </div>
+
+            <div class="dashboard-summary">
+                <div class="summary-card products">
+                    <h5>Total Products</h5>
+                    <p id="total-products-count">0</p>
+                </div>
+                <div class="summary-card pending">
+                    <h5>Pending Orders</h5>
+                    <p id="pending-orders-count">0</p>
+                </div>
+                <div class="summary-card completed">
+                    <h5>Completed Orders</h5>
+                    <p id="completed-orders-count">0</p>
+                </div>
             </div>
 
             <h3>Add/Edit Product</h3>
@@ -245,6 +361,10 @@
                 <input type="text" id="product-title" required>
             </div>
             <div class="admin-form-group">
+                <label for="product-brand">Brand:</label>
+                <input type="text" id="product-brand" placeholder="e.g., Nike, Adidas, Local Brand">
+            </div>
+            <div class="admin-form-group">
                 <label for="product-description">Description:</label>
                 <textarea id="product-description" rows="4" required></textarea>
             </div>
@@ -253,6 +373,7 @@
                 <select id="product-category" required>
                     <option value="Fabric">Fabric</option>
                     <option value="Organic">Organic</option>
+                    <option value="Other Brands">Other Brands</option>
                 </select>
             </div>
             <div class="admin-form-group">
@@ -260,15 +381,50 @@
                 <input type="number" id="product-price" min="1" required>
             </div>
             <div class="admin-form-group">
-                <label for="product-images">Image URLs (comma-separated):</label>
-                <textarea id="product-images" rows="3" placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg"></textarea>
+                <label for="product-stock">Stock Quantity:</label>
+                <input type="number" id="product-stock" min="0" value="1" required>
             </div>
+
             <div class="admin-form-group">
-                <label for="product-video">Video URL (optional):</label>
-                <input type="text" id="product-video" placeholder="https://example.com/video.mp4">
+                <label>Image URLs (up to 5):</label>
+                <div class="image-input-group">
+                    <input type="text" id="product-image-1" class="product-image-input" placeholder="Image URL 1">
+                    <img id="product-image-preview-1" src="" alt="Preview 1" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" style="display: none;">
+                    <div id="product-image-placeholder-1" class="placeholder-icon"><i class="fas fa-image"></i></div>
+                </div>
+                <div class="image-input-group">
+                    <input type="text" id="product-image-2" class="product-image-input" placeholder="Image URL 2">
+                    <img id="product-image-preview-2" src="" alt="Preview 2" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" style="display: none;">
+                    <div id="product-image-placeholder-2" class="placeholder-icon"><i class="fas fa-image"></i></div>
+                </div>
+                <div class="image-input-group">
+                    <input type="text" id="product-image-3" class="product-image-input" placeholder="Image URL 3">
+                    <img id="product-image-preview-3" src="" alt="Preview 3" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" style="display: none;">
+                    <div id="product-image-placeholder-3" class="placeholder-icon"><i class="fas fa-image"></i></div>
+                </div>
+                <div class="image-input-group">
+                    <input type="text" id="product-image-4" class="product-image-input" placeholder="Image URL 4">
+                    <img id="product-image-preview-4" src="" alt="Preview 4" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" style="display: none;">
+                    <div id="product-image-placeholder-4" class="placeholder-icon"><i class="fas fa-image"></i></div>
+                </div>
+                <div class="image-input-group">
+                    <input type="text" id="product-image-5" class="product-image-input" placeholder="Image URL 5">
+                    <img id="product-image-preview-5" src="" alt="Preview 5" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" style="display: none;">
+                    <div id="product-image-placeholder-5" class="placeholder-icon"><i class="fas fa-image"></i></div>
+                </div>
             </div>
+
+            <div class="admin-form-group">
+                <label for="product-video">Video URL (YouTube link):</label>
+                <input type="text" id="product-video" placeholder="e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ">
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="product-featured">
+                <label for="product-featured">Mark as Featured Product</label>
+            </div>
+
             <button id="add-edit-product-btn" class="admin-button">Add Product</button>
-            <button id="clear-form-btn" class="admin-button" style="background-color: var(--color-medium-gray);">Clear Form</button>
+            <button id="clear-form-btn" class="admin-button secondary">Clear Form</button>
 
             <div class="admin-product-list">
                 <h3>Current Products</h3>
@@ -277,9 +433,16 @@
             </div>
 
             <section id="order-management">
-                <h3>Order Management</h3>
+                <h3>Pending/Active Orders</h3>
                 <div id="order-list-container">
                     </div>
+            </section>
+
+            <section id="completed-orders-history">
+                <h3>Completed Orders History</h3>
+                <div id="completed-order-list-container">
+                    <p>No completed orders yet.</p>
+                </div>
             </section>
         </section>
     </main>
