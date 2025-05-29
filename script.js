@@ -1,6 +1,6 @@
 // Firebase configuration
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"; // Updated to a newer SDK version
-import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"; // Updated to a newer SDK version
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAmTmPgLYBiPXMTqyTAsw5vIrs-11h7-9A", // Keep your actual API key
@@ -44,6 +44,11 @@ navLinks.forEach(link => {
         const targetId = this.getAttribute('href');
         const targetElement = document.querySelector(targetId);
         if (targetElement) {
+            // Adjust for sticky header height if necessary
+            // const headerOffset = document.querySelector('header').offsetHeight;
+            // const elementPosition = targetElement.getBoundingClientRect().top;
+            // const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            // window.scrollTo({ top: offsetPosition, behavior: 'smooth'});
             targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     });
@@ -85,6 +90,9 @@ onValue(productsRef, (snapshot) => {
         allProducts = {}; // Ensure it's an empty object if no data
         productContainer.innerHTML = '<p class="no-products-message">No products available at the moment. Please check back later!</p>';
     }
+}, (error) => {
+    console.error("Firebase product read failed: " + error.message);
+    productContainer.innerHTML = '<p class="no-products-message">Could not load products. Please try again later.</p>';
 });
 
 // --- Category filtering ---
@@ -132,7 +140,8 @@ function openProductModal(product) {
     document.getElementById('modal-product-brand').textContent = product.brand || 'N/A';
     document.getElementById('modal-product-description').textContent = product.description;
     document.getElementById('modal-product-price').textContent = `PKR ${product.price.toLocaleString()}`;
-    document.getElementById('modal-product-stock').textContent = product.stock !== undefined ? product.stock : 'N/A';
+    document.getElementById('modal-product-stock').textContent = product.stock !== undefined ? (product.stock > 0 ? `${product.stock} available` : 'Out of Stock') : 'N/A';
+    placeOrderButton.disabled = product.stock === 0; // Disable button if out of stock
 
 
     const imageGallery = document.getElementById('modal-product-images');
@@ -155,7 +164,27 @@ function openProductModal(product) {
 
     const productVideo = document.getElementById('modal-product-video');
     if (product.videoUrl) {
-        productVideo.src = product.videoUrl;
+        // Basic YouTube URL to Embed URL conversion
+        let embedUrl = product.videoUrl;
+        if (product.videoUrl.includes("youtube.com/watch?v=")) {
+            embedUrl = product.videoUrl.replace("watch?v=", "embed/");
+        } else if (product.videoUrl.includes("youtu.be/")) {
+            embedUrl = product.videoUrl.replace("youtu.be/", "youtube.com/embed/");
+        }
+        // Remove other parameters like &list=...
+        const queryIndex = embedUrl.indexOf('?');
+        if (queryIndex !== -1) {
+             const videoIdPart = embedUrl.substring(0, queryIndex);
+             const params = new URLSearchParams(embedUrl.substring(queryIndex));
+             if (params.has('v')) { // For URLs like /embed/?v=VIDEO_ID
+                 embedUrl = `https://www.youtube.com/embed/${params.get('v')}`;
+             } else if (videoIdPart.includes("/embed/")) { // If it's already an embed link but with params
+                 embedUrl = videoIdPart;
+             }
+        }
+
+
+        productVideo.src = embedUrl;
         productVideo.style.display = 'block';
     } else {
         productVideo.style.display = 'none';
@@ -170,7 +199,7 @@ closeButtons.forEach(button => {
     button.addEventListener('click', () => {
         productModal.style.display = 'none';
         orderModal.style.display = 'none';
-        codForm.style.display = 'none';
+        codForm.style.display = 'none'; // Ensure form is hidden on modal close
     });
 });
 
@@ -194,10 +223,11 @@ placeOrderButton.addEventListener('click', () => {
         alert("Sorry, this product is currently out of stock.");
         return;
     }
-    productModal.style.display = 'none';
-    orderModal.style.display = 'flex';
-    codForm.style.display = 'block';
+    productModal.style.display = 'none'; // Close product modal
+    orderModal.style.display = 'flex'; // Open order modal
+    codForm.style.display = 'block'; // Ensure COD form is visible
 });
+
 
 // --- Confirm Cash on Delivery Order ---
 confirmCodOrderButton.addEventListener('click', async () => {
@@ -209,19 +239,23 @@ confirmCodOrderButton.addEventListener('click', async () => {
         alert('Please fill in all delivery details.');
         return;
     }
-    // Basic phone validation (Pakistani format)
-    if (!/^(03\d{2}-\d{7})$/.test(phone) && !/^(03\d{9})$/.test(phone)) {
-         alert('Please enter a valid phone number (e.g., 03XX-XXXXXXX or 03XXXXXXXXX).');
+    if (!/^(03\d{2}[-\s]?\d{7})$/.test(phone) && !/^(03\d{9})$/.test(phone)) {
+         alert('Please enter a valid Pakistani phone number (e.g., 03XX-XXXXXXX or 03XXXXXXXXX).');
         return;
     }
-
 
     if (!currentProduct) {
         alert('Error: No product selected. Please close this form and select a product.');
         return;
     }
+     if (currentProduct.stock === 0) {
+        alert("Sorry, this product just went out of stock.");
+        orderModal.style.display = 'none';
+        codForm.style.display = 'none';
+        return;
+    }
 
-    // Disable button to prevent multiple submissions
+
     confirmCodOrderButton.disabled = true;
     confirmCodOrderButton.textContent = 'Processing...';
 
@@ -240,14 +274,6 @@ confirmCodOrderButton.addEventListener('click', async () => {
             status: "Pending"
         });
 
-        // Optionally, update stock in Firebase (if tracking stock tightly)
-        // This requires careful handling of concurrent updates.
-        // For simplicity, we'll assume stock is managed primarily via admin panel.
-        // if (currentProduct.stock !== undefined) {
-        //     const productStockRef = ref(database, `products/${currentProduct.id}/stock`);
-        //     await set(productStockRef, currentProduct.stock - 1);
-        // }
-
         alert(`Order for "${currentProduct.title}" placed successfully! We will contact you soon for delivery.`);
         orderModal.style.display = 'none';
         codForm.style.display = 'none';
@@ -260,7 +286,6 @@ confirmCodOrderButton.addEventListener('click', async () => {
         console.error("Error placing order: ", error);
         alert("Failed to place order. Please try again. Error: " + error.message);
     } finally {
-        // Re-enable button
         confirmCodOrderButton.disabled = false;
         confirmCodOrderButton.textContent = 'Confirm Order (Cash on Delivery)';
     }
