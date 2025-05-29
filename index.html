@@ -13,63 +13,62 @@
         <h1>SHJR.shop</h1>
         <nav class="main-nav">
             <ul>
-                <li><a href="#history-section">Our History</a></li>
-                <li><a href="#about-us-section">About Us</a></li>
-                <li><a href="#contact-us-section">Contact Us</a></li>
+                <li><a href="#history-section" class="nav-link" data-target="home-view">Our History</a></li>
+                <li><a href="#about-us-section" class="nav-link" data-target="home-view">About Us</a></li>
+                <li><a href="#contact-us-section" class="nav-link" data-target="home-view">Contact Us</a></li>
+                <li><a href="#" id="support-nav-link">Support</a></li>
             </ul>
         </nav>
     </header>
 
     <main>
-        <section class="search-section">
-            <h2>Search Products</h2>
-            <input type="text" id="search-bar" class="search-input" placeholder="Search by name or description...">
-        </section>
+        <div id="home-view" class="content-view">
+            <section class="search-section">
+                <h2>Search Products</h2>
+                <input type="text" id="search-bar" class="search-input" placeholder="Search by name or description...">
+            </section>
 
-        <section class="categories">
-            <h2>Categories</h2>
-            <div class="category-list">
-                <button class="category-button" data-category="All Products">All Products</button>
-                <button class="category-button" data-category="Fabric">Fabric</button>
-                <button class="category-button" data-category="Organic">Organic</button>
-                <button class="category-button" data-category="Other Brands">Other Brands</button>
-            </div>
-        </section>
-
-        <section class="product-listing">
-            <h2>Products</h2>
-            <div id="product-container" class="product-grid">
+            <section class="categories">
+                <h2>Categories</h2>
+                <div class="category-list">
+                    <button class="category-button" data-category="All Products">All Products</button>
+                    <button class="category-button" data-category="Fabric">Fabric</button>
+                    <button class="category-button" data-category="Organic">Organic</button>
+                    <button class="category-button" data-category="Other Brands">Other Brands</button>
                 </div>
-        </section>
+            </section>
 
-        <section id="history-section" class="info-section history-section">
-            <h2>Our History</h2>
-            <p>SHJR.shop started its journey in **2017**, aiming to provide quality products to our valued customers. We have consistently grown by focusing on customer satisfaction and expanding our range of unique and high-quality items. Our commitment is to bring the best to your doorstep.</p>
-        </section>
+            <section class="product-listing">
+                <h2>Products</h2>
+                <div id="product-container" class="product-grid">
+                </div>
+            </section>
 
-        <section id="about-us-section" class="info-section about-us-section">
-            <h2>About Us</h2>
-            <p>Welcome to SHJR.shop! We are passionate about bringing you a curated selection of fine fabrics, organic goods, and products from other distinctive brands. Our mission is to offer high-quality items that enhance your lifestyle, combined with a seamless online shopping experience. We believe in quality, transparency, and customer delight.</p>
-        </section>
+            <section id="history-section" class="info-section history-section">
+                <h2>Our History</h2>
+                <p>SHJR.shop started its journey in **2017**, aiming to provide quality products to our valued customers. We have consistently grown by focusing on customer satisfaction and expanding our range of unique and high-quality items. Our commitment is to bring the best to your doorstep.</p>
+            </section>
 
-        <section id="contact-us-section" class="info-section contact-us-section">
-            <h2>Contact Us</h2>
-            <p>**Email:** <a href="mailto:khalidja2010@gmail.com">khalidja2010@gmail.com</a></p>
-            <p>**Phone:** <a href="tel:03344148636">0334-4148636</a>, <a href="tel:03356566933">0335-6566933</a></p>
-            <p>**Address:** House no 2, C block PASCO society Canal road lahore Pakistan & House no 57, C block PASCO society Canal road lahore Pakistan.</p>
-        </section>
+            <section id="about-us-section" class="info-section about-us-section">
+                <h2>About Us</h2>
+                <p>Welcome to SHJR.shop! We are passionate about bringing you a curated selection of fine fabrics, organic goods, and products from other distinctive brands. Our mission is to offer high-quality items that enhance your lifestyle, combined with a seamless online shopping experience. We believe in quality, transparency, and customer delight.</p>
+            </section>
 
-        <section id="support-section" class="info-section support-section">
-            <h2>Support</h2>
-            <p>If you need any assistance, our support team is here to help. You can reach out to us through the following channels:</p>
-            <ul>
-                <li>**Live Chat:** Available during business hours (10 AM - 6 PM PKT).</li>
-                <li>**Email Support:** Send us an email at <a href="mailto:support@shjr.shop">support@shjr.shop</a> and we'll respond within 24 hours.</li>
-                <li>**FAQ:** Check our <a href="#" onclick="alert('FAQ section coming soon!')">Frequently Asked Questions</a> for quick answers to common queries.</li>
-                <li>**Phone Support:** Call us at <a href="tel:03344148636">0334-4148636</a> for immediate assistance.</li>
-            </ul>
-            <p>We are committed to providing you with the best possible support experience.</p>
-        </section>
+            <section id="contact-us-section" class="info-section contact-us-section">
+                <h2>Contact Us</h2>
+                <p>**Email:** <a href="mailto:khalidja2010@gmail.com">khalidja2010@gmail.com</a></p>
+                <p>**Phone:** <a href="tel:03344148636">0334-4148636</a>, <a href="tel:03356566933">0335-6566933</a></p>
+                <p>**Address:** House no 2, C block PASCO society Canal road lahore Pakistan & House no 57, C block PASCO society Canal road lahore Pakistan.</p>
+            </section>
+        </div> <div id="support-view" class="content-view" style="display:none;">
+            <div class="support-iframe-container">
+                <div class="support-iframe-header">
+                    <button id="back-to-home" class="back-button">&#8592;</button>
+                    <h2>SHJR.shop Support</h2>
+                </div>
+                <iframe src="https://warnightog-thunderbound.github.io/SHJR-Support-APP" class="support-app-iframe"></iframe>
+            </div>
+        </div>
     </main>
 
     <div id="product-modal" class="modal">
