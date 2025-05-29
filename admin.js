@@ -98,18 +98,21 @@ navTabs.forEach(tab => {
 productImageInputs.forEach((input, index) => {
     input.addEventListener('input', () => {
         const url = input.value.trim();
+        const previewEl = productImagePreviews[index];
+        const placeholderEl = productImagePlaceholders[index];
         if (url) {
-            productImagePreviews[index].src = url;
-            productImagePreviews[index].style.display = 'block';
-            productImagePlaceholders[index].style.display = 'none';
-            productImagePreviews[index].onerror = () => { // Fallback if image fails to load
-                productImagePreviews[index].style.display = 'none';
-                productImagePlaceholders[index].style.display = 'flex';
+            previewEl.src = url;
+            previewEl.style.display = 'block';
+            placeholderEl.style.display = 'none';
+            previewEl.onerror = () => { // Fallback if image fails to load
+                previewEl.style.display = 'none';
+                placeholderEl.style.display = 'flex';
+                previewEl.src = ''; // Clear src to prevent broken image icon on retry
             };
         } else {
-            productImagePreviews[index].style.display = 'none';
-            productImagePlaceholders[index].style.display = 'flex';
-            productImagePreviews[index].src = ''; // Clear src to prevent old image flashing
+            previewEl.style.display = 'none';
+            placeholderEl.style.display = 'flex';
+            previewEl.src = ''; // Clear src
         }
     });
 });
@@ -128,12 +131,18 @@ function resetImagePreviews() {
 adminLoginBtn.addEventListener('click', async () => {
     const email = adminEmailInput.value;
     const password = adminPasswordInput.value;
+    adminLoginBtn.disabled = true;
+    adminLoginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         console.log('Admin logged in:', userCredential.user.email);
+        // UI update will be handled by onAuthStateChanged
     } catch (error) {
         alert('Login failed: ' + error.message);
         console.error('Login error:', error);
+    } finally {
+        adminLoginBtn.disabled = false;
+        adminLoginBtn.innerHTML = 'Login';
     }
 });
 
@@ -141,8 +150,10 @@ adminLogoutBtn.addEventListener('click', async () => {
     try {
         await signOut(auth);
         console.log('Admin logged out');
+        // UI will be updated by onAuthStateChanged listener
     } catch (error) {
         console.error('Logout error:', error);
+        alert('Logout failed: ' + error.message);
     }
 });
 
@@ -150,22 +161,22 @@ onAuthStateChanged(auth, (user) => {
     const adminEmail = "warnightog.thunderbound@gmail.com"; // Centralize admin email
     if (user && user.email === adminEmail) {
         currentAdminUID = user.uid;
+        console.log("Admin UID for Firebase Rules:", currentAdminUID); // Log UID for rule configuration
         authSection.style.display = 'none';
         adminDashboard.style.display = 'block';
         loadProducts();
         loadPendingOrders();
         loadCompletedOrders();
-        // Set default active tab (e.g., product management)
-        navTabs.forEach(t => t.classList.remove('active'));
-        tabContents.forEach(c => c.classList.remove('active'));
-        document.querySelector('.admin-nav-tab[data-tab="product-management-tab"]').classList.add('active');
-        document.getElementById("product-management-tab").classList.add('active');
+        // Set default active tab
+        const defaultTab = document.querySelector('.admin-nav-tab[data-tab="product-management-tab"]');
+        if (defaultTab) defaultTab.click();
+
 
     } else {
         currentAdminUID = null;
         authSection.style.display = 'block';
         adminDashboard.style.display = 'none';
-        adminEmailInput.value = adminEmail;
+        adminEmailInput.value = adminEmail; // Pre-fill admin email
         adminPasswordInput.value = '';
         productListContainer.innerHTML = '<p class="no-items-message">Login to manage products.</p>';
         orderListContainer.innerHTML = '<p class="no-items-message">Login to manage orders.</p>';
@@ -187,8 +198,8 @@ function clearProductForm() {
     resetImagePreviews();
     productVideoInput.value = '';
     productFeaturedCheckbox.checked = false;
-    addEditProductBtn.textContent = 'Add Product';
-    addEditProductBtn.innerHTML = '<i class="fas fa-plus"></i> Add Product';
+    addEditProductBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Add Product';
+    productTitleInput.focus();
 }
 
 clearFormBtn.addEventListener('click', clearProductForm);
@@ -206,13 +217,13 @@ addEditProductBtn.addEventListener('click', async () => {
     const images = productImageInputs.map(input => input.value.trim()).filter(url => url);
 
     if (!title || !description || !category || isNaN(price) || price <= 0 || isNaN(stock) || stock < 0 || images.length === 0) {
-        alert('Please fill in all required fields (Title, Description, Category, Price, Stock >= 0, at least one Image URL).');
+        alert('Please fill in all required fields (Title, Description, Category, Price > 0, Stock >= 0, at least one Image URL).');
         return;
     }
 
     const productData = {
         title,
-        brand: brand || '', // Store empty string if not provided
+        brand: brand || 'N/A', // Store 'N/A' or empty string if not provided
         description,
         category,
         price,
@@ -220,12 +231,16 @@ addEditProductBtn.addEventListener('click', async () => {
         images,
         videoUrl: videoUrl || '',
         featured,
-        updatedAt: serverTimestamp() // Keep track of updates
+        updatedAt: serverTimestamp()
     };
+
+    addEditProductBtn.disabled = true;
+    const originalButtonText = addEditProductBtn.innerHTML;
+    addEditProductBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
     try {
         if (id) { // Edit existing product
-            productData.id = id; // Ensure ID is part of the data being set
+            productData.id = id;
             await set(ref(database, 'products/' + id), productData);
             alert('Product updated successfully!');
         } else { // Add new product
@@ -239,6 +254,10 @@ addEditProductBtn.addEventListener('click', async () => {
     } catch (error) {
         alert('Error saving product: ' + error.message);
         console.error('Product save error:', error);
+    } finally {
+        addEditProductBtn.disabled = false;
+        addEditProductBtn.innerHTML = originalButtonText; // Or reset to "Add Product" if cleared
+        if (!id) clearProductForm(); // Ensure form is cleared if it was an add operation
     }
 });
 
@@ -254,9 +273,9 @@ function displayAdminProducts(productsToDisplay) {
         const productItem = document.createElement('div');
         productItem.classList.add('admin-product-item');
         productItem.innerHTML = `
-            <img src="${(product.images && product.images.length > 0) ? product.images[0] : 'https://via.placeholder.com/60x60.png?text=N/A'}" alt="${product.title}">
+            <img src="${(product.images && product.images.length > 0) ? product.images[0] : 'https://via.placeholder.com/65x65.png?text=N/A'}" alt="${product.title}">
             <div class="admin-product-details">
-                <h4>${product.title} (ID: ${product.id.substring(0,6)}...)</h4>
+                <h4>${product.title} (ID: ${product.id ? product.id.substring(product.id.length - 6) : 'N/A'})</h4>
                 <p><strong>Brand:</strong> ${product.brand || 'N/A'} | <strong>Category:</strong> ${product.category} | <strong>Price:</strong> PKR ${product.price.toLocaleString()}</p>
                 <p class="product-stock-info"><strong>Stock:</strong> ${product.stock} | <strong>Featured:</strong> ${product.featured ? 'Yes' : 'No'}</p>
             </div>
@@ -278,15 +297,15 @@ function displayAdminProducts(productsToDisplay) {
 
 
 function loadProducts() {
-    const productsRef = ref(database, 'products');
-    onValue(productsRef, (snapshot) => {
+    const productsRefDb = ref(database, 'products');
+    onValue(productsRefDb, (snapshot) => {
         const products = snapshot.val();
         allAdminProducts = products || {}; // Store for searching
         displayAdminProducts(allAdminProducts); // Display all initially
-        updateDashboardCounts(Object.keys(allAdminProducts).length, pendingOrdersCountEl.textContent, completedOrdersCountEl.textContent);
+        updateDashboardCounts(Object.keys(allAdminProducts).length, parseInt(pendingOrdersCountEl.textContent) || 0, parseInt(completedOrdersCountEl.textContent) || 0);
     }, (error) => {
         console.error("Error loading products:", error);
-        productListContainer.innerHTML = '<p class="no-items-message">Error loading products.</p>';
+        productListContainer.innerHTML = '<p class="no-items-message">Error loading products. Check console and Firebase rules.</p>';
     });
 }
 
@@ -297,22 +316,29 @@ adminProductSearchBtn.addEventListener('click', () => {
         displayAdminProducts(allAdminProducts);
         return;
     }
-    const filteredProducts = Object.values(allAdminProducts).filter(product =>
-        product.title.toLowerCase().includes(searchTerm) ||
-        product.id.toLowerCase().includes(searchTerm) ||
-        (product.brand && product.brand.toLowerCase().includes(searchTerm))
-    );
-    displayAdminProducts(filteredProducts);
+    const filtered = {};
+    for (const productId in allAdminProducts) {
+        const product = allAdminProducts[productId];
+        if (product.title.toLowerCase().includes(searchTerm) ||
+            productId.toLowerCase().includes(searchTerm) || // Search by full ID
+            (product.brand && product.brand.toLowerCase().includes(searchTerm))) {
+            filtered[productId] = product;
+        }
+    }
+    displayAdminProducts(filtered);
 });
-adminProductSearchInput.addEventListener('keyup', (event) => { // Allow search on enter
+adminProductSearchInput.addEventListener('keyup', (event) => {
     if (event.key === "Enter") {
         adminProductSearchBtn.click();
+    }
+    if (adminProductSearchInput.value.trim() === '') { // Show all if search is cleared
+        displayAdminProducts(allAdminProducts);
     }
 });
 
 
 function editProduct(id) {
-    const product = allAdminProducts[id]; // Use cached products for faster edit form population
+    const product = allAdminProducts[id];
     if (product) {
         productIdInput.value = product.id;
         productTitleInput.value = product.title;
@@ -324,22 +350,19 @@ function editProduct(id) {
         productFeaturedCheckbox.checked = product.featured || false;
         productVideoInput.value = product.videoUrl || '';
 
-        // Populate image inputs and previews
         resetImagePreviews();
         if (product.images && product.images.length > 0) {
             product.images.forEach((url, index) => {
                 if (index < productImageInputs.length) {
                     productImageInputs[index].value = url;
-                    // Trigger input event to update preview
-                    productImageInputs[index].dispatchEvent(new Event('input'));
+                    productImageInputs[index].dispatchEvent(new Event('input')); // Trigger preview
                 }
             });
         }
-        addEditProductBtn.textContent = 'Update Product';
         addEditProductBtn.innerHTML = '<i class="fas fa-save"></i> Update Product';
-        // Switch to product management tab and scroll to form
-        document.querySelector('.admin-nav-tab[data-tab="product-management-tab"]').click();
-        productTitleInput.focus(); // Focus on the title for quick editing
+        const productTab = document.querySelector('.admin-nav-tab[data-tab="product-management-tab"]');
+        if (productTab) productTab.click();
+        productTitleInput.focus();
         productIdInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
 
@@ -354,7 +377,7 @@ async function deleteProduct(id) {
         try {
             await remove(ref(database, 'products/' + id));
             alert('Product deleted successfully!');
-            // No need to call loadProducts() here, onValue will update automatically
+            // onValue in loadProducts will automatically update the list
         } catch (error) {
             alert('Error deleting product: ' + error.message);
             console.error('Product delete error:', error);
@@ -363,15 +386,16 @@ async function deleteProduct(id) {
 }
 
 // --- Order Management Logic ---
-function renderOrders(orders, container, isPendingList) {
+function renderOrders(ordersData, container, isPendingList) {
     container.innerHTML = '';
-    if (Object.keys(orders).length === 0) {
+    const ordersArray = Object.values(ordersData || {});
+    if (ordersArray.length === 0) {
         const message = isPendingList ? "No pending orders." : "No completed orders yet.";
         container.innerHTML = `<p class="no-items-message">${message}</p>`;
         return;
     }
 
-    const sortedOrders = Object.values(orders).sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+    const sortedOrders = ordersArray.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
 
     sortedOrders.forEach(order => {
         const orderItem = document.createElement('div');
@@ -383,23 +407,23 @@ function renderOrders(orders, container, isPendingList) {
         if (isPendingList) {
             actionsHtml = `
                 <div class="order-actions">
-                    <button class="mark-completed" data-order-id="${order.id}"><i class="fas fa-check"></i> Mark Completed</button>
-                    <button class="mark-cancelled" data-order-id="${order.id}"><i class="fas fa-times"></i> Cancel Order</button>
+                    <button class="mark-completed" data-order-id="${order.id}"><i class="fas fa-check-circle"></i> Mark Completed</button>
+                    <button class="mark-cancelled" data-order-id="${order.id}"><i class="fas fa-times-circle"></i> Cancel Order</button>
                 </div>`;
-        } else { // For completed orders, maybe a view details or delete history button in future
-             actionsHtml = `<p><em>Order processed on: ${order.completedDate ? new Date(order.completedDate).toLocaleString() : 'N/A'}</em></p>`;
+        } else {
+             actionsHtml = `<p><em>Order processed on: ${order.completedDate ? new Date(order.completedDate).toLocaleString() : new Date(order.orderDate).toLocaleString()}</em></p>`;
         }
 
 
         orderItem.innerHTML = `
             <h4>Order for: ${order.productTitle} (PKR ${order.productPrice.toLocaleString()})</h4>
-            <p><strong>Order ID:</strong> ${order.id.substring(0,8)}...</p>
+            <p><strong>Order ID:</strong> ${order.id ? order.id.substring(order.id.length - 8) : 'N/A'}</p>
             <p><strong>Customer:</strong> ${order.customerName} | <strong>Phone:</strong> ${order.customerPhone}</p>
             <p><strong>Address:</strong> ${order.customerAddress}</p>
             <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
             ${jazzCashTxnDisplay}
             <p><strong>Order Date:</strong> ${new Date(order.orderDate).toLocaleString()}</p>
-            <p><strong>Status:</strong> <span class="status ${order.status.toLowerCase().replace(' ', '-')}">${order.status}</span></p>
+            <p><strong>Status:</strong> <span class="status ${order.status.toLowerCase().replace(/\s+/g, '-')}">${order.status}</span></p>
             ${actionsHtml}
         `;
         container.appendChild(orderItem);
@@ -407,71 +431,90 @@ function renderOrders(orders, container, isPendingList) {
 
     if (isPendingList) {
         container.querySelectorAll('.mark-completed').forEach(button => {
-            button.addEventListener('click', (e) => completeOrder(e.currentTarget.dataset.orderId));
+            button.addEventListener('click', (e) => {
+                e.target.disabled = true; // Disable button on click
+                completeOrder(e.currentTarget.dataset.orderId).finally(() => {
+                    e.target.disabled = false; // Re-enable after operation
+                });
+            });
         });
         container.querySelectorAll('.mark-cancelled').forEach(button => {
-            button.addEventListener('click', (e) => cancelOrder(e.currentTarget.dataset.orderId));
+            button.addEventListener('click', (e) => {
+                e.target.disabled = true;
+                cancelOrder(e.currentTarget.dataset.orderId).finally(() => {
+                    e.target.disabled = false;
+                });
+            });
         });
     }
 }
 
 function loadPendingOrders() {
-    const ordersRef = ref(database, 'orders');
-    onValue(ordersRef, (snapshot) => {
+    const ordersRefDb = ref(database, 'orders');
+    onValue(ordersRefDb, (snapshot) => {
         const orders = snapshot.val() || {};
         renderOrders(orders, orderListContainer, true);
-        updateDashboardCounts(totalProductsCountEl.textContent, Object.keys(orders).length, completedOrdersCountEl.textContent);
-
+        updateDashboardCounts(Object.keys(allAdminProducts).length, Object.keys(orders).length, parseInt(completedOrdersCountEl.textContent) || 0);
     }, (error) => {
         console.error("Error loading pending orders:", error);
-        orderListContainer.innerHTML = '<p class="no-items-message">Error loading pending orders.</p>';
+        orderListContainer.innerHTML = '<p class="no-items-message">Error loading pending orders. Check console and Firebase rules.</p>';
     });
 }
 
 function loadCompletedOrders() {
-    const completedOrdersRef = ref(database, 'completedOrders');
-    onValue(completedOrdersRef, (snapshot) => {
+    const completedOrdersRefDb = ref(database, 'completedOrders');
+    onValue(completedOrdersRefDb, (snapshot) => {
         const orders = snapshot.val() || {};
         renderOrders(orders, completedOrderListContainer, false);
-        updateDashboardCounts(totalProductsCountEl.textContent, pendingOrdersCountEl.textContent, Object.keys(orders).length);
+        updateDashboardCounts(Object.keys(allAdminProducts).length, parseInt(pendingOrdersCountEl.textContent) || 0, Object.keys(orders).length);
     }, (error) => {
         console.error("Error loading completed orders:", error);
-        completedOrderListContainer.innerHTML = '<p class="no-items-message">Error loading completed orders.</p>';
+        completedOrderListContainer.innerHTML = '<p class="no-items-message">Error loading completed orders. Check console and Firebase rules.</p>';
     });
 }
 
 async function completeOrder(orderId) {
-    if (!confirm(`Are you sure you want to mark order ${orderId.substring(0,8)}... as completed?`)) return;
+    if (!confirm(`Are you sure you want to mark order ${orderId.substring(orderId.length - 6)} as completed?`)) return;
 
-    const orderRef = ref(database, 'orders/' + orderId);
-    onValue(orderRef, async (snapshot) => {
-        const orderData = snapshot.val();
-        if (orderData) {
-            try {
-                const completedOrderData = {
-                    ...orderData,
-                    status: 'Completed',
-                    completedDate: serverTimestamp()
-                };
-                await set(ref(database, 'completedOrders/' + orderId), completedOrderData);
-                await remove(orderRef); // Remove from pending orders
-                alert(`Order ${orderId.substring(0,8)}... marked as completed and moved to history.`);
-            } catch (error) {
-                alert('Error completing order: ' + error.message);
-                console.error('Order completion error:', error);
-            }
+    const orderToCompleteRef = ref(database, 'orders/' + orderId);
+    try {
+        const snapshot = await onValue(orderToCompleteRef, (snap) => {
+            // This callback structure with onValue is tricky for a single operation.
+            // Better to get data once.
+        }, { onlyOnce: true }); // Ensure we get data only once for this operation.
+
+        // Re-fetch data with get() for a more reliable single read in an async operation
+        const orderDataSnapshot = await get(orderToCompleteRef);
+
+
+        if (orderDataSnapshot.exists()) {
+            const orderData = orderDataSnapshot.val();
+            const completedOrderData = {
+                ...orderData,
+                status: 'Completed',
+                completedDate: serverTimestamp()
+            };
+            await set(ref(database, 'completedOrders/' + orderId), completedOrderData);
+            await remove(orderToCompleteRef);
+            alert(`Order ${orderId.substring(orderId.length - 6)} marked as completed and moved to history.`);
         } else {
-            alert('Order not found in pending list. It might have been processed already.');
+            alert('Order not found in pending list. It might have been processed already or does not exist.');
         }
-    }, { onlyOnce: true }); // Fetch only once to avoid issues if data changes mid-operation
+    } catch (error) {
+        alert('Error completing order: ' + error.message);
+        console.error('Order completion error:', error);
+    }
 }
+// Need to import get for the above function
+import { get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
 
 async function cancelOrder(orderId) {
-     if (!confirm(`Are you sure you want to cancel and delete order ${orderId.substring(0,8)}...? This action cannot be undone.`)) return;
+     if (!confirm(`Are you sure you want to cancel and delete order ${orderId.substring(orderId.length - 6)}? This action cannot be undone.`)) return;
     try {
         await remove(ref(database, 'orders/' + orderId));
-        alert(`Order ${orderId.substring(0,8)}... has been cancelled and removed.`);
+        alert(`Order ${orderId.substring(orderId.length - 6)} has been cancelled and removed.`);
+        // onValue in loadPendingOrders will update the list
     } catch (error) {
         alert('Error cancelling order: ' + error.message);
         console.error('Order cancellation error:', error);
@@ -479,25 +522,18 @@ async function cancelOrder(orderId) {
 }
 
 // --- Dashboard Summary Updates ---
-function updateDashboardCounts(products, pending, completed) {
-    totalProductsCountEl.textContent = products;
-    pendingOrdersCountEl.textContent = pending;
-    completedOrdersCountEl.textContent = completed;
+function updateDashboardCounts(productsCount, pendingCount, completedCount) {
+    totalProductsCountEl.textContent = productsCount || 0;
+    pendingOrdersCountEl.textContent = pendingCount || 0;
+    completedOrdersCountEl.textContent = completedCount || 0;
 }
 
-// Initialize the page by setting default tab (if not handled by auth state change)
+// Initial call if needed, though onAuthStateChanged should handle setup
 document.addEventListener('DOMContentLoaded', () => {
-    if (!auth.currentUser) { // If not logged in, ensure login form is visible
-         authSection.style.display = 'block';
-         adminDashboard.style.display = 'none';
-    } else {
-        // If somehow user is logged in but UI didn't update, trigger tab setup
-        // This is mostly a fallback, onAuthStateChanged should handle it
-        if(adminDashboard.style.display === 'block') {
-            navTabs.forEach(t => t.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-            document.querySelector('.admin-nav-tab[data-tab="product-management-tab"]').classList.add('active');
-            document.getElementById("product-management-tab").classList.add('active');
-        }
+    if (auth.currentUser && adminDashboard.style.display === 'block') {
+        // Already handled by onAuthStateChanged
+    } else if (!auth.currentUser) {
+        authSection.style.display = 'block';
+        adminDashboard.style.display = 'none';
     }
 });
