@@ -42,6 +42,9 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
+    display: flex; /* For sticky footer */
+    flex-direction: column; /* For sticky footer */
+    min-height: 100vh; /* For sticky footer */
 }
 
 @keyframes gradientShift {
@@ -111,6 +114,7 @@ main {
     border-radius: var(--border-radius-large);
     box-shadow: var(--shadow-heavy);
     overflow-x: hidden;
+    flex-grow: 1; /* For sticky footer */
 }
 
 section {
@@ -178,6 +182,12 @@ h2 {
     max-width: 48%; /* For 2 buttons per row on small screens */
     box-shadow: 0 4px 10px rgba(0, 188, 212, 0.2);
 }
+.category-button.active { /* Style for active category button */
+    background-color: var(--color-cyan-dark);
+    box-shadow: 0 2px 5px rgba(0, 188, 212, 0.15);
+    transform: translateY(1px);
+}
+
 
 .category-button:hover {
     background-color: var(--color-cyan-dark);
@@ -240,6 +250,12 @@ h2 {
     margin-bottom: 15px;
     flex-grow: 1;
 }
+.product-brand-card {
+    font-size: 0.85rem !important; /* Smaller brand text on card */
+    color: var(--color-medium-gray) !important;
+    margin-bottom: 8px !important;
+}
+
 
 .product-info .price {
     font-weight: bold;
@@ -248,6 +264,16 @@ h2 {
     text-align: right;
     margin-top: auto;
 }
+.no-products-message {
+    grid-column: 1 / -1; /* Span all columns */
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--color-medium-gray);
+    padding: 20px;
+    background-color: var(--color-off-white);
+    border-radius: var(--border-radius-medium);
+}
+
 
 /* Modal styles */
 .modal {
@@ -384,12 +410,19 @@ h2 {
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
+.place-order-button:disabled, .confirm-order-button:disabled {
+    background-color: var(--color-medium-gray);
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
 
 .place-order-button {
     background-color: var(--color-pink-primary);
     box-shadow: 0 6px 15px rgba(233, 30, 99, 0.35);
 }
-.place-order-button:hover {
+.place-order-button:hover:not(:disabled) {
     background-color: var(--color-pink-dark);
     transform: translateY(-4px);
     box-shadow: 0 8px 20px rgba(233, 30, 99, 0.45);
@@ -444,7 +477,7 @@ h2 {
     background-color: var(--color-cyan-primary);
     box-shadow: 0 6px 15px rgba(0, 188, 212, 0.35);
 }
-.confirm-order-button:hover {
+.confirm-order-button:hover:not(:disabled) {
     background-color: var(--color-cyan-dark);
     transform: translateY(-4px);
     box-shadow: 0 8px 20px rgba(0, 188, 212, 0.45);
@@ -615,4 +648,21 @@ h2 {
     .info-section {
         padding: 40px;
     }
+}
+
+/* Footer Styles */
+.app-footer {
+    text-align: center;
+    padding: 25px 15px;
+    background-color: var(--color-dark-gray); /* Match header */
+    color: var(--color-light-gray); /* Use a light color from your palette */
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-top: auto; /* Pushes footer to bottom when main content is short */
+    border-top: 3px solid var(--color-cyan-primary); /* Accent top border */
+    width: 100%; /* Ensure footer spans width */
+}
+
+.app-footer p {
+    margin: 6px 0;
 }
