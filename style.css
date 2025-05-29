@@ -666,3 +666,88 @@ h2 {
 .app-footer p {
     margin: 6px 0;
 }
+/* General styling for content views */
+.content-view {
+    width: 100%;
+    /* Add any other common styles for content views */
+}
+
+/* Styles for the support iframe container */
+.support-iframe-container {
+    display: flex;
+    flex-direction: column;
+    /* Calc height to fill space between header and footer, adjust as needed */
+    min-height: calc(100vh - var(--header-height, 60px) - var(--footer-height, 60px)); /* Adjust header/footer heights if they vary */
+}
+
+.support-iframe-header {
+    background-color: #333; /* Dark background for header */
+    color: white;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center the title by default */
+    position: relative; /* For positioning back button */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.support-iframe-header h2 {
+    margin: 0;
+    font-size: 1.2em;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.8em; /* Larger arrow */
+    cursor: pointer;
+    position: absolute;
+    left: 15px; /* Position to the left */
+    padding: 0;
+    line-height: 1;
+}
+
+.support-app-iframe {
+    flex-grow: 1; /* Make iframe take up all available space */
+    width: 100%;
+    border: none; /* Remove iframe border */
+}
+
+/* Optional: Define CSS variables for easier maintenance of header/footer heights */
+:root {
+    --header-height: 60px; /* Example header height */
+    --footer-height: 60px; /* Example footer height */
+}
+
+header {
+    /* Ensure header has a fixed height for calculation */
+    height: var(--header-height);
+    /* Add any other header styles */
+}
+
+footer {
+    /* Ensure footer has a fixed height for calculation */
+    height: var(--footer-height);
+    /* Add any other footer styles */
+}
+
+/* If your body uses flexbox for overall layout, ensure it's set up correctly */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensure body takes full viewport height */
+}
+
+main {
+    flex-grow: 1; /* Make main content area expand */
+    display: flex; /* Allow main to manage its direct children (home-view, support-view) */
+    flex-direction: column; /* Stack children vertically */
+}
+
+/* Ensure only one content-view is visible at a time managed by JS */
+.content-view {
+    flex-shrink: 0; /* Prevent shrinking when hidden */
+    flex-grow: 0;   /* Prevent growing when hidden */
+    width: 100%;
+}
