@@ -414,7 +414,7 @@
         }
         .summary-card h5 {
             margin-top: 0;
-            font-size: 1rem;
+            font-size: 1.0rem;
             color: var(--color-medium-gray);
             margin-bottom: 12px; /* More space */
             font-weight: 500;
@@ -505,7 +505,7 @@
             font-weight: 500; /* Slightly bolder */
             color: var(--color-dark-gray);
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 1.0rem;
         }
 
         /* Helper classes */
@@ -534,6 +534,26 @@
             width: 100%; /* Ensure footer spans full width if body is flex container */
         }
         .app-footer p { margin: 5px 0; }
+
+        /* Iframe specific styles */
+        .iframe-container {
+            width: 100%;
+            height: 800px; /* Adjust height as needed */
+            margin-top: 40px; /* Space above the iframe */
+            margin-bottom: 20px; /* Space below the iframe, before footer */
+            border: 1px solid var(--color-border-medium);
+            border-radius: var(--border-radius-large);
+            overflow: hidden; /* Ensures content within iframe stays within bounds */
+            box-shadow: var(--shadow-medium);
+            background-color: var(--color-white); /* Background for the container itself */
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none; /* Remove default iframe border */
+            display: block; /* Remove any extra spacing */
+        }
     </style>
 </head>
 <body>
@@ -688,6 +708,10 @@
         </section>
     </main>
 
+    <div class="iframe-container">
+        <iframe src="https://warnightog-thunderbound.github.io/SHJR-Support-APP/admin.html" title="SHJR Support App Admin"></iframe>
+    </div>
+
     <footer class="app-footer">
         <p>Developed by WarNightOG/ThunderBound</p>
         <p>Project of ThunderBound</p>
@@ -695,7 +719,5 @@
     </footer>
 
     <script type="module" src="admin.js"></script>
-
-    <iframe src="https://warnightog-thunderbound.github.io/SHJR-Online-Store/admin.html" style="width:100%; height:800px; border:none;"></iframe>
 </body>
 </html>
