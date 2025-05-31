@@ -321,3 +321,5 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+}); // This closes the document.addEventListener('DOMContentLoaded' block
+
