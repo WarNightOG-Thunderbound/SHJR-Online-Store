@@ -1,6 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 import { getDatabase, ref, onValue, push, set, update, remove, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
+
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -18,6 +20,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const database = getDatabase(app);
+const storage = getStorage(app); // Initialize Firebase Storage
 
 // Admin UI Elements
 const authSection = document.getElementById('auth-section');
@@ -49,7 +52,14 @@ const adminProductSearchInput = document.getElementById('admin-product-search');
 const adminProductSearchBtn = document.getElementById('admin-product-search-btn');
 
 // Image Input Elements
-const productImageInputs = [
+const productImageUploadInputs = [ // New: File inputs for upload
+    document.getElementById('product-image-upload-1'),
+    document.getElementById('product-image-upload-2'),
+    document.getElementById('product-image-upload-3'),
+    document.getElementById('product-image-upload-4'),
+    document.getElementById('product-image-upload-5'),
+];
+const productImageURLInputs = [ // Existing: Text inputs for URL
     document.getElementById('product-image-1'),
     document.getElementById('product-image-2'),
     document.getElementById('product-image-3'),
@@ -70,6 +80,8 @@ const productImagePlaceholders = [
     document.getElementById('product-image-placeholder-4'),
     document.getElementById('product-image-placeholder-5'),
 ];
+const uploadImageButtons = document.querySelectorAll('.upload-image-btn'); // New: Upload buttons
+
 
 // Order Management Elements
 const orderListContainer = document.getElementById('order-list-container');
@@ -94,8 +106,8 @@ navTabs.forEach(tab => {
 });
 
 
-// --- Image Preview Logic ---
-productImageInputs.forEach((input, index) => {
+// --- Image Preview Logic (updated for URL inputs) ---
+productImageURLInputs.forEach((input, index) => {
     input.addEventListener('input', () => {
         const url = input.value.trim();
         const previewEl = productImagePreviews[index];
@@ -125,7 +137,46 @@ function resetImagePreviews() {
     productImagePlaceholders.forEach(placeholder => {
         placeholder.style.display = 'flex';
     });
+    productImageURLInputs.forEach(input => input.value = ''); // Clear URL inputs
+    productImageUploadInputs.forEach(input => input.value = ''); // Clear file inputs
 }
+
+// --- Image Upload Logic ---
+uploadImageButtons.forEach((button, index) => {
+    button.addEventListener('click', async (e) => {
+        e.preventDefault(); // Prevent form submission
+        const fileInput = productImageUploadInputs[index];
+        const urlInput = productImageURLInputs[index];
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert('Please select an image file to upload.');
+            return;
+        }
+
+        const originalButtonHTML = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+
+        const storagePath = `product_images/${Date.now()}_${file.name}`;
+        const imageRef = storageRef(storage, storagePath);
+
+        try {
+            const snapshot = await uploadBytes(imageRef, file);
+            const downloadURL = await getDownloadURL(snapshot.ref);
+            urlInput.value = downloadURL;
+            urlInput.dispatchEvent(new Event('input')); // Trigger preview update
+            alert('Image uploaded successfully!');
+        } catch (error) {
+            console.error('Image upload error:', error);
+            alert('Failed to upload image: ' + error.message);
+        } finally {
+            button.disabled = false;
+            button.innerHTML = originalButtonHTML;
+        }
+    });
+});
+
 
 // --- Authentication Logic ---
 adminLoginBtn.addEventListener('click', async () => {
@@ -191,7 +242,8 @@ function clearProductForm() {
     productCategorySelect.value = 'Fabric';
     productPriceInput.value = '';
     productStockInput.value = '1';
-    productImageInputs.forEach(input => input.value = '');
+    productImageURLInputs.forEach(input => input.value = ''); // Clear URL inputs
+    productImageUploadInputs.forEach(input => input.value = ''); // Clear file inputs
     resetImagePreviews();
     productVideoInput.value = '';
     productFeaturedCheckbox.checked = false;
@@ -211,7 +263,7 @@ addEditProductBtn.addEventListener('click', async () => {
     const stock = parseInt(productStockInput.value, 10);
     const featured = productFeaturedCheckbox.checked;
     const videoUrl = productVideoInput.value.trim();
-    const images = productImageInputs.map(input => input.value.trim()).filter(url => url);
+    const images = productImageURLInputs.map(input => input.value.trim()).filter(url => url); // Use URL inputs for saving
 
     if (!title || !description || !category || isNaN(price) || price <= 0 || isNaN(stock) || stock < 0 || images.length === 0) {
         alert('Please fill in all required fields (Title, Description, Category, Price > 0, Stock >= 0, at least one Image URL).');
@@ -333,7 +385,7 @@ adminProductSearchInput.addEventListener('keyup', (event) => {
         adminProductSearchBtn.click();
     }
     if (adminProductSearchInput.value.trim() === '') {
-        displayAdminProducts(allAdminProducts);
+        adminProductSearchBtn.click(); // Trigger search on empty input to refresh list
     }
 });
 
@@ -351,12 +403,12 @@ function editProduct(id) {
         productFeaturedCheckbox.checked = product.featured || false;
         productVideoInput.value = product.videoUrl || '';
 
-        resetImagePreviews();
+        resetImagePreviews(); // Clear file inputs as well
         if (product.images && product.images.length > 0) {
             product.images.forEach((url, index) => {
-                if (index < productImageInputs.length) {
-                    productImageInputs[index].value = url;
-                    productImageInputs[index].dispatchEvent(new Event('input'));
+                if (index < productImageURLInputs.length) {
+                    productImageURLInputs[index].value = url;
+                    productImageURLInputs[index].dispatchEvent(new Event('input')); // Trigger preview update
                 }
             });
         }
