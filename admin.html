@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-  /* Color Variables */
+        /* Color Variables */
         :root {
             --color-white: #FFFFFF;
             --color-off-white: #F8F9FA;
@@ -178,7 +178,6 @@
             justify-content: center;
         }
         .admin-button i { margin-right: 8px; }
-
         .admin-button:hover:not(:disabled) {
             background-color: var(--color-cyan-dark);
             transform: translateY(-2px);
@@ -190,7 +189,6 @@
             box-shadow: none;
         }
         .admin-button.full-width { width: 100%; }
-
         .admin-button.secondary {
             background-color: var(--color-medium-gray);
             box-shadow: 0 3px 8px rgba(108, 117, 125, 0.2);
@@ -199,45 +197,79 @@
             background-color: #5a6268; /* Darker medium gray */
             box-shadow: 0 5px 12px rgba(108, 117, 125, 0.3);
         }
-
-        .admin-product-list, .order-management-container, .completed-orders-container {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid var(--color-border-light);
+        .admin-button.danger {
+            background-color: var(--color-error-red);
+            box-shadow: 0 3px 8px rgba(220, 53, 69, 0.2);
+        }
+        .admin-button.danger:hover:not(:disabled) {
+            background-color: var(--color-error-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(220, 53, 69, 0.3);
         }
 
-        /* Search Bar for Products */
-        .product-search-bar {
-            margin-bottom: 25px;
+        /* Dashboard Overview */
+        .dashboard-overview {
             display: flex;
-            gap: 10px;
-            align-items: center;
+            justify-content: space-around;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
         }
-        .product-search-bar input {
-            flex-grow: 1;
-            padding: 12px 15px;
+        .dashboard-card {
+            background-color: var(--color-off-white);
+            border-radius: var(--border-radius-large);
+            padding: 25px;
+            text-align: center;
+            box-shadow: var(--shadow-soft);
+            flex: 1; /* Allow cards to grow */
+            min-width: 220px; /* Minimum width for cards */
+        }
+        .dashboard-card h4 {
+            color: var(--color-medium-gray);
             font-size: 1rem;
-            border: 1px solid var(--color-border-medium);
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .dashboard-card p.count {
+            font-size: 2.8rem; /* Larger count */
+            font-weight: 700;
+            color: var(--color-dark-gray);
+            margin: 0;
+            line-height: 1;
+        }
+
+        /* Product List / Order List Styling */
+        .admin-product-list, .order-management-container {
+            border: 1px solid var(--color-border-light);
             border-radius: var(--border-radius-medium);
-            margin-top: 0; /* Override general input margin if any */
+            overflow: hidden;
+            background-color: var(--color-white);
+            box-shadow: var(--shadow-soft);
         }
-        .product-search-bar button {
-            padding: 12px 20px; /* Consistent padding */
-            margin-top: 0; /* Align with input */
+        .no-items-message {
+            text-align: center;
+            color: var(--color-medium-gray);
+            padding: 20px;
+            font-style: italic;
         }
 
-
+        /* Individual Product Item */
         .admin-product-item {
             display: flex;
             align-items: center;
-            gap: 15px; /* Gap for spacing */
+            gap: 15px;
             padding: 18px 12px; /* More padding */
             border-bottom: 1px solid var(--color-border-light); /* Solid, lighter border */
             transition: background-color 0.2s ease;
         }
-        .admin-product-item:last-child { border-bottom: none; }
-        .admin-product-item:hover { background-color: var(--color-off-white); }
-
+        .admin-product-item:last-child {
+            border-bottom: none;
+        }
+        .admin-product-item:hover {
+            background-color: var(--color-off-white);
+        }
         .admin-product-item img {
             width: 65px; /* Slightly smaller for compactness */
             height: 65px;
@@ -246,7 +278,9 @@
             border: 1px solid var(--color-border-light);
             flex-shrink: 0; /* Prevent image from shrinking */
         }
-        .admin-product-details { flex-grow: 1; }
+        .admin-product-details {
+            flex-grow: 1;
+        }
         .admin-product-details h4 {
             margin: 0 0 4px 0; /* Adjusted margin */
             font-size: 1.1rem;
@@ -258,80 +292,59 @@
             font-size: 0.9rem;
             color: var(--color-medium-gray);
         }
-        .admin-product-details .product-stock-info { font-size: 0.85rem; color: var(--color-info-blue); margin-top: 3px; }
-
-
-        .admin-actions button {
-            background: transparent;
-            border: 1px solid;
-            cursor: pointer;
-            font-size: 0.85rem; /* Smaller action buttons */
-            margin-left: 8px;
-            padding: 7px 10px; /* Adjusted padding */
-            border-radius: var(--border-radius-small);
-            transition: background-color 0.2s, color 0.2s;
+        .admin-product-details .product-stock-info {
+            font-size: 0.85rem;
+            color: var(--color-info-blue);
+            margin-top: 5px;
             font-weight: 500;
-            text-transform: uppercase;
-            display: inline-flex;
-            align-items: center;
         }
-        .admin-actions button i { margin-right: 5px;}
-        .admin-actions .edit-btn { color: var(--color-cyan-primary); border-color: var(--color-cyan-primary); }
-        .admin-actions .edit-btn:hover { background-color: var(--color-cyan-light); color: var(--color-dark-gray); }
-        .admin-actions .delete-btn { color: var(--color-error-red); border-color: var(--color-error-red); }
-        .admin-actions .delete-btn:hover { background-color: #fce8e8; color: var(--color-error-dark); }
-
-        /* Auth Section */
-        .auth-section {
-            max-width: 450px; /* Limit width of login form */
-            margin: 50px auto; /* Center it with more top margin */
-            padding: 35px;
-            background-color: var(--color-white);
-            border-radius: var(--border-radius-large);
-            box-shadow: var(--shadow-strong);
-            text-align: center;
+        .admin-product-actions {
+            display: flex;
+            gap: 8px; /* Spacing between action buttons */
+            flex-shrink: 0;
         }
-        .auth-section h2 { margin-top: 0; margin-bottom: 25px; font-size: 1.8rem; color: var(--color-dark-gray); }
-        .auth-section input { margin-bottom: 18px; }
-        .auth-section .admin-button { width: 100%; } /* Full width login button */
-
-
-        .admin-logout-btn {
-            background-color: var(--color-error-red);
-            color: var(--color-white);
-            padding: 10px 18px;
-            border: none;
-            border-radius: var(--border-radius-medium);
-            cursor: pointer;
-            font-size: 0.95rem;
-            transition: background-color 0.3s ease;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-        }
-        .admin-logout-btn i { margin-right: 6px; }
-        .admin-logout-btn:hover { background-color: var(--color-error-dark); }
-
-        /* Order Item Styling */
-        .order-item {
-            background-color: var(--color-off-white);
-            border: 1px solid var(--color-border-light);
-            border-left: 5px solid var(--color-info-blue); /* Accent border */
-            border-radius: var(--border-radius-medium);
-            padding: 20px;
-            margin-bottom: 18px;
-            box-shadow: var(--shadow-soft);
-            transition: box-shadow 0.2s ease;
-        }
-        .order-item:hover { box-shadow: var(--shadow-medium); }
-
-        .order-item h4 {
+        .admin-product-actions .admin-button {
+            padding: 8px 12px; /* Smaller padding for action buttons */
+            font-size: 0.85rem;
             margin-top: 0;
-            color: var(--color-cyan-dark); /* Use a darker cyan */
-            font-size: 1.2rem; /* Slightly larger */
-            margin-bottom: 12px;
-            border-bottom: 1px dotted var(--color-border-medium); /* Dotted separator */
-            padding-bottom: 8px;
+            box-shadow: none; /* No shadow for these small buttons */
+        }
+        .admin-product-actions .admin-button i { margin-right: 5px; } /* Smaller icon margin */
+
+        /* Search Input */
+        .admin-search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .admin-search-bar input[type="text"] {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border-radius: var(--border-radius-medium);
+            border: 1px solid var(--color-border-medium);
+        }
+        .admin-search-bar .admin-button {
+            margin-top: 0;
+            padding: 10px 15px; /* Adjust button padding to match input */
+        }
+
+
+        /* Order List Items */
+        .order-item {
+            padding: 20px;
+            border-bottom: 1px solid var(--color-border-light);
+            transition: background-color 0.2s ease;
+        }
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        .order-item:hover {
+            background-color: var(--color-off-white);
+        }
+        .order-item h4 {
+            margin: 0 0 8px;
+            color: var(--color-dark-gray);
+            font-size: 1.2rem;
             font-weight: 600;
         }
         .order-item p {
@@ -339,8 +352,10 @@
             font-size: 0.95rem;
             color: var(--color-medium-gray);
         }
-        .order-item p strong { color: var(--color-dark-gray); font-weight: 500; }
-
+        .order-item p strong {
+            color: var(--color-dark-gray);
+            font-weight: 500;
+        }
         .order-item .status {
             font-weight: bold;
             padding: 5px 10px; /* More padding */
@@ -350,194 +365,143 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        .order-item .status.pending { color: var(--color-warning-dark); background-color: #fff3cd; border: 1px solid var(--color-warning-yellow); }
-        .order-item .status.completed { color: var(--color-success-dark); background-color: #d4edda; border: 1px solid var(--color-success-green);}
-        .order-item .status.cancelled { color: var(--color-error-dark); background-color: #f8d7da; border: 1px solid var(--color-error-red); }
-
-        /* Order Actions Buttons */
-        .order-actions { margin-top: 15px; }
-        .order-actions button {
-            padding: 8px 15px; /* Standardized padding */
-            margin-right: 10px;
-            font-size: 0.9rem; /* Standardized font size */
-            border-radius: var(--border-radius-small);
-            cursor: pointer;
-            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
-            font-weight: 500;
-            text-transform: uppercase;
-            border: 1px solid transparent;
-            display: inline-flex;
-            align-items: center;
+        .order-item .status.pending {
+            color: var(--color-warning-dark);
+            background-color: #fff3cd;
+            border: 1px solid var(--color-warning-yellow);
         }
-        .order-actions button i { margin-right: 6px; }
-        .order-actions button:last-child { margin-right: 0; }
-
-        .order-actions .mark-completed {
-            background-color: var(--color-success-green);
-            border-color: var(--color-success-green);
-            color: var(--color-white);
+        .order-item .status.completed {
+            color: var(--color-success-dark);
+            background-color: #d4edda;
+            border: 1px solid var(--color-success-green);
         }
-        .order-actions .mark-completed:hover:not(:disabled) { background-color: var(--color-success-dark); border-color: var(--color-success-dark); transform: translateY(-1px); }
-
-        .order-actions .mark-cancelled { /* General style for cancel/delete */
-            background-color: var(--color-error-red);
-            border-color: var(--color-error-red);
-            color: var(--color-white);
+        .order-item .status.cancelled {
+            color: var(--color-error-dark);
+            background-color: #f8d7da;
+            border: 1px solid var(--color-error-red);
         }
-        .order-actions .mark-cancelled:hover:not(:disabled) { background-color: var(--color-error-dark); border-color: var(--color-error-dark); transform: translateY(-1px);}
-        .order-actions button:disabled {
-            background-color: var(--color-medium-gray);
-            border-color: var(--color-medium-gray);
-            cursor: not-allowed;
-        }
-
-
-        /* Dashboard Summary */
-        .dashboard-summary {
-            display: grid; /* Grid for responsiveness */
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Responsive columns */
-            gap: 20px;
-            margin-bottom: 35px;
-        }
-        .summary-card {
-            text-align: center;
-            padding: 25px 15px; /* More padding */
-            border-radius: var(--border-radius-medium);
-            background-color: var(--color-white);
-            box-shadow: var(--shadow-medium);
-            border: 1px solid var(--color-border-light);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .summary-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-strong);
-        }
-        .summary-card h5 {
-            margin-top: 0;
-            font-size: 1.0rem;
-            color: var(--color-medium-gray);
-            margin-bottom: 12px; /* More space */
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .summary-card p {
-            font-size: 2.2rem; /* Larger numbers */
-            font-weight: 700; /* Bolder */
-            margin: 0;
-        }
-        .summary-card.products p { color: var(--color-info-blue); }
-        .summary-card.pending p { color: var(--color-warning-yellow); }
-        .summary-card.completed p { color: var(--color-success-green); }
-        .summary-card.cancelled p { color: var(--color-error-red); } /* For a potential cancelled count */
-/* Image Input Grid */
-.image-input-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
-}
-
-.image-input-group {
-    border: 1px solid var(--color-border-light);
-    padding: 15px;
-    border-radius: 8px;
-    background-color: var(--color-white);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    position: relative;
-}
-
-.image-input-group img {
-    max-width: 100%;
-    height: 150px;
-    object-fit: contain; /* Use contain to ensure full image is visible */
-    border: 1px solid var(--color-border-medium);
-    border-radius: 5px;
-    background-color: var(--color-off-white);
-}
-
-.image-input-group .placeholder-icon {
-    height: 150px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 3rem;
-    color: var(--color-medium-gray);
-    border: 1px dashed var(--color-border-medium);
-    border-radius: 5px;
-    background-color: var(--color-off-white);
-}
-.image-input-group .placeholder-icon i {
-    opacity: 0.6;
-}
-
-       
-
-        .checkbox-group {
+        /* Order Actions */
+        .order-actions {
+            margin-top: 15px;
             display: flex;
-            align-items: center;
-            margin-bottom: 20px; /* More margin */
-            padding: 10px;
-            background-color: var(--color-off-white);
-            border-radius: var(--border-radius-small);
-            border: 1px solid var(--color-border-light);
+            gap: 10px;
         }
-        .checkbox-group input[type="checkbox"] {
-            width: auto;
-            margin-right: 12px; /* More space */
-            transform: scale(1.3); /* Larger checkbox */
-            accent-color: var(--color-cyan-primary);
-            cursor: pointer;
-        }
-        .checkbox-group label {
-            margin-bottom: 0;
-            font-weight: 500; /* Slightly bolder */
-            color: var(--color-dark-gray);
-            cursor: pointer;
-            font-size: 1.0rem;
-        }
-
-        /* Helper classes */
-        .text-center { text-align: center; }
-        .mt-20 { margin-top: 20px; }
-        .mb-0 { margin-bottom: 0 !important; }
-
-        /* Styling for no items message */
-        .no-items-message {
-            text-align: center;
-            padding: 30px;
-            font-size: 1.1rem;
-            color: var(--color-medium-gray);
-            background-color: var(--color-off-white);
-            border-radius: var(--border-radius-medium);
-            border: 1px dashed var(--color-border-medium);
-        }
-
-        .app-footer {
-            text-align: center;
-            padding: 20px;
-            background-color: var(--color-dark-gray);
-            color: var(--color-light-gray);
+        .order-actions .admin-button {
+            margin-top: 0;
+            padding: 8px 15px;
             font-size: 0.9rem;
-            margin-top: auto; /* Pushes footer to bottom with flex layout */
-            width: 100%; /* Ensure footer spans full width if body is flex container */
+            box-shadow: none;
+        }
+
+        /* Image Input Grid */
+        .image-input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Adjusted minmax */
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        .image-input-group {
+            position: relative; /* For positioning the remove button */
+            display: flex;
+            flex-direction: column; /* Stack elements vertically */
+            align-items: center; /* Center content horizontally */
+            gap: 10px;
+            background-color: var(--color-off-white);
+            padding: 15px; /* More padding */
+            border-radius: var(--border-radius-medium); /* Slightly larger radius */
+            border: 1px solid var(--color-border-light);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .image-input-group input[type="file"] {
+            width: 100%; /* Full width for input */
+            padding: 8px; /* Padding for file input */
+            border: 1px solid var(--color-border-medium);
+            border-radius: var(--border-radius-small);
+            font-size: 0.9rem;
+            cursor: pointer;
+            background-color: var(--color-input-bg);
+            margin-bottom: 5px; /* Space between input and preview */
+        }
+        /* Style for file input button (browser default styling varies, this is general) */
+        .image-input-group input[type="file"]::file-selector-button {
+            background-color: var(--color-cyan-light);
+            color: var(--color-dark-gray);
+            border: none;
+            padding: 8px 12px;
+            border-radius: var(--border-radius-small);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            margin-right: 10px;
+        }
+        .image-input-group input[type="file"]::file-selector-button:hover {
+            background-color: var(--color-cyan-primary);
+            color: var(--color-white);
+        }
+
+
+        .image-input-group img, .image-input-group .placeholder-icon {
+            width: 100%; /* Full width within its container */
+            max-width: 200px; /* Max width to keep consistent look */
+            height: 150px; /* Fixed height for consistent previews */
+            object-fit: cover; /* Cover to fill space, crop if necessary */
+            border-radius: var(--border-radius-small);
+            border: 1px solid var(--color-border-medium);
+            background-color: #e9ecef;
+            display: flex; /* For placeholder icon centering */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-input-group .placeholder-icon {
+            font-size: 2.5rem; /* Larger icon */
+            color: var(--color-medium-gray);
+            border: 1px dashed var(--color-border-medium); /* Dashed border for placeholder */
+            opacity: 0.7;
+        }
+
+        .image-input-group .remove-image-btn {
+            position: absolute;
+            top: 5px; /* Adjust as needed */
+            right: 5px; /* Adjust as needed */
+            padding: 5px 8px; /* Smaller button */
+            font-size: 0.8rem;
+            background-color: var(--color-error-red);
+            color: var(--color-white);
+            border-radius: var(--border-radius-small);
+            z-index: 10; /* Ensure it's above other elements */
+            display: none; /* Hidden by default */
+        }
+        .image-input-group .remove-image-btn:hover {
+            background-color: var(--color-error-dark);
+            transform: none; /* No lift effect for small buttons */
+            box-shadow: none;
+        }
+
+
+        /* Footer Styling */
+        .app-footer {
+            background-color: var(--color-dark-gray);
+            color: var(--color-white);
+            text-align: center;
+            padding: 15px 0;
+            margin-top: 30px;
+            font-size: 0.9rem;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
         }
         .app-footer p { margin: 5px 0; }
 
-        /* Iframe specific styles */
+        /* Iframe container - if you decide to keep it */
         .iframe-container {
             width: 100%;
-            height: 800px; /* Adjust height as needed */
-            margin-top: 40px; /* Space above the iframe */
-            margin-bottom: 20px; /* Space below the iframe, before footer */
+            height: 700px; /* Adjust height as needed */
+            margin: 20px auto;
             border: 1px solid var(--color-border-medium);
             border-radius: var(--border-radius-large);
             overflow: hidden; /* Ensures content within iframe stays within bounds */
             box-shadow: var(--shadow-medium);
             background-color: var(--color-white); /* Background for the container itself */
         }
-
         .iframe-container iframe {
             width: 100%;
             height: 100%;
@@ -547,144 +511,145 @@
     </style>
 </head>
 <body>
-    <main>
-        <header class="admin-header">
-            <h1>SHJR.shop Admin Dashboard</h1>
-            <nav class="admin-nav">
-                <div class="admin-nav-tab active" data-tab="dashboard-tab"><i class="fas fa-tachometer-alt"></i> Dashboard</div>
-                <div class="admin-nav-tab" data-tab="product-management-tab"><i class="fas fa-box-open"></i> Product Management</div>
-                <div class="admin-nav-tab" data-tab="pending-orders-tab"><i class="fas fa-clock"></i> Pending Orders</div>
-                <div class="admin-nav-tab" data-tab="completed-orders-tab"><i class="fas fa-history"></i> Order History</div>
-                <button id="admin-logout-btn" class="admin-button danger"><i class="fas fa-sign-out-alt"></i> Logout</button>
-            </nav>
-        </header>
+    <header class="admin-header">
+        <h1>SHJR.shop Admin Panel</h1>
+    </header>
 
-        <section id="auth-section" style="display: none;">
+    <main class="admin-container">
+        <section id="auth-section" class="auth-section">
             <h2>Admin Login</h2>
             <div class="admin-form-group">
-                <label for="admin-email">Email</label>
-                <input type="email" id="admin-email" placeholder="Enter admin email">
+                <label for="admin-email">Email:</label>
+                <input type="email" id="admin-email" value="warnightog.thunderbound@gmail.com" required>
             </div>
             <div class="admin-form-group">
-                <label for="admin-password">Password</label>
-                <input type="password" id="admin-password" placeholder="Enter password">
+                <label for="admin-password">Password:</label>
+                <input type="password" id="admin-password" required>
             </div>
-            <button id="admin-login-btn" class="admin-button primary">Login</button>
+            <button id="admin-login-btn" class="admin-button full-width">Login</button>
         </section>
 
         <section id="admin-dashboard" style="display: none;">
-            <div id="dashboard-tab" class="admin-tab-content active admin-section dashboard-overview">
-                <h3>Dashboard Overview</h3>
-                <div class="dashboard-summary">
-                    <div class="summary-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Admin Dashboard</h2>
+                <button id="admin-logout-btn" class="admin-button danger"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+
+            <nav class="admin-nav-tabs">
+                <button class="admin-nav-tab active" data-tab="dashboard-tab"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
+                <button class="admin-nav-tab" data-tab="product-management-tab"><i class="fas fa-box-open"></i> Product Management</button>
+                <button class="admin-nav-tab" data-tab="order-management-tab"><i class="fas fa-shopping-basket"></i> Pending Orders</button>
+                <button class="admin-nav-tab" data-tab="completed-orders-tab"><i class="fas fa-history"></i> Completed Orders</button>
+            </nav>
+
+            <div id="dashboard-tab" class="admin-tab-content active">
+                <h3>Overview</h3>
+                <div class="dashboard-overview">
+                    <div class="dashboard-card">
                         <h4>Total Products</h4>
-                        <p id="total-products-count">0</p>
+                        <p id="total-products-count" class="count">0</p>
                     </div>
-                    <div class="summary-card">
+                    <div class="dashboard-card">
                         <h4>Pending Orders</h4>
-                        <p id="pending-orders-count">0</p>
+                        <p id="pending-orders-count" class="count">0</p>
                     </div>
-                    <div class="summary-card">
+                    <div class="dashboard-card">
                         <h4>Completed Orders</h4>
-                        <p id="completed-orders-count">0</p>
+                        <p id="completed-orders-count" class="count">0</p>
                     </div>
                 </div>
             </div>
 
-            <div id="product-management-tab" class="admin-tab-content admin-section product-management-form-container">
-                <h3>Add/Edit Product</h3>
-                <div class="admin-form-group" style="display: none;">
-                    <label for="product-id">Product ID (auto-generated)</label>
+            <div id="product-management-tab" class="admin-tab-content">
+                <h3>Product Details</h3>
+                <div class="admin-form-group">
+                    <label for="product-id">Product ID (Leave empty for new product):</label>
                     <input type="text" id="product-id" readonly>
                 </div>
                 <div class="admin-form-group">
-                    <label for="product-title">Product Title</label>
-                    <input type="text" id="product-title" placeholder="e.g., Silk Fabric Dress" required>
+                    <label for="product-title">Title:</label>
+                    <input type="text" id="product-title" required>
                 </div>
                 <div class="admin-form-group">
-                    <label for="product-brand">Brand</label>
-                    <input type="text" id="product-brand" placeholder="e.g., SHJR Designs">
+                    <label for="product-brand">Brand:</label>
+                    <input type="text" id="product-brand">
                 </div>
                 <div class="admin-form-group">
-                    <label for="product-description">Description</label>
-                    <textarea id="product-description" placeholder="Detailed description of the product..." required></textarea>
+                    <label for="product-description">Description:</label>
+                    <textarea id="product-description" rows="5" required></textarea>
                 </div>
                 <div class="admin-form-group">
-                    <label for="product-category">Category</label>
-                    <select id="product-category" required>
+                    <label for="product-category">Category:</label>
+                    <select id="product-category">
                         <option value="Fabric">Fabric</option>
-                        <option value="Clothes">Clothes</option>
+                        <option value="Footwear">Footwear</option>
                         <option value="Accessories">Accessories</option>
-                        <option value="Custom Orders">Custom Orders</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Home & Living">Home & Living</option>
                     </select>
                 </div>
                 <div class="admin-form-group">
-                    <label for="product-price">Price (PKR)</label>
-                    <input type="number" id="product-price" placeholder="e.g., 5500" step="0.01" required>
+                    <label for="product-price">Price (PKR):</label>
+                    <input type="number" id="product-price" step="0.01" min="0" required>
                 </div>
                 <div class="admin-form-group">
-                    <label for="product-stock">Stock Quantity</label>
-                    <input type="number" id="product-stock" placeholder="e.g., 100" min="0" required>
+                    <label for="product-stock">Stock Quantity:</label>
+                    <input type="number" id="product-stock" min="0" required>
+                </div>
+                <div class="admin-form-group">
+                    <label for="product-video">Video URL (Optional):</label>
+                    <input type="text" id="product-video" placeholder="Direct URL to video file or YouTube embed link">
+                </div>
+                <div class="admin-form-group">
+                    <input type="checkbox" id="product-featured">
+                    <label for="product-featured" style="display: inline-block; margin-left: 10px;">Featured Product</label>
                 </div>
 
                 <div class="admin-form-group">
-                    <label>Product Images (up to 5, upload from device):</label>
+                    <label>Image Files (up to 5):</label>
                     <div class="image-input-grid">
-                        <div class="image-input-group">
-                            <input type="file" id="product-image-upload-1" class="product-image-upload" accept="image/*">
-                            <button class="admin-button upload-image-btn" data-input-id="product-image-1"><i class="fas fa-upload"></i> Upload</button>
-                            <input type="text" id="product-image-1" class="product-image-url-input" placeholder="Image URL 1" readonly>
+                        <div class="image-input-group" id="image-input-group-1">
+                            <input type="file" id="product-image-file-1" class="product-image-input" accept="image/*">
                             <img id="product-image-preview-1" src="" alt="Preview 1" style="display: none;">
                             <div id="product-image-placeholder-1" class="placeholder-icon"><i class="fas fa-image"></i></div>
+                            <button type="button" id="product-image-remove-1" class="admin-button danger remove-image-btn" style="display: none;"><i class="fas fa-times"></i></button>
                         </div>
-                        <div class="image-input-group">
-                            <input type="file" id="product-image-upload-2" class="product-image-upload" accept="image/*">
-                            <button class="admin-button upload-image-btn" data-input-id="product-image-2"><i class="fas fa-upload"></i> Upload</button>
-                            <input type="text" id="product-image-2" class="product-image-url-input" placeholder="Image URL 2" readonly>
+                        <div class="image-input-group" id="image-input-group-2">
+                            <input type="file" id="product-image-file-2" class="product-image-input" accept="image/*">
                             <img id="product-image-preview-2" src="" alt="Preview 2" style="display: none;">
                             <div id="product-image-placeholder-2" class="placeholder-icon"><i class="fas fa-image"></i></div>
+                            <button type="button" id="product-image-remove-2" class="admin-button danger remove-image-btn" style="display: none;"><i class="fas fa-times"></i></button>
                         </div>
-                        <div class="image-input-group">
-                            <input type="file" id="product-image-upload-3" class="product-image-upload" accept="image/*">
-                            <button class="admin-button upload-image-btn" data-input-id="product-image-3"><i class="fas fa-upload"></i> Upload</button>
-                            <input type="text" id="product-image-3" class="product-image-url-input" placeholder="Image URL 3" readonly>
+                        <div class="image-input-group" id="image-input-group-3">
+                            <input type="file" id="product-image-file-3" class="product-image-input" accept="image/*">
                             <img id="product-image-preview-3" src="" alt="Preview 3" style="display: none;">
                             <div id="product-image-placeholder-3" class="placeholder-icon"><i class="fas fa-image"></i></div>
+                            <button type="button" id="product-image-remove-3" class="admin-button danger remove-image-btn" style="display: none;"><i class="fas fa-times"></i></button>
                         </div>
-                        <div class="image-input-group">
-                            <input type="file" id="product-image-upload-4" class="product-image-upload" accept="image/*">
-                            <button class="admin-button upload-image-btn" data-input-id="product-image-4"><i class="fas fa-upload"></i> Upload</button>
-                            <input type="text" id="product-image-4" class="product-image-url-input" placeholder="Image URL 4" readonly>
+                        <div class="image-input-group" id="image-input-group-4">
+                            <input type="file" id="product-image-file-4" class="product-image-input" accept="image/*">
                             <img id="product-image-preview-4" src="" alt="Preview 4" style="display: none;">
                             <div id="product-image-placeholder-4" class="placeholder-icon"><i class="fas fa-image"></i></div>
+                            <button type="button" id="product-image-remove-4" class="admin-button danger remove-image-btn" style="display: none;"><i class="fas fa-times"></i></button>
                         </div>
-                        <div class="image-input-group">
-                            <input type="file" id="product-image-upload-5" class="product-image-upload" accept="image/*">
-                            <button class="admin-button upload-image-btn" data-input-id="product-image-5"><i class="fas fa-upload"></i> Upload</button>
-                            <input type="text" id="product-image-5" class="product-image-url-input" placeholder="Image URL 5" readonly>
+                        <div class="image-input-group" id="image-input-group-5">
+                            <input type="file" id="product-image-file-5" class="product-image-input" accept="image/*">
                             <img id="product-image-preview-5" src="" alt="Preview 5" style="display: none;">
                             <div id="product-image-placeholder-5" class="placeholder-icon"><i class="fas fa-image"></i></div>
+                            <button type="button" id="product-image-remove-5" class="admin-button danger remove-image-btn" style="display: none;"><i class="fas fa-times"></i></button>
                         </div>
                     </div>
                 </div>
 
-                <div class="admin-form-group">
-                    <label for="product-video">Product Video URL (Optional)</label>
-                    <input type="text" id="product-video" placeholder="e.g., https://www.youtube.com/watch?v=VIDEO_ID">
-                </div>
-                <div class="admin-form-group">
-                    <input type="checkbox" id="product-featured">
-                    <label for="product-featured" style="display: inline;">Mark as Featured Product</label>
-                </div>
-                <div class="button-group">
-                    <button id="add-edit-product-btn" class="admin-button primary"><i class="fas fa-plus-circle"></i> Add Product</button>
-                    <button id="clear-form-btn" class="admin-button secondary"><i class="fas fa-sync-alt"></i> Clear Form</button>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button id="add-edit-product-btn" class="admin-button full-width"><i class="fas fa-plus-circle"></i> Add Product</button>
+                    <button id="clear-form-btn" class="admin-button secondary full-width"><i class="fas fa-eraser"></i> Clear Form</button>
                 </div>
 
-                <div class="admin-section product-list-container">
-                    <h3>Product List</h3>
-                    <div class="search-product-input-group">
-                        <input type="text" id="admin-product-search" placeholder="Search by title, brand, or product ID...">
+                <div class="admin-section product-list-section">
+                    <h3>All Products</h3>
+                    <div class="admin-search-bar">
+                        <input type="text" id="admin-product-search" placeholder="Search by title or ID...">
                         <button id="admin-product-search-btn" class="admin-button secondary"><i class="fas fa-search"></i> Search</button>
                     </div>
                     <div id="product-list-container">
