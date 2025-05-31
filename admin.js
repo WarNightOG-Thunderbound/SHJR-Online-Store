@@ -140,7 +140,7 @@ productImageRemoveBtns.forEach((button, index) => {
         previewEl.src = ''; // Clear the preview image
         previewEl.style.display = 'none';
         placeholderEl.style.display = 'flex';
-        removeBtn.style.display = 'none';
+        removeBtn.style.display = 'none'; // Hide remove button
     });
 });
 
@@ -218,7 +218,7 @@ function clearProductForm() {
     productTitleInput.value = '';
     productBrandInput.value = '';
     productDescriptionInput.value = '';
-    productCategorySelect.value = 'Fabric';
+    productCategorySelect.value = 'Fabric'; // Default category
     productPriceInput.value = '';
     productStockInput.value = '';
     productFeaturedCheckbox.checked = false;
@@ -275,7 +275,7 @@ addEditProductBtn.addEventListener('click', async () => {
     }
 
     addEditProductBtn.disabled = true;
-    const originalButtonHTML = addEditProductBtn.innerHTML;
+    const originalButtonHTML = addEditProductBtn.innerHTML; // Store original button content
     addEditProductBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
     let currentProductId = id;
@@ -332,11 +332,7 @@ addEditProductBtn.addEventListener('click', async () => {
         console.error('Product save error:', error);
     } finally {
         addEditProductBtn.disabled = false;
-        if (id) { // If ID field still has a value, it was an edit
-             addEditProductBtn.innerHTML = '<i class="fas fa-save"></i> Update Product';
-        } else { // Otherwise it was an add, and form was cleared
-             addEditProductBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Add Product';
-        }
+        addEditProductBtn.innerHTML = originalButtonHTML; // Always restore to original content
     }
 });
 
@@ -425,7 +421,7 @@ function editProduct(id) {
         productTitleInput.value = product.title || '';
         productBrandInput.value = product.brand || '';
         productDescriptionInput.value = product.description || '';
-        productCategorySelect.value = product.category || 'Fabric';
+        productCategorySelect.value = product.category || 'Fabric'; // Set default if category is missing
         productPriceInput.value = product.price || '';
         productStockInput.value = typeof product.stock === 'number' ? product.stock : '0';
         productFeaturedCheckbox.checked = product.featured || false;
