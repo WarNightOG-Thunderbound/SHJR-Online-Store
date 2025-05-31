@@ -7,7 +7,7 @@ const firebaseConfig = {
     authDomain: "shjr-online-store.firebaseapp.com",
     databaseURL: "https://shjr-online-store-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "shjr-online-store",
-    storageBucket: "shjr-online-store.appspot.com",
+    storageBucket: "shjr-online-store.firebasestorage.app",
     messagingSenderId: "118385940927",
     appId: "1:118385940927:web:9c34612d688ef0be93a90a",
     measurementId: "G-BX30KRVHRY"
