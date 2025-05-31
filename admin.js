@@ -1,8 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 import { getDatabase, ref, onValue, push, set, update, remove, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
-
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js"; // New import for Firebase Storage
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -51,20 +50,13 @@ const productListContainer = document.getElementById('product-list-container');
 const adminProductSearchInput = document.getElementById('admin-product-search');
 const adminProductSearchBtn = document.getElementById('admin-product-search-btn');
 
-// Image Input Elements
-const productImageUploadInputs = [ // New: File inputs for upload
-    document.getElementById('product-image-upload-1'),
-    document.getElementById('product-image-upload-2'),
-    document.getElementById('product-image-upload-3'),
-    document.getElementById('product-image-upload-4'),
-    document.getElementById('product-image-upload-5'),
-];
-const productImageURLInputs = [ // Existing: Text inputs for URL
-    document.getElementById('product-image-1'),
-    document.getElementById('product-image-2'),
-    document.getElementById('product-image-3'),
-    document.getElementById('product-image-4'),
-    document.getElementById('product-image-5'),
+// Image Input Elements (updated for file inputs)
+const productImageInputs = [
+    document.getElementById('product-image-file-1'),
+    document.getElementById('product-image-file-2'),
+    document.getElementById('product-image-file-3'),
+    document.getElementById('product-image-file-4'),
+    document.getElementById('product-image-file-5'),
 ];
 const productImagePreviews = [
     document.getElementById('product-image-preview-1'),
@@ -80,8 +72,13 @@ const productImagePlaceholders = [
     document.getElementById('product-image-placeholder-4'),
     document.getElementById('product-image-placeholder-5'),
 ];
-const uploadImageButtons = document.querySelectorAll('.upload-image-btn'); // New: Upload buttons
-
+const productImageRemoveBtns = [
+    document.getElementById('product-image-remove-1'),
+    document.getElementById('product-image-remove-2'),
+    document.getElementById('product-image-remove-3'),
+    document.getElementById('product-image-remove-4'),
+    document.getElementById('product-image-remove-5'),
+];
 
 // Order Management Elements
 const orderListContainer = document.getElementById('order-list-container');
@@ -105,27 +102,45 @@ navTabs.forEach(tab => {
     });
 });
 
-
-// --- Image Preview Logic (updated for URL inputs) ---
-productImageURLInputs.forEach((input, index) => {
-    input.addEventListener('input', () => {
-        const url = input.value.trim();
+// --- Image Preview Logic (for file inputs) ---
+productImageInputs.forEach((input, index) => {
+    input.addEventListener('change', (event) => {
+        const file = event.target.files[0];
         const previewEl = productImagePreviews[index];
         const placeholderEl = productImagePlaceholders[index];
-        if (url) {
-            previewEl.src = url;
-            previewEl.style.display = 'block';
-            placeholderEl.style.display = 'none';
-            previewEl.onerror = () => { // Fallback if image fails to load
-                previewEl.style.display = 'none';
-                placeholderEl.style.display = 'flex';
-                previewEl.src = ''; // Clear src to prevent broken image icon on retry
+        const removeBtn = productImageRemoveBtns[index];
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewEl.src = e.target.result;
+                previewEl.style.display = 'block';
+                placeholderEl.style.display = 'none';
+                removeBtn.style.display = 'inline-block'; // Show remove button
             };
+            reader.readAsDataURL(file);
         } else {
             previewEl.style.display = 'none';
             placeholderEl.style.display = 'flex';
+            removeBtn.style.display = 'none'; // Hide remove button
             previewEl.src = ''; // Clear src
         }
+    });
+});
+
+// Remove Image Logic
+productImageRemoveBtns.forEach((button, index) => {
+    button.addEventListener('click', () => {
+        const fileInput = productImageInputs[index];
+        const previewEl = productImagePreviews[index];
+        const placeholderEl = productImagePlaceholders[index];
+        const removeBtn = productImageRemoveBtns[index];
+
+        fileInput.value = ''; // Clear the file input
+        previewEl.src = ''; // Clear the preview image
+        previewEl.style.display = 'none';
+        placeholderEl.style.display = 'flex';
+        removeBtn.style.display = 'none';
     });
 });
 
@@ -137,46 +152,13 @@ function resetImagePreviews() {
     productImagePlaceholders.forEach(placeholder => {
         placeholder.style.display = 'flex';
     });
-    productImageURLInputs.forEach(input => input.value = ''); // Clear URL inputs
-    productImageUploadInputs.forEach(input => input.value = ''); // Clear file inputs
-}
-
-// --- Image Upload Logic ---
-uploadImageButtons.forEach((button, index) => {
-    button.addEventListener('click', async (e) => {
-        e.preventDefault(); // Prevent form submission
-        const fileInput = productImageUploadInputs[index];
-        const urlInput = productImageURLInputs[index];
-        const file = fileInput.files[0];
-
-        if (!file) {
-            alert('Please select an image file to upload.');
-            return;
-        }
-
-        const originalButtonHTML = button.innerHTML;
-        button.disabled = true;
-        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
-
-        const storagePath = `product_images/${Date.now()}_${file.name}`;
-        const imageRef = storageRef(storage, storagePath);
-
-        try {
-            const snapshot = await uploadBytes(imageRef, file);
-            const downloadURL = await getDownloadURL(snapshot.ref);
-            urlInput.value = downloadURL;
-            urlInput.dispatchEvent(new Event('input')); // Trigger preview update
-            alert('Image uploaded successfully!');
-        } catch (error) {
-            console.error('Image upload error:', error);
-            alert('Failed to upload image: ' + error.message);
-        } finally {
-            button.disabled = false;
-            button.innerHTML = originalButtonHTML;
-        }
+    productImageInputs.forEach(input => {
+        input.value = ''; // Clear file input
     });
-});
-
+    productImageRemoveBtns.forEach(btn => {
+        btn.style.display = 'none'; // Hide remove buttons
+    });
+}
 
 // --- Authentication Logic ---
 adminLoginBtn.addEventListener('click', async () => {
@@ -207,33 +189,30 @@ adminLogoutBtn.addEventListener('click', async () => {
 });
 
 onAuthStateChanged(auth, (user) => {
-    const adminEmail = "warnightog.thunderbound@gmail.com";
+    const adminEmail = "warnightog.thunderbound@gmail.com"; // Set your admin email here
     if (user && user.email === adminEmail) {
         currentAdminUID = user.uid;
-        console.log("Admin UID for Firebase Rules:", currentAdminUID);
         authSection.style.display = 'none';
         adminDashboard.style.display = 'block';
-        loadProducts();
-        loadPendingOrders();
-        loadCompletedOrders();
-        const defaultTab = document.querySelector('.admin-nav-tab[data-tab="product-management-tab"]');
-        if (defaultTab && !defaultTab.classList.contains('active')) { // Click only if not already active
-             defaultTab.click();
-        }
+        // Manually click the dashboard tab to ensure it's active on login
+        document.querySelector('.admin-nav-tab[data-tab="dashboard-tab"]').click();
+        listenForProducts(); // Start listening for products when admin logs in
+        listenForOrders(); // Start listening for orders
     } else {
         currentAdminUID = null;
         authSection.style.display = 'block';
         adminDashboard.style.display = 'none';
-        adminEmailInput.value = adminEmail;
-        adminPasswordInput.value = '';
-        productListContainer.innerHTML = '<p class="no-items-message">Login to manage products.</p>';
-        orderListContainer.innerHTML = '<p class="no-items-message">Login to manage orders.</p>';
-        completedOrderListContainer.innerHTML = '<p class="no-items-message">Login to view completed orders.</p>';
-        updateDashboardCounts(0,0,0);
+        // Clear any displayed products/orders when logged out
+        productListContainer.innerHTML = '<p class="no-items-message">No products available.</p>';
+        orderListContainer.innerHTML = '<p class="no-items-message">No pending orders.</p>';
+        completedOrderListContainer.innerHTML = '<p class="no-items-message">No completed orders yet.</p>';
+        updateDashboardCounts(0, 0, 0); // Reset dashboard counts
     }
 });
 
 // --- Product Management Logic ---
+clearFormBtn.addEventListener('click', clearProductForm);
+
 function clearProductForm() {
     productIdInput.value = '';
     productTitleInput.value = '';
@@ -241,17 +220,23 @@ function clearProductForm() {
     productDescriptionInput.value = '';
     productCategorySelect.value = 'Fabric';
     productPriceInput.value = '';
-    productStockInput.value = '1';
-    productImageURLInputs.forEach(input => input.value = ''); // Clear URL inputs
-    productImageUploadInputs.forEach(input => input.value = ''); // Clear file inputs
-    resetImagePreviews();
-    productVideoInput.value = '';
+    productStockInput.value = '';
     productFeaturedCheckbox.checked = false;
+    productVideoInput.value = '';
+    resetImagePreviews(); // Clear all image previews and file inputs
     addEditProductBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Add Product';
     productTitleInput.focus();
 }
 
-clearFormBtn.addEventListener('click', clearProductForm);
+// Helper function to upload an image and return its URL
+async function uploadImageAndGetURL(file, productId) {
+    if (!file) return null;
+    const storageRefPath = `product_images/${productId}/${Date.now()}_${file.name}`; // Unique filename
+    const imageRef = storageRef(storage, storageRefPath);
+    const snapshot = await uploadBytes(imageRef, file);
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    return downloadURL;
+}
 
 addEditProductBtn.addEventListener('click', async () => {
     const id = productIdInput.value;
@@ -263,40 +248,82 @@ addEditProductBtn.addEventListener('click', async () => {
     const stock = parseInt(productStockInput.value, 10);
     const featured = productFeaturedCheckbox.checked;
     const videoUrl = productVideoInput.value.trim();
-    const images = productImageURLInputs.map(input => input.value.trim()).filter(url => url); // Use URL inputs for saving
 
-    if (!title || !description || !category || isNaN(price) || price <= 0 || isNaN(stock) || stock < 0 || images.length === 0) {
-        alert('Please fill in all required fields (Title, Description, Category, Price > 0, Stock >= 0, at least one Image URL).');
+    // Collect existing image URLs (if editing) and new files to upload
+    const existingImageUrls = [];
+    const newFilesToUpload = [];
+
+    productImagePreviews.forEach((previewEl, index) => {
+        // If an existing image URL is displayed AND it's not a local FileReader URL (which starts with 'data:'),
+        // add it to existing URLs.
+        if (previewEl.style.display === 'block' && previewEl.src && previewEl.src.startsWith('http')) {
+            existingImageUrls.push(previewEl.src);
+        }
+    });
+
+    productImageInputs.forEach((input, index) => {
+        if (input.files && input.files[0]) {
+            newFilesToUpload.push(input.files[0]);
+        }
+    });
+
+
+    // Basic validation
+    if (!title || !description || !category || isNaN(price) || price <= 0 || isNaN(stock) || stock < 0 || (existingImageUrls.length === 0 && newFilesToUpload.length === 0)) {
+        alert('Please fill in all required fields (Title, Description, Category, Price > 0, Stock >= 0, at least one image).');
         return;
     }
-
-    const productData = {
-        title,
-        brand: brand || 'N/A',
-        description,
-        category,
-        price,
-        stock,
-        images,
-        videoUrl: videoUrl || '',
-        featured,
-        updatedAt: serverTimestamp()
-    };
 
     addEditProductBtn.disabled = true;
     const originalButtonHTML = addEditProductBtn.innerHTML;
     addEditProductBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
+    let currentProductId = id;
+    if (!currentProductId) {
+        // Generate a temporary ID for new product to use in storage path, if not editing
+        const tempRef = push(ref(database, 'products'));
+        currentProductId = tempRef.key;
+    }
+
     try {
+        // Upload new files to Firebase Storage
+        const uploadedImageUrls = await Promise.all(
+            newFilesToUpload.map((file) => uploadImageAndGetURL(file, currentProductId))
+        );
+
+        // Filter out nulls from failed uploads and combine with existing URLs
+        const finalImageUrls = [...existingImageUrls, ...uploadedImageUrls.filter(url => url !== null)];
+
+        if (finalImageUrls.length === 0) {
+             alert('No images were uploaded or existing images found. Please provide at least one image.');
+             addEditProductBtn.disabled = false;
+             addEditProductBtn.innerHTML = originalButtonHTML; // Restore button state
+             return;
+        }
+
+        const productData = {
+            title,
+            brand: brand || 'N/A',
+            description,
+            category,
+            price,
+            stock,
+            images: finalImageUrls, // Use the collected URLs
+            videoUrl: videoUrl || '',
+            featured,
+            updatedAt: serverTimestamp()
+        };
+
         if (id) {
+            // If editing, use the existing ID
             productData.id = id;
             await set(ref(database, 'products/' + id), productData);
             alert('Product updated successfully!');
         } else {
-            const newProductRef = push(ref(database, 'products'));
-            productData.id = newProductRef.key;
+            // If adding, use the generated temporary ID and set createdAt
+            productData.id = currentProductId;
             productData.createdAt = serverTimestamp();
-            await set(newProductRef, productData);
+            await set(ref(database, 'products/' + currentProductId), productData);
             alert('Product added successfully!');
         }
         clearProductForm(); // Clear form after successful add/edit
@@ -305,8 +332,7 @@ addEditProductBtn.addEventListener('click', async () => {
         console.error('Product save error:', error);
     } finally {
         addEditProductBtn.disabled = false;
-        // Restore correct button text based on whether it was add or edit mode
-        if (productIdInput.value) { // If ID field still has a value, it was an edit
+        if (id) { // If ID field still has a value, it was an edit
              addEditProductBtn.innerHTML = '<i class="fas fa-save"></i> Update Product';
         } else { // Otherwise it was an add, and form was cleared
              addEditProductBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Add Product';
@@ -314,52 +340,51 @@ addEditProductBtn.addEventListener('click', async () => {
     }
 });
 
-function displayAdminProducts(productsToDisplay) {
+
+function displayAdminProducts(products) {
     productListContainer.innerHTML = '';
-    if (Object.keys(productsToDisplay).length === 0) {
-        productListContainer.innerHTML = '<p class="no-items-message">No products match your search or none available.</p>';
+    if (Object.keys(products).length === 0) {
+        productListContainer.innerHTML = '<p class="no-items-message">No products available.</p>';
         return;
     }
-    const sortedProducts = Object.values(productsToDisplay).sort((a, b) => (a.title || '').localeCompare(b.title || ''));
 
-    sortedProducts.forEach(product => {
-        const productItem = document.createElement('div');
-        productItem.classList.add('admin-product-item');
-        const displayId = product.id ? product.id.substring(product.id.length - 6) : 'N/A';
-        productItem.innerHTML = `
-            <img src="${(product.images && product.images.length > 0) ? product.images[0] : 'https://via.placeholder.com/65x65.png?text=N/A'}" alt="${product.title || 'Product'}">
-            <div class="admin-product-details">
-                <h4>${product.title || 'Untitled Product'} (ID: ...${displayId})</h4>
-                <p><strong>Brand:</strong> ${product.brand || 'N/A'} | <strong>Category:</strong> ${product.category || 'N/A'} | <strong>Price:</strong> PKR ${typeof product.price === 'number' ? product.price.toLocaleString() : 'N/A'}</p>
-                <p class="product-stock-info"><strong>Stock:</strong> ${typeof product.stock === 'number' ? product.stock : 'N/A'} | <strong>Featured:</strong> ${product.featured ? 'Yes' : 'No'}</p>
-            </div>
-            <div class="admin-actions">
-                <button class="edit-btn" data-id="${product.id}"><i class="fas fa-edit"></i> Edit</button>
-                <button class="delete-btn" data-id="${product.id}"><i class="fas fa-trash-alt"></i> Delete</button>
+    const productListHtml = Object.values(products).map(product => {
+        const imageUrl = product.images && product.images.length > 0 ? product.images[0] : 'https://via.placeholder.com/65x65?text=No+Image';
+        return `
+            <div class="admin-product-item">
+                <img src="${imageUrl}" alt="${product.title}" onerror="this.onerror=null;this.src='https://via.placeholder.com/65x65?text=Error';">
+                <div class="admin-product-details">
+                    <h4>${product.title} (ID: ${product.id.substring(0, 6)}...)</h4>
+                    <p>${product.brand} - ${product.category}</p>
+                    <p>Price: PKR ${product.price.toLocaleString()}</p>
+                    <p class="product-stock-info">Stock: ${product.stock}</p>
+                </div>
+                <div class="admin-product-actions">
+                    <button class="admin-button secondary edit-product-btn" data-id="${product.id}"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="admin-button danger delete-product-btn" data-id="${product.id}"><i class="fas fa-trash"></i> Delete</button>
+                </div>
             </div>
         `;
-        productListContainer.appendChild(productItem);
-    });
+    }).join('');
+    productListContainer.innerHTML = productListHtml;
 
-    productListContainer.querySelectorAll('.edit-btn').forEach(button => {
-        button.addEventListener('click', (e) => editProduct(e.currentTarget.dataset.id));
+    document.querySelectorAll('.edit-product-btn').forEach(button => {
+        button.addEventListener('click', (e) => editProduct(e.target.dataset.id));
     });
-    productListContainer.querySelectorAll('.delete-btn').forEach(button => {
-        button.addEventListener('click', (e) => deleteProduct(e.currentTarget.dataset.id));
+    document.querySelectorAll('.delete-product-btn').forEach(button => {
+        button.addEventListener('click', (e) => deleteProduct(e.target.dataset.id));
     });
 }
 
-
-function loadProducts() {
-    const productsRefDb = ref(database, 'products');
-    onValue(productsRefDb, (snapshot) => {
-        const products = snapshot.val();
-        allAdminProducts = products || {};
+function listenForProducts() {
+    const productsRef = ref(database, 'products');
+    onValue(productsRef, (snapshot) => {
+        allAdminProducts = snapshot.val() || {};
         displayAdminProducts(allAdminProducts);
-        updateDashboardCounts(Object.keys(allAdminProducts).length, parseInt(pendingOrdersCountEl.textContent) || 0, parseInt(completedOrdersCountEl.textContent) || 0);
+        updateDashboardCounts(Object.keys(allAdminProducts).length, pendingOrdersCountEl.textContent, completedOrdersCountEl.textContent);
     }, (error) => {
-        console.error("Error loading products:", error.code, error.message);
-        productListContainer.innerHTML = `<p class="no-items-message">Error loading products. Firebase: ${error.message}. Check console and Firebase rules.</p>`;
+        console.error("Error listening for products:", error);
+        productListContainer.innerHTML = `<p class="no-items-message error-message">Error loading products. Firebase: ${error.message}. Check console and Firebase rules.</p>`;
     });
 }
 
@@ -372,20 +397,23 @@ adminProductSearchBtn.addEventListener('click', () => {
     const filtered = {};
     for (const productId in allAdminProducts) {
         const product = allAdminProducts[productId];
-        if ( (product.title && product.title.toLowerCase().includes(searchTerm)) ||
-             (productId && productId.toLowerCase().includes(searchTerm)) ||
-             (product.brand && product.brand.toLowerCase().includes(searchTerm))) {
+        if (
+            (product.title && product.title.toLowerCase().includes(searchTerm)) ||
+            (productId && productId.toLowerCase().includes(searchTerm)) ||
+            (product.brand && product.brand.toLowerCase().includes(searchTerm))
+        ) {
             filtered[productId] = product;
         }
     }
     displayAdminProducts(filtered);
 });
+
 adminProductSearchInput.addEventListener('keyup', (event) => {
     if (event.key === "Enter") {
         adminProductSearchBtn.click();
     }
     if (adminProductSearchInput.value.trim() === '') {
-        adminProductSearchBtn.click(); // Trigger search on empty input to refresh list
+        displayAdminProducts(allAdminProducts);
     }
 });
 
@@ -403,12 +431,26 @@ function editProduct(id) {
         productFeaturedCheckbox.checked = product.featured || false;
         productVideoInput.value = product.videoUrl || '';
 
-        resetImagePreviews(); // Clear file inputs as well
+        resetImagePreviews(); // Clear all current previews and file inputs first
+
         if (product.images && product.images.length > 0) {
             product.images.forEach((url, index) => {
-                if (index < productImageURLInputs.length) {
-                    productImageURLInputs[index].value = url;
-                    productImageURLInputs[index].dispatchEvent(new Event('input')); // Trigger preview update
+                if (index < productImagePreviews.length) {
+                    const previewEl = productImagePreviews[index];
+                    const placeholderEl = productImagePlaceholders[index];
+                    const removeBtn = productImageRemoveBtns[index];
+
+                    previewEl.src = url;
+                    previewEl.style.display = 'block';
+                    placeholderEl.style.display = 'none';
+                    removeBtn.style.display = 'inline-block'; // Show remove button for existing image
+
+                    previewEl.onerror = () => { // Fallback if existing image URL fails to load
+                        previewEl.style.display = 'none';
+                        placeholderEl.style.display = 'flex';
+                        removeBtn.style.display = 'none'; // Hide remove button if image is broken
+                        previewEl.src = ''; // Clear src
+                    };
                 }
             });
         }
@@ -424,44 +466,77 @@ function editProduct(id) {
 }
 
 async function deleteProduct(id) {
-    if (confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
-        try {
-            await remove(ref(database, 'products/' + id));
-            alert('Product deleted successfully!');
-        } catch (error) {
-            alert('Error deleting product: ' + error.message);
-            console.error('Product delete error:', error);
-        }
+    if (!confirm(`Are you sure you want to delete product ${id.substring(0, 6)}...? This action cannot be undone.`)) {
+        return;
+    }
+    try {
+        // TODO: Optionally delete images from Firebase Storage here as well
+        // This requires listing items in a folder, which can be complex if not using specific file paths.
+        // For now, only deleting database entry.
+
+        await remove(ref(database, 'products/' + id));
+        alert('Product deleted successfully!');
+    } catch (error) {
+        alert('Error deleting product: ' + error.message);
+        console.error('Product delete error:', error);
     }
 }
 
+
 // --- Order Management Logic ---
-function renderOrders(ordersData, container, isPendingList) {
-    container.innerHTML = '';
-    const ordersArray = Object.values(ordersData || {});
-    if (ordersArray.length === 0) {
-        const message = isPendingList ? "No pending orders." : "No completed orders yet.";
-        container.innerHTML = `<p class="no-items-message">${message}</p>`;
+function listenForOrders() {
+    const ordersRef = ref(database, 'orders');
+    onValue(ordersRef, (snapshot) => {
+        const allOrders = snapshot.val() || {};
+        const pendingOrders = {};
+        const completedOrders = {};
+
+        for (const orderId in allOrders) {
+            const order = { id: orderId, ...allOrders[orderId] };
+            if (order.status === 'completed' || order.status === 'cancelled') {
+                completedOrders[orderId] = order;
+            } else {
+                pendingOrders[orderId] = order;
+            }
+        }
+
+        displayOrders(pendingOrders, orderListContainer, false);
+        displayOrders(completedOrders, completedOrderListContainer, true);
+
+        updateDashboardCounts(totalProductsCountEl.textContent, Object.keys(pendingOrders).length, Object.keys(completedOrders).length);
+
+    }, (error) => {
+        console.error("Error listening for orders:", error);
+        orderListContainer.innerHTML = `<p class="no-items-message error-message">Error loading orders. Firebase: ${error.message}.</p>`;
+        completedOrderListContainer.innerHTML = `<p class="no-items-message error-message">Error loading completed orders. Firebase: ${error.message}.</p>`;
+    });
+}
+
+function displayOrders(orders, containerEl, isCompletedTab) {
+    containerEl.innerHTML = '';
+    if (Object.keys(orders).length === 0) {
+        containerEl.innerHTML = `<p class="no-items-message">No ${isCompletedTab ? 'completed' : 'pending'} orders.</p>`;
         return;
     }
 
-    const sortedOrders = ordersArray.sort((a, b) => new Date(b.orderDate || 0) - new Date(a.orderDate || 0));
-
-    sortedOrders.forEach(order => {
-        const orderItem = document.createElement('div');
-        orderItem.classList.add('order-item');
-        
-        const productPriceDisplay = (typeof order.productPrice === 'number') ? order.productPrice.toLocaleString() : 'N/A';
-        const orderDateDisplay = order.orderDate ? new Date(order.orderDate).toLocaleString() : 'Date N/A';
-        const orderIdShort = order.id ? order.id.substring(order.id.length - 8) : 'N/A';
-
+    const orderListHtml = Object.values(orders).sort((a, b) => {
+        // Sort by timestamp, newest first
+        const dateA = new Date(a.orderDate || 0);
+        const dateB = new Date(b.orderDate || 0);
+        return dateB - dateA;
+    }).map(order => {
+        const orderDate = order.orderDate ? new Date(order.orderDate).toLocaleString() : 'N/A';
+        const productTitles = order.items ? Object.values(order.items).map(item => `${item.title} (x${item.quantity})`).join(', ') : 'Product Name Missing';
+        const orderStatusClass = order.status || 'pending'; // Default to pending if status is missing
         let actionsHtml = '';
-        if (isPendingList) {
+
+        if (!isCompletedTab) {
             actionsHtml = `
                 <div class="order-actions">
-                    <button class="mark-completed" data-order-id="${order.id}"><i class="fas fa-check-circle"></i> Mark Completed</button>
-                    <button class="mark-cancelled" data-order-id="${order.id}"><i class="fas fa-times-circle"></i> Cancel Order</button>
-                </div>`;
+                    <button class="admin-button success mark-completed" data-order-id="${order.id}"><i class="fas fa-check-circle"></i> Mark Completed</button>
+                    <button class="admin-button danger mark-cancelled" data-order-id="${order.id}"><i class="fas fa-times-circle"></i> Cancel Order</button>
+                </div>
+            `;
         } else {
             let processedDateString = 'Processing date N/A';
             if (order.completedDate) {
@@ -469,92 +544,52 @@ function renderOrders(ordersData, container, isPendingList) {
             } else if (order.orderDate) { // Fallback for completed orders that might miss completedDate (e.g. old data)
                 processedDateString = `(Ordered: ${new Date(order.orderDate).toLocaleString()})`;
             }
-             actionsHtml = `<p><em>Order processed on: ${processedDateString}</em></p>`;
+            actionsHtml = `<p><em>Order processed on: ${processedDateString}</em></p>`;
         }
 
-        orderItem.innerHTML = `
-            <h4>Order for: ${order.productTitle || 'Product Name Missing'} (PKR ${productPriceDisplay})</h4>
-            <p><strong>Order ID:</strong> ...${orderIdShort}</p>
-            <p><strong>Customer:</strong> ${order.customerName || 'N/A'} | <strong>Phone:</strong> ${order.customerPhone || 'N/A'}</p>
-            <p><strong>Address:</strong> ${order.customerAddress || 'N/A'}</p>
-            <p><strong>Payment Method:</strong> ${order.paymentMethod || 'N/A'}</p>
-            <p><strong>Order Date:</strong> ${orderDateDisplay}</p>
-            <p><strong>Status:</strong> <span class="status ${order.status ? order.status.toLowerCase().replace(/\s+/g, '-') : 'unknown'}">${order.status || 'Unknown'}</span></p>
-            ${actionsHtml}
+        return `
+            <div class="order-item">
+                <h4>Order ID: ${order.id.substring(0, 6)}... for ${order.customerName || 'N/A'}</h4>
+                <p><strong>Products:</strong> ${productTitles}</p>
+                <p><strong>Total Amount:</strong> PKR ${order.totalAmount ? order.totalAmount.toLocaleString() : '0.00'}</p>
+                <p><strong>Status:</strong> <span class="status ${orderStatusClass}">${orderStatusClass}</span></p>
+                <p><strong>Order Date:</strong> ${orderDate}</p>
+                <p><strong>Address:</strong> ${order.customerAddress || 'N/A'}</p>
+                <p><strong>Contact:</strong> ${order.customerContact || 'N/A'}</p>
+                ${actionsHtml}
+            </div>
         `;
-        container.appendChild(orderItem);
-    });
+    }).join('');
+    containerEl.innerHTML = orderListHtml;
 
-    if (isPendingList) {
-        container.querySelectorAll('.mark-completed').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const btn = e.currentTarget;
-                btn.disabled = true;
-                completeOrder(btn.dataset.orderId).finally(() => {
-                    btn.disabled = false;
-                });
-            });
+    if (!isCompletedTab) {
+        document.querySelectorAll('.mark-completed').forEach(button => {
+            button.addEventListener('click', (e) => completeOrder(e.target.dataset.orderId));
         });
-        container.querySelectorAll('.mark-cancelled').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const btn = e.currentTarget;
-                btn.disabled = true;
-                cancelOrder(btn.dataset.orderId).finally(() => {
-                    btn.disabled = false;
-                });
-            });
+        document.querySelectorAll('.mark-cancelled').forEach(button => {
+            button.addEventListener('click', (e) => cancelOrder(e.target.dataset.orderId));
         });
     }
-}
-
-function loadPendingOrders() {
-    const ordersRefDb = ref(database, 'orders');
-    onValue(ordersRefDb, (snapshot) => {
-        const orders = snapshot.val() || {};
-        renderOrders(orders, orderListContainer, true);
-        updateDashboardCounts(Object.keys(allAdminProducts).length, Object.keys(orders).length, parseInt(completedOrdersCountEl.textContent) || 0);
-    }, (error) => {
-        console.error("Error loading pending orders:", error.code, error.message);
-        orderListContainer.innerHTML = `<p class="no-items-message">Error loading pending orders. Firebase: ${error.message}. Check console and Firebase rules.</p>`;
-    });
-}
-
-function loadCompletedOrders() {
-    const completedOrdersRefDb = ref(database, 'completedOrders');
-    onValue(completedOrdersRefDb, (snapshot) => {
-        const orders = snapshot.val() || {};
-        renderOrders(orders, completedOrderListContainer, false);
-        updateDashboardCounts(Object.keys(allAdminProducts).length, parseInt(pendingOrdersCountEl.textContent) || 0, Object.keys(orders).length);
-    }, (error) => {
-        console.error("Error loading completed orders:", error.code, error.message);
-        completedOrderListContainer.innerHTML = `<p class="no-items-message">Error loading completed orders. Firebase: ${error.message}. Check console and Firebase rules.</p>`;
-    });
 }
 
 async function completeOrder(orderId) {
     if (!orderId) {
-        alert('Error: Order ID is missing.');
+        alert('Error: Order ID is missing for completion.');
         return;
     }
     if (!confirm(`Are you sure you want to mark order ...${orderId.substring(orderId.length - 6)} as completed?`)) return;
 
-    const orderToCompleteRef = ref(database, 'orders/' + orderId);
     try {
-        const orderDataSnapshot = await get(orderToCompleteRef); // Use get for a single read
+        const orderRef = ref(database, 'orders/' + orderId);
+        const snapshot = await get(orderRef);
+        const orderData = snapshot.val();
 
-        if (orderDataSnapshot.exists()) {
-            const orderData = orderDataSnapshot.val();
-            const completedOrderData = {
-                ...orderData,
-                status: 'Completed',
-                completedDate: serverTimestamp()
-            };
-            // Ensure all essential fields from orderData are carried over if not already spread
-            if (!completedOrderData.id) completedOrderData.id = orderId;
-
-
-            await set(ref(database, 'completedOrders/' + orderId), completedOrderData);
-            await remove(orderToCompleteRef); // Remove from pending orders
+        if (orderData) {
+            // Update status and add completion timestamp
+            await update(orderRef, {
+                status: 'completed',
+                completedDate: serverTimestamp() // Add completion timestamp
+            });
             alert(`Order ...${orderId.substring(orderId.length - 6)} marked as completed and moved to history.`);
         } else {
             alert('Order not found in pending list. It might have been processed already or does not exist.');
