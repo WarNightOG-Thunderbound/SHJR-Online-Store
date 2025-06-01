@@ -122,6 +122,29 @@
         </div>
     </div>
 </div>
+    <div class="product-ratings-section">
+    <h4>Customer Reviews</h4>
+    <div id="average-rating"></div>
+    <div id="star-rating-display"></div>
+    <div id="comments-list">
+        <p class="no-items-message">No reviews yet. Be the first to comment!</p>
+    </div>
+
+    <h4>Submit Your Review</h4>
+    <form id="comment-form">
+        <div class="rating-input">
+            <span class="star" data-value="1">&#9733;</span>
+            <span class="star" data-value="2">&#9733;</span>
+            <span class="star" data-value="3">&#9733;</span>
+            <span class="star" data-value="4">&#9733;</span>
+            <span class="star" data-value="5">&#9733;</span>
+            <input type="hidden" id="rating-value" value="0">
+        </div>
+        <input type="text" id="comment-user-name" placeholder="Your Name (Optional)" maxlength="50">
+        <textarea id="comment-text" placeholder="Write your review here..." rows="4" required></textarea>
+        <button type="submit" class="admin-button full-width">Submit Review</button>
+    </form>
+</div>
 
     <footer class="app-footer">
         <p>Developed by WarNightOG/ThunderBound</p>
