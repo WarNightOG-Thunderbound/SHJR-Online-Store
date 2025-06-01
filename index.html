@@ -105,6 +105,35 @@
         </div>
     </div>
 
+    <div id="rating-modal" class="modal">
+        <div class="modal-content rating-modal-content">
+            <span class="close-button">×</span>
+            <h3>Rate Your Purchase!</h3>
+            <p>How would you rate "<span id="rating-product-title"></span>" out of 7 stars?</p>
+            <div class="rating-stars" id="rating-stars-container">
+                <i class="fa-solid fa-star" data-rating="1"></i>
+                <i class="fa-solid fa-star" data-rating="2"></i>
+                <i class="fa-solid fa-star" data-rating="3"></i>
+                <i class="fa-solid fa-star" data-rating="4"></i>
+                <i class="fa-solid fa-star" data-rating="5"></i>
+                <i class="fa-solid fa-star" data-rating="6"></i>
+                <i class="fa-solid fa-star" data-rating="7"></i>
+            </div>
+            <button id="submit-rating-button" class="place-order-button">Submit Rating</button>
+        </div>
+    </div>
+
+    <div id="custom-alert-modal" class="custom-modal-overlay">
+        <div class="custom-modal-content">
+            <h4 id="custom-modal-title"></h4>
+            <p id="custom-modal-message"></p>
+            <div class="custom-modal-buttons">
+                <button id="custom-modal-ok-btn" class="custom-modal-button primary">OK</button>
+                <button id="custom-modal-cancel-btn" class="custom-modal-button secondary" style="display:none;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <footer class="app-footer">
         <p>Developed by WarNightOG/ThunderBound</p>
         <p>Project of ThunderBound</p>
