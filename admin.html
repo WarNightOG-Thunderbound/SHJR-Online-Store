@@ -6,6 +6,7 @@
     <title>SHJR.shop Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
     <style>
         /* Color Variables */
         :root {
@@ -444,7 +445,7 @@
             width: 100%; /* Full width within its container */
             max-width: 200px; /* Max width to keep consistent look */
             height: 150px; /* Fixed height for consistent previews */
-            object-fit: cover; /* Cover to fill space, crop if necessary */
+            object-fit: cover;
             border-radius: var(--border-radius-small);
             border: 1px solid var(--color-border-medium);
             background-color: #e9ecef;
@@ -508,6 +509,228 @@
             border: none; /* Remove default iframe border */
             display: block; /* Remove any extra spacing */
         }
+
+        /* Custom Alert/Confirm Modal */
+        .custom-modal-overlay {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 2000; /* Higher than other modals */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .custom-modal-content {
+            background-color: var(--color-white);
+            padding: 30px;
+            border-radius: var(--border-radius-large);
+            box-shadow: var(--shadow-heavy);
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            animation: fadeInModal 0.3s ease-out;
+        }
+
+        .custom-modal-content h4 {
+            font-size: 1.5rem;
+            color: var(--color-dark-gray);
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .custom-modal-content p {
+            font-size: 1.1rem;
+            color: var(--color-medium-gray);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .custom-modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .custom-modal-button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: var(--border-radius-medium);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .custom-modal-button.primary {
+            background-color: var(--color-cyan-primary);
+            color: var(--color-white);
+        }
+
+        .custom-modal-button.primary:hover {
+            background-color: var(--color-cyan-dark);
+            transform: translateY(-1px);
+        }
+
+        .custom-modal-button.secondary {
+            background-color: var(--color-light-gray);
+            color: var(--color-dark-gray);
+            border: 1px solid var(--color-border-medium);
+        }
+
+        .custom-modal-button.secondary:hover {
+            background-color: var(--color-border-medium);
+            transform: translateY(-1px);
+        }
+
+        .custom-modal-button.danger {
+            background-color: var(--color-error-red);
+            color: var(--color-white);
+        }
+
+        .custom-modal-button.danger:hover {
+            background-color: var(--color-error-dark);
+            transform: translateY(-1px);
+        }
+
+        /* Admin Analytics Tab Styles */
+        .analytics-section {
+            padding: 20px;
+            background-color: var(--color-off-white);
+            border-radius: var(--border-radius-medium);
+            box-shadow: var(--shadow-light);
+        }
+
+        .analytics-section h3 {
+            border-left-color: var(--color-pink-primary);
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-left: 10px;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 400px; /* Fixed height for consistency */
+            margin-bottom: 30px;
+            background-color: var(--color-white);
+            border-radius: var(--border-radius-medium);
+            box-shadow: var(--shadow-soft);
+            padding: 15px;
+        }
+
+        .analytics-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .analytics-controls label {
+            font-weight: 600;
+            color: var(--color-dark-gray);
+        }
+
+        .analytics-controls select,
+        .analytics-controls input[type="date"] {
+            padding: 8px 12px;
+            border: 1px solid var(--color-border-medium);
+            border-radius: var(--border-radius-small);
+            font-size: 0.95rem;
+            background-color: var(--color-input-bg);
+        }
+
+        .winner-of-week {
+            background-color: var(--color-cyan-light);
+            color: var(--color-dark-gray);
+            padding: 20px;
+            border-radius: var(--border-radius-medium);
+            text-align: center;
+            margin-top: 30px;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .winner-of-week h4 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: var(--color-dark-gray);
+        }
+
+        .winner-of-week p {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .winner-of-week .product-name {
+            font-weight: bold;
+            color: var(--color-pink-primary);
+            font-size: 1.2rem;
+        }
+
+        .winner-of-week .rating-info {
+            font-style: italic;
+            color: var(--color-medium-gray);
+        }
+
+        .product-comparison-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: var(--color-off-white);
+            border-radius: var(--border-radius-medium);
+            box-shadow: var(--shadow-light);
+        }
+
+        .product-comparison-section h3 {
+            border-left-color: var(--color-success-green);
+        }
+
+        .product-select-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .product-select-container select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--color-border-medium);
+            border-radius: var(--border-radius-small);
+            font-size: 1rem;
+            background-color: var(--color-input-bg);
+        }
+
+        .compare-button {
+            background-color: var(--color-info-blue);
+            color: var(--color-white);
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--border-radius-medium);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .compare-button:hover {
+            background-color: #0056b3;
+        }
+
+        .comparison-chart-container {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            background-color: var(--color-white);
+            border-radius: var(--border-radius-medium);
+            box-shadow: var(--shadow-soft);
+            padding: 15px;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -540,7 +763,7 @@
                 <button class="admin-nav-tab" data-tab="product-management-tab"><i class="fas fa-box-open"></i> Product Management</button>
                 <button class="admin-nav-tab" data-tab="order-management-tab"><i class="fas fa-shopping-basket"></i> Pending Orders</button>
                 <button class="admin-nav-tab" data-tab="completed-orders-tab"><i class="fas fa-history"></i> Completed Orders</button>
-            </nav>
+                <button class="admin-nav-tab" data-tab="analytics-tab"><i class="fas fa-chart-bar"></i> Analytics</button> </nav>
 
             <div id="dashboard-tab" class="admin-tab-content active">
                 <h3>Overview</h3>
@@ -672,11 +895,61 @@
                     <p class="no-items-message">No completed orders yet.</p>
                 </div>
             </div>
+
+            <div id="analytics-tab" class="admin-tab-content admin-section analytics-section">
+                <h3>Product Analytics</h3>
+                <div class="analytics-controls">
+                    <label for="analytics-timeframe">View Data For:</label>
+                    <select id="analytics-timeframe">
+                        <option value="all">All Time</option>
+                        <option value="week">Last 7 Days</option>
+                        <option value="month">Last 30 Days</option>
+                    </select>
+                    <button id="refresh-analytics-btn" class="admin-button secondary"><i class="fas fa-sync-alt"></i> Refresh Analytics</button>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="productRatingsChart"></canvas>
+                </div>
+
+                <div class="winner-of-week">
+                    <h4>🌟 Product of the Week 🌟</h4>
+                    <p id="winner-product-name" class="product-name">Loading...</p>
+                    <p id="winner-rating-info" class="rating-info"></p>
+                    <p id="winner-orders-info" class="rating-info"></p>
+                </div>
+
+                <div class="product-comparison-section">
+                    <h3>Compare Products</h3>
+                    <div class="product-select-container">
+                        <label for="compare-product-1">Select Product 1:</label>
+                        <select id="compare-product-1"></select>
+                        <label for="compare-product-2">Select Product 2:</label>
+                        <select id="compare-product-2"></select>
+                    </div>
+                    <button id="compare-products-btn" class="admin-button primary compare-button"><i class="fas fa-chart-line"></i> Compare</button>
+                    <div class="comparison-chart-container">
+                        <canvas id="productComparisonChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
         </section>
     </main>
 
     <div class="iframe-container">
         <iframe src="https://warnightog-thunderbound.github.io/SHJR-Support-APP/admin.html" title="SHJR Support App Admin"></iframe>
+    </div>
+
+    <div id="custom-alert-modal" class="custom-modal-overlay">
+        <div class="custom-modal-content">
+            <h4 id="custom-modal-title"></h4>
+            <p id="custom-modal-message"></p>
+            <div class="custom-modal-buttons">
+                <button id="custom-modal-ok-btn" class="custom-modal-button primary">OK</button>
+                <button id="custom-modal-cancel-btn" class="custom-modal-button secondary" style="display:none;">Cancel</button>
+            </div>
+        </div>
     </div>
 
     <footer class="app-footer">
