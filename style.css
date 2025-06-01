@@ -705,3 +705,104 @@ h2 {
         height: 300px; /* Shorter height on smaller screens */
     }
 }
+ .cart-icon {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: var(--color-pink-primary);
+        color: var(--color-white);
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        cursor: pointer;
+        box-shadow: var(--shadow-medium);
+        z-index: 1001;
+        transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+    .cart-icon:hover {
+        transform: scale(1.05);
+        background-color: var(--color-pink-dark);
+    }
+    .cart-icon #cart-count {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background-color: var(--color-error-red);
+        color: var(--color-white);
+        font-size: 0.75rem;
+        border-radius: 50%;
+        padding: 3px 7px;
+        font-weight: bold;
+    }
+
+    /* Cart Modal specific styles (reuse existing modal styles if possible) */
+    #cart-items-container {
+        max-height: 300px;
+        overflow-y: auto;
+        margin-bottom: 20px;
+        border-top: 1px solid var(--color-border-light);
+        padding-top: 15px;
+    }
+
+    .cart-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        border-bottom: 1px dashed var(--color-border-light);
+        padding-bottom: 10px;
+    }
+    .cart-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    .cart-item img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: var(--border-radius-small);
+        margin-right: 15px;
+    }
+    .cart-item-details {
+        flex-grow: 1;
+    }
+    .cart-item-details h4 {
+        margin: 0 0 5px 0;
+        font-size: 1.1rem;
+        color: var(--color-dark-gray);
+    }
+    .cart-item-details p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: var(--color-medium-gray);
+    }
+    .cart-item-price {
+        font-weight: bold;
+        color: var(--color-cyan-primary);
+        font-size: 1rem;
+        white-space: nowrap;
+    }
+    .remove-from-cart-btn {
+        background: none;
+        border: none;
+        color: var(--color-error-red);
+        font-size: 1.2rem;
+        cursor: pointer;
+        margin-left: 10px;
+        transition: color 0.2s ease;
+    }
+    .remove-from-cart-btn:hover {
+        color: var(--color-error-dark);
+    }
+
+    .cart-summary {
+        text-align: right;
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 2px solid var(--color-border-medium);
+    }
