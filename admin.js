@@ -749,3 +749,123 @@ async function deleteReview(productId, reviewId) {
         console.error('Review deletion error:', error);
     }
 }
+// --- Sales Analytics Elements ---
+const mostOrderedListEl = document.getElementById('most-ordered-list');
+const highestRatedListEl = document.getElementById('highest-rated-list');
+
+// --- Analytics Logic ---
+// This function will gather data for analytics
+async function updateSalesAnalytics() {
+    // 1. Fetch all products
+    const productsSnapshot = await get(ref(database, 'products'));
+    const products = productsSnapshot.val() || {};
+
+    // 2. Fetch all completed orders (including regular and cart orders)
+    const completedOrdersSnapshot = await get(ref(database, 'completedOrders'));
+    const completedOrders = completedOrdersSnapshot.val() || {};
+
+    const completedCartOrdersSnapshot = await get(ref(database, 'completedCartOrders'));
+    const completedCartOrders = completedCartOrdersSnapshot.val() || {};
+
+    const allCompletedOrders = { ...completedOrders, ...completedCartOrders };
+
+    // 3. Fetch all product reviews
+    const reviewsSnapshot = await get(ref(database, 'productReviews'));
+    const productReviews = reviewsSnapshot.val() || {};
+
+    // --- Calculate Most Ordered Products ---
+    const productOrderCounts = {};
+    Object.values(allCompletedOrders).forEach(order => {
+        // Assuming order.items contains an object where keys are product IDs
+        if (order.items) {
+            Object.values(order.items).forEach(item => {
+                const productId = item.id;
+                const quantity = item.quantity || 1; // Default to 1 if quantity not specified
+                productOrderCounts[productId] = (productOrderCounts[productId] || 0) + quantity;
+            });
+        }
+    });
+
+    const sortedMostOrdered = Object.entries(productOrderCounts)
+        .map(([productId, count]) => ({
+            productId,
+            count,
+            title: products[productId] ? products[productId].title : `Unknown Product (${productId.substring(0, 6)}...)`
+        }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5); // Get top 5
+
+    displayMostOrdered(sortedMostOrdered);
+
+    // --- Calculate Highest Rated Products ---
+    const productRatings = {}; // { productId: { totalRating: X, count: Y } }
+    Object.keys(productReviews).forEach(productId => {
+        const reviewsForProduct = productReviews[productId];
+        let totalRating = 0;
+        let reviewCount = 0;
+        Object.values(reviewsForProduct).forEach(review => {
+            if (review.rating) {
+                totalRating += review.rating;
+                reviewCount++;
+            }
+        });
+        if (reviewCount > 0) {
+            productRatings[productId] = {
+                averageRating: totalRating / reviewCount,
+                reviewCount: reviewCount
+            };
+        }
+    });
+
+    const sortedHighestRated = Object.entries(productRatings)
+        .map(([productId, data]) => ({
+            productId,
+            averageRating: data.averageRating,
+            reviewCount: data.reviewCount,
+            title: products[productId] ? products[productId].title : `Unknown Product (${productId.substring(0, 6)}...)`
+        }))
+        .sort((a, b) => b.averageRating - a.averageRating)
+        .slice(0, 5); // Get top 5
+
+    displayHighestRated(sortedHighestRated);
+}
+
+function displayMostOrdered(products) {
+    mostOrderedListEl.innerHTML = '';
+    if (products.length === 0) {
+        mostOrderedListEl.innerHTML = '<p class="no-items-message">No order data yet.</p>';
+        return;
+    }
+    products.forEach(p => {
+        const item = document.createElement('div');
+        item.classList.add('analytics-list-item');
+        item.innerHTML = `
+            <span>${p.title}</span>
+            <span class="count">${p.count} orders</span>
+        `;
+        mostOrderedListEl.appendChild(item);
+    });
+}
+
+function displayHighestRated(products) {
+    highestRatedListEl.innerHTML = '';
+    if (products.length === 0) {
+        highestRatedListEl.innerHTML = '<p class="no-items-message">No rating data yet.</p>';
+        return;
+    }
+    products.forEach(p => {
+        const item = document.createElement('div');
+        item.classList.add('analytics-list-item');
+        item.innerHTML = `
+            <span>${p.title}</span>
+            <span class="rating-value">${p.averageRating.toFixed(1)}/5 (${p.reviewCount} reviews)</span>
+        `;
+        highestRatedListEl.appendChild(item);
+    });
+}
+
+// Ensure analytics update when the tab is activated
+// Add this inside the navTabs.forEach(tab => { ... }) listener in admin.js
+// if (tab.dataset.tab === 'sales-analytics-tab') {
+//     updateSalesAnalytics();
+// }
