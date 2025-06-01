@@ -508,6 +508,61 @@
             border: none; /* Remove default iframe border */
             display: block; /* Remove any extra spacing */
         }
+          /* Analytics Specific Styling */
+    .sales-analytics-container h3 {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .analytics-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    @media (min-width: 768px) {
+        .analytics-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .analytics-card {
+        background-color: var(--color-off-white);
+        padding: 20px;
+        border-radius: var(--border-radius-medium);
+        box-shadow: var(--shadow-light);
+        text-align: center;
+    }
+
+    .analytics-card h4 {
+        color: var(--color-cyan-primary);
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+        border-bottom: 1px solid var(--color-border-light);
+        padding-bottom: 10px;
+    }
+
+    .analytics-list-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px dashed var(--color-border-light);
+    }
+    .analytics-list-item:last-child {
+        border-bottom: none;
+    }
+    .analytics-list-item span {
+        font-weight: 500;
+        color: var(--color-dark-gray);
+    }
+    .analytics-list-item .count, .analytics-list-item .rating-value {
+        font-weight: bold;
+        color: var(--color-pink-primary);
+    }
+    .analytics-list-item .rating-value {
+        color: #ffc107; /* Star color */
+    }
     </style>
 </head>
 <body>
