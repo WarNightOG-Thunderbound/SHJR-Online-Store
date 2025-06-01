@@ -699,3 +699,53 @@ async function cancelCartOrder(orderId) {
         console.error('Cart order cancellation error:', error);
     }
 }
+// --- Product Review Management Elements ---
+const reviewsListContainer = document.getElementById('reviews-list-container');
+
+// --- Listen for all Product Reviews ---
+onValue(ref(database, 'productReviews'), (snapshot) => {
+    const allReviews = snapshot.val();
+    reviewsListContainer.innerHTML = '';
+    if (!allReviews) {
+        reviewsListContainer.innerHTML = '<p class="no-items-message">No product reviews available.</p>';
+        return;
+    }
+
+    Object.keys(allReviews).forEach(productId => {
+        const productReviews = allReviews[productId];
+        const productTitle = allAdminProducts[productId] ? allAdminProducts[productId].title : `Product ID: ${productId.substring(0, 8)}...`;
+
+        const productReviewsSection = document.createElement('div');
+        productReviewsSection.classList.add('product-reviews-section'); // Add some styling later if needed
+        productReviewsSection.innerHTML = `<h4>Reviews for: ${productTitle}</h4>`;
+
+        Object.keys(productReviews).forEach(reviewId => {
+            const review = productReviews[reviewId];
+            const reviewTimestamp = review.timestamp ? new Date(review.timestamp).toLocaleString() : 'N/A';
+            const reviewCard = document.createElement('div');
+            reviewCard.classList.add('review-card'); // Reuse or create style for review-card
+            reviewCard.innerHTML = `
+                <p><strong>Rating:</strong> ${review.rating} out of 5
+                    ${'<i class="fas fa-star" style="color:#ffc107;"></i>'.repeat(review.rating)}
+                </p>
+                <p><strong>Comment:</strong> ${review.comment}</p>
+                <p><strong>By:</strong> ${review.userName} on ${reviewTimestamp}</p>
+                <button class="admin-button danger small" onclick="deleteReview('${productId}', '${reviewId}')"><i class="fas fa-trash"></i> Delete</button>
+            `;
+            productReviewsSection.appendChild(reviewCard);
+        });
+        reviewsListContainer.appendChild(productReviewsSection);
+    });
+});
+
+// --- Delete Review Function ---
+async function deleteReview(productId, reviewId) {
+    if (!confirm('Are you sure you want to delete this review? This action cannot be undone.')) return;
+    try {
+        await remove(ref(database, `productReviews/${productId}/${reviewId}`));
+        alert('Review deleted successfully!');
+    } catch (error) {
+        alert('Error deleting review: ' + error.message);
+        console.error('Review deletion error:', error);
+    }
+}
