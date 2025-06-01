@@ -806,3 +806,88 @@ h2 {
         padding-top: 15px;
         border-top: 2px solid var(--color-border-medium);
     }
+    /* Ratings & Comments Styling */
+    .product-ratings-section {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid var(--color-border-light);
+    }
+    .product-ratings-section h4 {
+        color: var(--color-dark-gray);
+        margin-bottom: 15px;
+        font-size: 1.3rem;
+    }
+
+    #average-rating {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--color-medium-gray);
+        margin-bottom: 10px;
+    }
+
+    #star-rating-display .star {
+        font-size: 1.5rem;
+        color: #ffc107; /* Warning yellow for stars */
+        margin-right: 2px;
+    }
+
+    #comments-list {
+        max-height: 250px;
+        overflow-y: auto;
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid var(--color-border-light);
+        border-radius: var(--border-radius-small);
+        background-color: var(--color-off-white);
+    }
+
+    .comment-item {
+        background-color: var(--color-white);
+        padding: 10px 15px;
+        border-radius: var(--border-radius-small);
+        margin-bottom: 10px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .comment-item p {
+        margin: 5px 0;
+    }
+    .comment-item .comment-meta {
+        font-size: 0.85rem;
+        color: var(--color-medium-gray);
+        margin-top: 5px;
+    }
+    .comment-item .comment-stars .star {
+        font-size: 1rem;
+        color: #ffc107;
+    }
+
+    #comment-form {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px dashed var(--color-border-light);
+    }
+    .rating-input .star {
+        font-size: 2rem;
+        color: var(--color-medium-gray);
+        cursor: pointer;
+        transition: color 0.2s ease;
+    }
+    .rating-input .star.selected {
+        color: #ffc107;
+    }
+    #comment-user-name,
+    #comment-text {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        border: 1px solid var(--color-border-medium);
+        border-radius: var(--border-radius-small);
+        font-size: 1rem;
+    }
+    #comment-text {
+        resize: vertical;
+        min-height: 80px;
+    }
+    #comment-form button {
+        margin-top: 15px;
+    }
