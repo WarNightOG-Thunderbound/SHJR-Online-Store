@@ -322,4 +322,189 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 }); // This closes the document.addEventListener('DOMContentLoaded' block
+// --- Cart System Elements ---
+const cartIcon = document.getElementById('cart-icon');
+const cartCountEl = document.getElementById('cart-count');
+const cartModal = document.getElementById('cart-modal');
+const cartCloseButton = document.getElementById('cart-close-button');
+const cartItemsContainer = document.getElementById('cart-items-container');
+const cartTotalEl = document.getElementById('cart-total');
+const checkoutButton = document.getElementById('checkout-button');
+
+let userCart = {}; // Stores items in the current user's cart
+
+// --- Cart Functions ---
+
+function saveCartToLocalStorage() {
+    localStorage.setItem('userCart', JSON.stringify(userCart));
+}
+
+function loadCartFromLocalStorage() {
+    const storedCart = localStorage.getItem('userCart');
+    if (storedCart) {
+        userCart = JSON.parse(storedCart);
+        updateCartUI();
+    }
+}
+
+function addToCart(product) {
+    if (userCart[product.id]) {
+        userCart[product.id].quantity += 1;
+    } else {
+        userCart[product.id] = {
+            id: product.id,
+            title: product.title,
+            price: product.price,
+            image: product.images && product.images.length > 0 ? product.images[0] : 'https://via.placeholder.com/300x200.png?text=No+Image',
+            quantity: 1
+        };
+    }
+    saveCartToLocalStorage();
+    updateCartUI();
+    alert(`${product.title} added to cart!`);
+}
+
+function removeFromCart(productId) {
+    if (userCart[productId]) {
+        delete userCart[productId];
+        saveCartToLocalStorage();
+        updateCartUI();
+    }
+}
+
+function updateCartUI() {
+    cartItemsContainer.innerHTML = '';
+    let total = 0;
+    let itemCount = 0;
+
+    if (Object.keys(userCart).length === 0) {
+        cartItemsContainer.innerHTML = '<p class="no-items-message">Your cart is empty.</p>';
+        cartTotalEl.textContent = '0';
+        cartCountEl.textContent = '0';
+        return;
+    }
+
+    Object.values(userCart).forEach(item => {
+        const itemElement = document.createElement('div');
+        itemElement.classList.add('cart-item');
+        itemElement.innerHTML = `
+            <img src="${item.image}" alt="${item.title}">
+            <div class="cart-item-details">
+                <h4>${item.title}</h4>
+                <p>Quantity: ${item.quantity}</p>
+            </div>
+            <p class="cart-item-price">PKR ${item.price.toLocaleString()}</p>
+            <button class="remove-from-cart-btn" data-product-id="${item.id}"><i class="fas fa-trash"></i></button>
+        `;
+        cartItemsContainer.appendChild(itemElement);
+
+        total += item.price * item.quantity;
+        itemCount += item.quantity;
+    });
+
+    cartTotalEl.textContent = total.toLocaleString();
+    cartCountEl.textContent = itemCount;
+
+    // Add event listeners for remove buttons
+    document.querySelectorAll('.remove-from-cart-btn').forEach(button => {
+        button.addEventListener('click', (event) => {
+            const productId = event.currentTarget.dataset.productId;
+            removeFromCart(productId);
+        });
+    });
+}
+
+// --- Checkout Logic (sends cart to Firebase orders) ---
+checkoutButton.addEventListener('click', async () => {
+    if (Object.keys(userCart).length === 0) {
+        alert('Your cart is empty. Please add items before checking out.');
+        return;
+    }
+
+    const confirmCheckout = confirm('Are you sure you want to proceed to checkout with these items?');
+    if (!confirmCheckout) return;
+
+    try {
+        const orderRef = push(ref(database, 'cartOrders')); // Use a new node for cart orders
+        const newOrder = {
+            items: userCart,
+            totalAmount: parseFloat(cartTotalEl.textContent.replace(/,/g, '')),
+            orderDate: new Date().toISOString(),
+            status: 'pending', // Initial status
+            // You might want to add user details here if you implement user authentication
+            // userId: "...",
+            // userName: "...",
+            // userEmail: "..."
+        };
+        await set(orderRef, newOrder);
+        alert('Your order has been placed! We will contact you soon.');
+        userCart = {}; // Clear cart after order
+        saveCartToLocalStorage();
+        updateCartUI();
+        cartModal.style.display = 'none'; // Close cart modal
+    } catch (error) {
+        console.error('Error placing order:', error);
+        alert('Failed to place order. Please try again.');
+    }
+});
+
+// --- Event Listeners for Cart Modal ---
+cartIcon.addEventListener('click', () => {
+    cartModal.style.display = 'block';
+    updateCartUI(); // Ensure UI is updated when opening
+});
+
+cartCloseButton.addEventListener('click', () => {
+    cartModal.style.display = 'none';
+});
+
+// Add to cart button in product modal (modify openProductModal to include this)
+// FIND THE openProductModal function and add this line inside it:
+// placeOrderButton.textContent = 'Add to Cart';
+// placeOrderButton.removeEventListener('click', confirmCodOrder); // Remove old listener
+// placeOrderButton.addEventListener('click', () => {
+//     addToCart(product);
+//     productModal.style.display = 'none'; // Close modal after adding to cart
+// });
+// Or, create a separate "Add to Cart" button in your product modal HTML and attach this:
+// Example modification for openProductModal:
+// (You'll need to manually integrate this into your existing openProductModal function)
+// function openProductModal(product) {
+//     currentProduct = product;
+//     document.getElementById('modal-product-title').textContent = product.title;
+//     document.getElementById('modal-product-brand').textContent = product.brand || 'N/A';
+//     document.getElementById('modal-product-description').textContent = product.description;
+//     document.getElementById('modal-product-stock').textContent = product.stock > 0 ? product.stock : 'Out of Stock';
+//     document.getElementById('modal-product-price').textContent = `PKR ${product.price.toLocaleString()}`;
+//     const productModalImage = document.getElementById('modal-product-image');
+//     const productModalVideo = document.getElementById('modal-product-video');
+
+//     // Display first image by default or video if available
+//     if (product.images && product.images.length > 0) {
+//         productModalImage.src = product.images[0];
+//         productModalImage.style.display = 'block';
+//         productModalVideo.style.display = 'none';
+//     } else if (product.videoUrl) {
+//         productModalVideo.src = product.videoUrl;
+//         productModalVideo.style.display = 'block';
+//         productModalImage.style.display = 'none';
+//     } else {
+//         productModalImage.src = 'https://via.placeholder.com/400x300.png?text=No+Image';
+//         productModalImage.style.display = 'block';
+//         productModalVideo.style.display = 'none';
+//     }
+
+//     // Add to Cart functionality
+//     const addToCartBtn = document.getElementById('place-order-button'); // Assuming place-order-button will become add to cart
+//     addToCartBtn.textContent = 'Add to Cart';
+//     addToCartBtn.onclick = () => addToCart(product);
+//     // Disable button if out of stock
+//     addToCartBtn.disabled = product.stock <= 0;
+
+
+//     productModal.style.display = 'block';
+// }
+
+// Initial cart load
+loadCartFromLocalStorage();
 
