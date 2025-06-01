@@ -705,3 +705,249 @@ h2 {
         height: 300px; /* Shorter height on smaller screens */
     }
 }
+
+/* Custom Alert/Confirm Modal */
+.custom-modal-overlay {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 2000; /* Higher than other modals */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.custom-modal-content {
+    background-color: var(--color-white);
+    padding: 30px;
+    border-radius: var(--border-radius-large);
+    box-shadow: var(--shadow-heavy);
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    animation: fadeInModal 0.3s ease-out;
+}
+
+.custom-modal-content h4 {
+    font-size: 1.5rem;
+    color: var(--color-dark-gray);
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.custom-modal-content p {
+    font-size: 1.1rem;
+    color: var(--color-medium-gray);
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.custom-modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.custom-modal-button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: var(--border-radius-medium);
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.custom-modal-button.primary {
+    background-color: var(--color-cyan-primary);
+    color: var(--color-white);
+}
+
+.custom-modal-button.primary:hover {
+    background-color: var(--color-cyan-dark);
+    transform: translateY(-1px);
+}
+
+.custom-modal-button.secondary {
+    background-color: var(--color-light-gray);
+    color: var(--color-dark-gray);
+    border: 1px solid var(--color-border-medium);
+}
+
+.custom-modal-button.secondary:hover {
+    background-color: var(--color-border-medium);
+    transform: translateY(-1px);
+}
+
+.custom-modal-button.danger {
+    background-color: var(--color-error-red);
+    color: var(--color-white);
+}
+
+.custom-modal-button.danger:hover {
+    background-color: var(--color-error-dark);
+    transform: translateY(-1px);
+}
+
+/* Rating Modal Specific Styles */
+.rating-modal-content {
+    text-align: center;
+}
+
+.rating-stars {
+    display: inline-block;
+    margin-bottom: 25px;
+}
+
+.rating-stars .fa-star {
+    font-size: 2.5rem;
+    color: var(--color-medium-gray); /* Default star color */
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.1s ease;
+    margin: 0 3px;
+}
+
+.rating-stars .fa-star.selected,
+.rating-stars .fa-star:hover,
+.rating-stars .fa-star:hover ~ .fa-star { /* Hover effect for previous stars */
+    color: var(--color-warning-yellow); /* Filled star color */
+}
+
+/* Admin Analytics Tab Styles */
+.analytics-section {
+    padding: 20px;
+    background-color: var(--color-off-white);
+    border-radius: var(--border-radius-medium);
+    box-shadow: var(--shadow-light);
+}
+
+.analytics-section h3 {
+    border-left-color: var(--color-pink-primary);
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding-left: 10px;
+}
+
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 400px; /* Fixed height for consistency */
+    margin-bottom: 30px;
+    background-color: var(--color-white);
+    border-radius: var(--border-radius-medium);
+    box-shadow: var(--shadow-soft);
+    padding: 15px;
+}
+
+.analytics-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+.analytics-controls label {
+    font-weight: 600;
+    color: var(--color-dark-gray);
+}
+
+.analytics-controls select,
+.analytics-controls input[type="date"] {
+    padding: 8px 12px;
+    border: 1px solid var(--color-border-medium);
+    border-radius: var(--border-radius-small);
+    font-size: 0.95rem;
+    background-color: var(--color-input-bg);
+}
+
+.winner-of-week {
+    background-color: var(--color-cyan-light);
+    color: var(--color-dark-gray);
+    padding: 20px;
+    border-radius: var(--border-radius-medium);
+    text-align: center;
+    margin-top: 30px;
+    box-shadow: var(--shadow-medium);
+}
+
+.winner-of-week h4 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    color: var(--color-dark-gray);
+}
+
+.winner-of-week p {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+}
+
+.winner-of-week .product-name {
+    font-weight: bold;
+    color: var(--color-pink-primary);
+    font-size: 1.2rem;
+}
+
+.winner-of-week .rating-info {
+    font-style: italic;
+    color: var(--color-medium-gray);
+}
+
+.product-comparison-section {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: var(--color-off-white);
+    border-radius: var(--border-radius-medium);
+    box-shadow: var(--shadow-light);
+}
+
+.product-comparison-section h3 {
+    border-left-color: var(--color-success-green);
+}
+
+.product-select-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.product-select-container select {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid var(--color-border-medium);
+    border-radius: var(--border-radius-small);
+    font-size: 1rem;
+    background-color: var(--color-input-bg);
+}
+
+.compare-button {
+    background-color: var(--color-info-blue);
+    color: var(--color-white);
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--border-radius-medium);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s ease;
+}
+
+.compare-button:hover {
+    background-color: #0056b3;
+}
+
+.comparison-chart-container {
+    position: relative;
+    width: 100%;
+    height: 350px;
+    background-color: var(--color-white);
+    border-radius: var(--border-radius-medium);
+    box-shadow: var(--shadow-soft);
+    padding: 15px;
+    margin-top: 20px;
+}
