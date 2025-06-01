@@ -507,4 +507,138 @@ cartCloseButton.addEventListener('click', () => {
 
 // Initial cart load
 loadCartFromLocalStorage();
+// --- Product Ratings & Comments Elements ---
+const averageRatingEl = document.getElementById('average-rating');
+const starRatingDisplayEl = document.getElementById('star-rating-display');
+const commentsListEl = document.getElementById('comments-list');
+const commentForm = document.getElementById('comment-form');
+const ratingStars = document.querySelectorAll('.rating-input .star');
+const ratingValueInput = document.getElementById('rating-value');
+const commentUserNameInput = document.getElementById('comment-user-name');
+const commentTextInput = document.getElementById('comment-text');
 
+let selectedRating = 0;
+
+// --- Rating Star Selection Logic ---
+ratingStars.forEach(star => {
+    star.addEventListener('click', () => {
+        selectedRating = parseInt(star.dataset.value);
+        ratingValueInput.value = selectedRating;
+        updateRatingStarsUI();
+    });
+    star.addEventListener('mouseover', () => {
+        highlightStars(parseInt(star.dataset.value));
+    });
+    star.addEventListener('mouseout', () => {
+        highlightStars(selectedRating); // Revert to selected rating
+    });
+});
+
+function updateRatingStarsUI() {
+    ratingStars.forEach(star => {
+        if (parseInt(star.dataset.value) <= selectedRating) {
+            star.classList.add('selected');
+        } else {
+            star.classList.remove('selected');
+        }
+    });
+}
+
+function highlightStars(count) {
+    ratingStars.forEach(star => {
+        if (parseInt(star.dataset.value) <= count) {
+            star.style.color = '#ffc107'; // Highlight color
+        } else {
+            star.style.color = 'var(--color-medium-gray)'; // Default color
+        }
+    });
+}
+
+// --- Submit Comment and Rating ---
+commentForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!currentProduct || selectedRating === 0) {
+        alert('Please select a rating and ensure a product is selected.');
+        return;
+    }
+
+    const userName = commentUserNameInput.value.trim() || 'Anonymous';
+    const commentText = commentTextInput.value.trim();
+
+    if (!commentText) {
+        alert('Please write your review.');
+        return;
+    }
+
+    try {
+        const reviewRef = push(ref(database, `productReviews/${currentProduct.id}`));
+        await set(reviewRef, {
+            rating: selectedRating,
+            comment: commentText,
+            userName: userName,
+            timestamp: serverTimestamp() // Firebase server timestamp
+        });
+
+        alert('Your review has been submitted!');
+        commentForm.reset();
+        selectedRating = 0;
+        updateRatingStarsUI();
+    } catch (error) {
+        console.error('Error submitting review:', error);
+        alert('Failed to submit review. Please try again.');
+    }
+});
+
+// --- Load Ratings and Comments for a product ---
+function loadProductReviews(productId) {
+    const reviewsRef = ref(database, `productReviews/${productId}`);
+    onValue(reviewsRef, (snapshot) => {
+        const reviews = snapshot.val();
+        commentsListEl.innerHTML = '';
+        if (!reviews) {
+            commentsListEl.innerHTML = '<p class="no-items-message">No reviews yet. Be the first to comment!</p>';
+            averageRatingEl.textContent = 'No ratings yet.';
+            starRatingDisplayEl.innerHTML = '';
+            return;
+        }
+
+        let totalRating = 0;
+        let reviewCount = 0;
+
+        Object.values(reviews).forEach(review => {
+            const commentItem = document.createElement('div');
+            commentItem.classList.add('comment-item');
+            const reviewTimestamp = review.timestamp ? new Date(review.timestamp).toLocaleString() : 'N/A';
+            commentItem.innerHTML = `
+                <p><strong>${review.userName}</strong> rated
+                    <span class="comment-stars">
+                        ${'<span class="star">&#9733;</span>'.repeat(review.rating)}
+                    </span>
+                </p>
+                <p>${review.comment}</p>
+                <p class="comment-meta">On ${reviewTimestamp}</p>
+            `;
+            commentsListEl.appendChild(commentItem);
+
+            totalRating += review.rating;
+            reviewCount++;
+        });
+
+        const avgRating = (totalRating / reviewCount).toFixed(1);
+        averageRatingEl.textContent = `Average Rating: ${avgRating} (${reviewCount} reviews)`;
+        starRatingDisplayEl.innerHTML = '<span class="star">&#9733;</span>'.repeat(Math.round(avgRating)); // Display rounded stars for avg
+
+        // Scroll to the bottom of the comments list
+        commentsListEl.scrollTop = commentsListEl.scrollHeight;
+    });
+}
+
+// Modify openProductModal to load reviews
+// You will need to manually insert the call to loadProductReviews(product.id);
+// inside your existing openProductModal function.
+// For example:
+// function openProductModal(product) {
+//     // ... existing code ...
+//     loadProductReviews(product.id); // Add this line
+//     // ... existing code ...
+// }
