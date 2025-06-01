@@ -626,3 +626,76 @@ document.addEventListener('DOMContentLoaded', () => {
         adminDashboard.style.display = 'none';
     }
 });
+// --- Cart Order Management Elements ---
+const cartOrderListContainer = document.getElementById('cart-order-list-container');
+
+// --- Listen for Cart Orders ---
+onValue(ref(database, 'cartOrders'), (snapshot) => {
+    const cartOrders = snapshot.val();
+    cartOrderListContainer.innerHTML = ''; // Clear previous orders
+    if (!cartOrders) {
+        cartOrderListContainer.innerHTML = '<p class="no-items-message">No pending cart orders.</p>';
+        return;
+    }
+
+    Object.keys(cartOrders).forEach(orderId => {
+        const order = cartOrders[orderId];
+        const orderCard = document.createElement('div');
+        orderCard.classList.add('order-card'); // You can reuse or create a new style for order-card
+        orderCard.innerHTML = `
+            <h4>Cart Order ID: ${orderId.substring(0, 8)}...</h4>
+            <p><strong>Status:</strong> <span class="status-${order.status}">${order.status.toUpperCase()}</span></p>
+            <p><strong>Total Amount:</strong> PKR ${order.totalAmount ? order.totalAmount.toLocaleString() : 'N/A'}</p>
+            <p><strong>Date:</strong> ${new Date(order.orderDate).toLocaleString()}</p>
+            <div class="order-items">
+                <h5>Items:</h5>
+                <ul>
+                    ${Object.values(order.items).map(item => `
+                        <li>${item.title} (x${item.quantity}) - PKR ${item.price ? (item.price * item.quantity).toLocaleString() : 'N/A'}</li>
+                    `).join('')}
+                </ul>
+            </div>
+            <div class="order-actions">
+                <button class="admin-button success small" onclick="completeCartOrder('${orderId}')"><i class="fas fa-check"></i> Complete</button>
+                <button class="admin-button danger small" onclick="cancelCartOrder('${orderId}')"><i class="fas fa-times"></i> Cancel</button>
+            </div>
+        `;
+        cartOrderListContainer.appendChild(orderCard);
+    });
+});
+
+// --- Cart Order Action Functions ---
+async function completeCartOrder(orderId) {
+    if (!confirm(`Are you sure you want to mark cart order ${orderId.substring(0, 8)}... as completed?`)) return;
+    try {
+        const cartOrderRef = ref(database, 'cartOrders/' + orderId);
+        const completedOrderRef = ref(database, 'completedCartOrders/' + orderId);
+
+        const snapshot = await get(cartOrderRef);
+        const orderData = snapshot.val();
+
+        if (orderData) {
+            orderData.status = 'completed';
+            orderData.completionDate = serverTimestamp(); // Add a completion timestamp
+            await set(completedOrderRef, orderData); // Move to completed orders
+            await remove(cartOrderRef); // Remove from pending cart orders
+            alert(`Cart Order ${orderId.substring(0, 8)}... marked as completed.`);
+        } else {
+            alert('Cart order not found or already processed.');
+        }
+    } catch (error) {
+        alert('Error completing cart order: ' + error.message);
+        console.error('Cart order completion error:', error);
+    }
+}
+
+async function cancelCartOrder(orderId) {
+    if (!confirm(`Are you sure you want to cancel and delete cart order ${orderId.substring(0, 8)}...? This action cannot be undone.`)) return;
+    try {
+        await remove(ref(database, 'cartOrders/' + orderId));
+        alert(`Cart Order ${orderId.substring(0, 8)}... has been cancelled and removed.`);
+    } catch (error) {
+        alert('Error cancelling cart order: ' + error.message);
+        console.error('Cart order cancellation error:', error);
+    }
+}
