@@ -16,7 +16,29 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+// Global variables for the new image gallery system
+let currentProductImageUrls = [];
+let currentProductImageIndex = 0;
 
+// Element selections for the new image gallery
+const mainProductImage = document.getElementById('main-product-image');
+const prevButton = document.querySelector('.prev-button');
+const nextButton = document.querySelector('.next-button');
+
+// Element selections and functions for the enlarged image preview modal
+const imagePreviewModal = document.getElementById('image-preview-modal');
+const enlargedProductImage = document.getElementById('enlarged-product-image');
+const closeImagePreviewBtn = document.getElementById('close-image-preview-btn');
+
+function openImagePreviewModal(imageSrc) {
+    enlargedProductImage.src = imageSrc;
+    imagePreviewModal.style.display = 'flex';
+}
+
+function closeImagePreviewModal() {
+    imagePreviewModal.style.display = 'none';
+    enlargedProductImage.src = '';
+}
 // Global variables
 const productModal = document.getElementById('product-modal');
 const orderModal = document.getElementById('order-modal');
