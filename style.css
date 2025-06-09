@@ -951,3 +951,86 @@ h2 {
     padding: 15px;
     margin-top: 20px;
 }
+/* In style.css */
+
+/* Reusing existing custom-modal-overlay for the background */
+/* For the modal content itself (vertical rectangle) */
+.image-preview-content {
+    background-color: var(--color-white);
+    padding: 20px;
+    border-radius: var(--border-radius-medium);
+    box-shadow: var(--shadow-strong); /* Using a stronger shadow for modals */
+    position: relative;
+    width: 90%; /* Responsive width */
+    max-width: 500px; /* Max width for vertical rectangle */
+    height: auto; /* Height adapts to content */
+    max-height: 90vh; /* Max height for larger screens */
+    overflow-y: auto; /* Enable scrolling if content is too tall */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-preview-content img {
+    max-width: 100%; /* Ensure image fits within its container */
+    height: auto;    /* Maintain aspect ratio */
+    display: block;  /* Remove extra space below image */
+    border-radius: var(--border-radius-small); /* Slightly rounded corners for the image itself */
+}
+
+/* Style for the close button within this specific modal */
+.image-preview-content .close-button {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--color-dark-gray);
+    cursor: pointer;
+    transition: color 0.3s ease;
+    z-index: 10; /* Ensure it's above the image */
+}
+
+.image-preview-content .close-button:hover {
+    color: var(--color-error-red);
+}
+
+/* Style for the border on the clicked product image thumbnail */
+.product-images .product-image.selected-image {
+    border: 3px solid var(--color-cyan-primary); /* Use your primary color for the border */
+    box-shadow: 0 0 8px rgba(var(--color-cyan-primary-rgb), 0.5); /* Subtle glow */
+    transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* If you have a specific container for your smaller product images/thumbnails */
+.product-images {
+    display: flex; /* Or grid, whatever you use for your thumbnails */
+    flex-wrap: wrap; /* Allow images to wrap */
+    gap: 10px; /* Space between images */
+    margin-bottom: 20px;
+    justify-content: center; /* Center the images if they don't fill the row */
+}
+
+.product-images .product-image {
+    width: 80px; /* Adjust thumbnail size as needed */
+    height: 80px;
+    object-fit: cover; /* Ensures images fill the space without distortion */
+    cursor: pointer;
+    border: 1px solid var(--color-border-medium); /* Default border */
+    border-radius: var(--border-radius-small);
+    transition: border 0.2s ease;
+}
+
+.product-images .product-image:hover {
+    border-color: var(--color-cyan-dark); /* Highlight on hover */
+}
+
+/* Add any necessary variables if they are missing from your style.css */
+/* Example: */
+/*
+:root {
+    --shadow-strong: 0 10px 25px rgba(0, 0, 0, 0.2);
+    --color-cyan-primary-rgb: 23, 162, 184; // Add RGB for your primary color if not already defined for rgba
+}
+*/
