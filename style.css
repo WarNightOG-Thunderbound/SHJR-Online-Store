@@ -1034,3 +1034,80 @@ h2 {
     --color-cyan-primary-rgb: 23, 162, 184; // Add RGB for your primary color if not already defined for rgba
 }
 */
+/* In style.css - Additions and Adjustments */
+
+/* Styles for the new Product Image Gallery */
+.product-image-gallery {
+    position: relative; /* For absolute positioning of buttons */
+    width: 100%;
+    max-width: 400px; /* Adjust max width of the gallery as needed */
+    margin: 20px auto; /* Center the gallery */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-border-medium); /* Optional: add a border to the gallery */
+    border-radius: var(--border-radius-medium);
+    overflow: hidden; /* Ensures image stays within bounds if it goes outside */
+    background-color: var(--color-light-gray); /* Background when image is loading or not present */
+    min-height: 250px; /* Minimum height for the gallery */
+}
+
+.product-image-gallery #main-product-image {
+    max-width: 100%;
+    max-height: 350px; /* Max height for the main image within the gallery */
+    height: auto;
+    display: block;
+    cursor: pointer; /* Indicates it's clickable to enlarge */
+    transition: transform 0.2s ease; /* Smooth hover effect */
+}
+
+.product-image-gallery #main-product-image:hover {
+    transform: scale(1.02); /* Slightly zoom on hover */
+}
+
+.gallery-nav-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(var(--color-dark-gray-rgb), 0.7); /* Semi-transparent dark background */
+    color: var(--color-white);
+    border: none;
+    padding: 10px 15px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    border-radius: var(--border-radius-small);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    z-index: 5; /* Ensure buttons are above the image */
+    user-select: none; /* Prevent text selection */
+}
+
+.gallery-nav-button:hover {
+    background-color: rgba(var(--color-cyan-primary-rgb), 0.9); /* Highlight on hover */
+    color: var(--color-white);
+}
+
+.gallery-nav-button.prev-button {
+    left: 10px;
+}
+
+.gallery-nav-button.next-button {
+    right: 10px;
+}
+
+/* Adjustments for variables if needed: */
+/*
+:root {
+    --color-dark-gray-rgb: 33, 37, 41; // Example for #212529 if not already defined for rgba
+    --color-cyan-primary-rgb: 0, 188, 212; // Example for #00BCD4 if not already defined for rgba
+}
+*/
+
+/* You can remove or adjust the following if no longer used for thumbnails in product modal */
+/*
+.product-images {
+    display: none; // Or remove this section entirely if thumbnails are gone
+}
+.product-images .product-image.selected-image {
+    // This class is no longer needed for thumbnails in the product modal
+}
+*/
