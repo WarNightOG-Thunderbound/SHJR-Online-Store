@@ -480,3 +480,86 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 }); // This closes the document.addEventListener('DOMContentLoaded' block
+// In script.js, usually at the end of your script where other event listeners are.
+
+// Get references to the new modal elements
+const imagePreviewModal = document.getElementById('image-preview-modal');
+const enlargedProductImage = document.getElementById('enlarged-product-image');
+const closeImagePreviewBtn = document.getElementById('close-image-preview-btn');
+
+// --- Event Listeners for Image Preview Modal ---
+
+// Function to open the image preview modal
+function openImagePreviewModal(imageSrc) {
+    enlargedProductImage.src = imageSrc;
+    imagePreviewModal.style.display = 'flex'; // Use flex to center the modal
+}
+
+// Function to close the image preview modal
+function closeImagePreviewModal() {
+    imagePreviewModal.style.display = 'none';
+    enlargedProductImage.src = ''; // Clear the image source
+}
+
+// Event listener for the close button
+closeImagePreviewBtn.addEventListener('click', closeImagePreviewModal);
+
+// Close modal if user clicks outside the content (on the overlay)
+imagePreviewModal.addEventListener('click', (event) => {
+    if (event.target === imagePreviewModal) {
+        closeImagePreviewModal();
+    }
+});
+
+// --- Handling Product Image Clicks within the Product Details Modal ---
+
+// This part needs to be integrated into your existing product modal display logic.
+// Assuming your product images are within a container like:
+// <div class="product-images" id="product-images-container">
+//    <img src="img1.jpg" class="product-image" alt="...">
+//    <img src="img2.jpg" class="product-image" alt="...">
+// </div>
+
+// Get the container for product images within your main product modal
+const productImagesContainer = document.getElementById('product-images-container'); // You might need to add this ID to your HTML
+
+if (productImagesContainer) {
+    productImagesContainer.addEventListener('click', (event) => {
+        const clickedImage = event.target;
+
+        // Check if the clicked element is an image with the 'product-image' class
+        if (clickedImage.tagName === 'IMG' && clickedImage.classList.contains('product-image')) {
+            // Remove 'selected-image' class from all other images
+            document.querySelectorAll('.product-images .product-image').forEach(img => {
+                img.classList.remove('selected-image');
+            });
+
+            // Add 'selected-image' class to the clicked image
+            clickedImage.classList.add('selected-image');
+
+            // Open the image preview modal with the clicked image's source
+            openImagePreviewModal(clickedImage.src);
+        }
+    });
+}
+
+
+// --- Important: How product images are populated ---
+// When you populate your `product-modal` with product details,
+// make sure the images are given the class `product-image`.
+// Example of how you might populate images (adapt to your code):
+/*
+function showProductDetails(product) {
+    // ... other product details ...
+
+    const imagesHtml = product.images.map(imgUrl => `
+        <img src="${imgUrl}" class="product-image" alt="${product.title}">
+    `).join('');
+
+    // Assuming you have a div with id="product-images-container" inside your product modal
+    document.getElementById('product-images-container').innerHTML = imagesHtml;
+
+    // Show the product modal
+    productModal.style.display = 'flex'; // or 'block'
+}
+*/
