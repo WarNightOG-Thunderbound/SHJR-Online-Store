@@ -26,98 +26,103 @@
 
     <main>
         <section class="search-section">
-            <h2>Search Products</h2>
-            <input type="text" id="search-bar" class="search-input" placeholder="Search by name or description...">
-        </section>
-
-        <section class="categories">
-            <h2>Categories</h2>
-            <div class="category-list">
-                <button class="category-button" data-category="All Products">All Products</button>
-                <button class="category-button" data-category="Fabric">Fabric</button>
-                <button class="category-button" data-category="Organic">Organic</button>
-                <button class="category-button" data-category="Other Brands">Other Brands</button>
-                <button class="category-button" data-category="Other Products">Other Products</button>
-                <button class="category-button" data-category="Perfumes">Perfumes</button>
-                <button class="category-button" data-category="Tools">Tools</button>
-                <button class="category-button" data-category="Agriculture">Agriculture</button>
-                <button class="category-button" data-category="Electronics">Electronics</button>
+            <h2>Find Your Perfect Product</h2>
+            <div class="search-controls">
+                <input type="text" id="search-bar" placeholder="Search products...">
+                <div class="category-buttons">
+                    <button class="category-button active" data-category="All Products">All Products</button>
+                    <button class="category-button" data-category="Electronics">Electronics</button>
+                    <button class="category-button" data-category="Home & Kitchen">Home & Kitchen</button>
+                    <button class="category-button" data-category="Fashion">Fashion</button>
+                    <button class="category-button" data-category="Sports">Sports</button>
+                    </div>
             </div>
         </section>
 
-        <section class="product-listing">
-            <h2>Products</h2>
-            <div id="product-container" class="product-grid">
-            </div>
+        <section class="product-listing-section">
+            <h2>Our Products</h2>
+            <div id="product-container" class="product-container">
+                </div>
         </section>
 
-        <section id="history-section" class="info-section history-section">
+        <section id="history-section" class="info-section">
             <h2>Our History</h2>
-            <p>SHJR.shop started its journey in **2017**, aiming to provide quality products to our valued customers. We have consistently grown by focusing on customer satisfaction and expanding our range of unique and high-quality items. Our commitment is to bring the best to your doorstep.</p>
+            <p>Founded in 2023, SHJR.shop started with a simple vision: to connect customers with high-quality products at unbeatable prices. From humble beginnings, we've grown into a thriving online marketplace, committed to innovation and customer satisfaction.</p>
         </section>
 
-        <section id="about-us-section" class="info-section about-us-section">
+        <section id="about-us-section" class="info-section">
             <h2>About Us</h2>
-            <p>Welcome to SHJR.shop! We are passionate about bringing you a curated selection of fine fabrics, organic goods, and products from other distinctive brands. Our mission is to offer high-quality items that enhance your lifestyle, combined with a seamless online shopping experience. We believe in quality, transparency, and customer delight.</p>
+            <p>At SHJR.shop, we believe in providing a seamless shopping experience. Our dedicated team works tirelessly to curate a diverse range of products, ensuring quality, affordability, and timely delivery. We are passionate about what we do and are always striving to exceed your expectations.</p>
         </section>
 
-        <section id="contact-us-section" class="info-section contact-us-section">
+        <section id="contact-us-section" class="info-section">
             <h2>Contact Us</h2>
-            <p>**Email:** <a href="mailto:khalidja2010@gmail.com">khalidja2010@gmail.com</a></p>
-            <p>**Phone:** <a href="tel:03344148636">0334-4148636</a></p>
-            <p>**Address:**C block PASCO society Canal road lahore Pakistan.</p>
+            <p>Have questions or need assistance? Reach out to us!</p>
+            <address>
+                Email: <a href="mailto:support@shjr.shop">support@shjr.shop</a><br>
+                Phone: +92 3XX XXXXXXX (Your Phone Number)<br>
+                Address: [Your Business Address Here], Lahore, Pakistan
+            </address>
         </section>
-
-        <section id="support-iframe-section" class="info-section support-iframe-section">
-            <h2>Support App</h2>
-            <p>Here you can access our dedicated support application:</p>
-            <iframe src="https://warnightog-thunderbound.github.io/SHJR-Support-APP" class="support-app-iframe-embed"></iframe>
-        </section>
-
     </main>
 
     <div id="product-modal" class="modal">
         <div class="modal-content">
-            <span class="close-button">×</span>
-            <div class="product-details">
-                <h3 id="modal-product-title"></h3>
-                <div class="product-media">
-                    <div class="product-image-gallery">
-                        <button class="gallery-nav-button prev-button">&lt;</button>
-                        <img id="main-product-image" src="" alt="Product Image">
-                        <button class="gallery-nav-button next-button">&gt;</button>
+            <span class="close-button">&times;</span>
+            <h2 id="modal-product-title"></h2>
+            <div class="product-media-gallery">
+                <button class="gallery-nav-button prev-button">&lt;</button>
+                <img id="main-product-image" src="" alt="Product Image">
+                <video id="modal-product-video" controls loop autoplay muted style="display:none;"></video>
+                <button class="gallery-nav-button next-button">&gt;</button>
+            </div>
+            <p><strong>Brand:</strong> <span id="modal-product-brand"></span></p>
+            <p id="modal-product-description"></p>
+            <p><strong id="modal-product-stock"></strong></p>
+            <p id="modal-product-price"></p> <button id="place-order-button" class="place-order-button">Place Order</button>
+            
+            <div class="product-reviews">
+                <h4>Customer Reviews</h4>
+                <div id="reviews-list" class="reviews-list">
                     </div>
-                    <video id="modal-product-video" controls class="product-video" style="display:none;"></video>
+                <div class="review-form">
+                    <textarea id="review-comment" placeholder="Write your review..." rows="3"></textarea>
+                    <button id="submit-review-button" class="place-order-button">Submit Review</button>
                 </div>
-                <p>**Brand:** <span id="modal-product-brand"></span></p>
-                <p id="modal-product-description"></p>
-                <p>**Stock:** <span id="modal-product-stock"></span></p>
-                <p class="product-price" id="modal-product-price"></p>
-                <button id="place-order-button" class="place-order-button">Place Order</button>
             </div>
         </div>
     </div>
 
     <div id="order-modal" class="modal">
         <div class="modal-content">
-            <span class="close-button">×</span>
-            <h3>Cash on Delivery</h3>
-            <div id="cod-form" class="payment-form">
-                <h4>Please provide your delivery details:</h4>
-                <input type="text" id="cod-name" placeholder="Your Full Name" required>
-                <input type="tel" id="cod-phone" placeholder="Your Phone Number (e.g., 03XX-XXXXXXX)" required>
-                <textarea id="cod-address" placeholder="Your Delivery Address" rows="3" required></textarea>
-                <button id="confirm-cod-order" class="confirm-order-button">Confirm Order (Cash on Delivery)</button>
-            </div>
+            <span class="close-button">&times;</span>
+            <h2>Place Your Order (COD)</h2>
+            <p>Please provide your delivery details for Cash on Delivery.</p>
+            <form id="cod-order-form">
+                <div class="form-group">
+                    <label for="cod-name">Full Name:</label>
+                    <input type="text" id="cod-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="cod-phone">Phone Number:</label>
+                    <input type="tel" id="cod-phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="cod-address">Delivery Address:</label>
+                    <textarea id="cod-address" rows="3" required></textarea>
+                </div>
+                <button type="button" id="confirm-cod-order" class="place-order-button">Confirm Order</button>
+            </form>
         </div>
     </div>
 
     <div id="rating-modal" class="modal">
-        <div class="modal-content rating-modal-content">
-            <span class="close-button">×</span>
-            <h3>Rate Your Purchase!</h3>
-            <p>How would you rate "<span id="rating-product-title"></span>" out of 7 stars?</p>
-            <div class="rating-stars" id="rating-stars-container">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Rate This Product</h2>
+            <h3 id="rating-product-title"></h3>
+            <p>How would you rate this product?</p>
+            <div id="rating-stars-container" class="rating-stars-container">
                 <i class="fa-solid fa-star" data-rating="1"></i>
                 <i class="fa-solid fa-star" data-rating="2"></i>
                 <i class="fa-solid fa-star" data-rating="3"></i>
