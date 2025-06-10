@@ -1,3 +1,5 @@
+// script.js
+
 // Firebase configuration
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
 import { getDatabase, ref, onValue, push, set, update, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
@@ -17,545 +19,575 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-// Global variables
+
+// --- Product Data (Now fetched from Firebase) ---
+let products = []; // This will now be populated from Firebase
+
+// --- DOM Elements ---
+const productContainer = document.getElementById('product-container');
+const searchBar = document.getElementById('search-bar');
+const categoryButtons = document.querySelectorAll('.category-button');
+
+// Modals
 const productModal = document.getElementById('product-modal');
 const orderModal = document.getElementById('order-modal');
-const ratingModal = document.getElementById('rating-modal'); // New rating modal
-const closeButtons = document.querySelectorAll('.close-button');
-const productContainer = document.getElementById('product-container');
-const categoryButtons = document.querySelectorAll('.category-button');
-const placeOrderButton = document.getElementById('place-order-button');
-const searchBar = document.getElementById('search-bar');
-const navLinks = document.querySelectorAll('.main-nav a');
+const ratingModal = document.getElementById('rating-modal');
+const customAlertModal = document.getElementById('custom-alert-modal');
+const imagePreviewModal = document.getElementById('image-preview-modal');
 
-// COD specific elements
-const codForm = document.getElementById('cod-form');
-const confirmCodOrderButton = document.getElementById('confirm-cod-order');
+// Close buttons
+const closeButtons = document.querySelectorAll('.modal .close-button, .custom-modal-overlay .close-button');
+
+// Product Modal Elements
+const modalProductTitle = document.getElementById('modal-product-title');
+const mainProductImage = document.getElementById('main-product-image');
+const modalProductVideo = document.getElementById('modal-product-video');
+const modalProductBrand = document.getElementById('modal-product-brand');
+const modalProductDescription = document.getElementById('modal-product-description');
+const modalProductStock = document.getElementById('modal-product-stock');
+const modalProductPrice = document.getElementById('modal-product-price');
+const placeOrderButton = document.getElementById('place-order-button');
+const galleryNavPrevButton = document.querySelector('.prev-button');
+const galleryNavNextButton = document.querySelector('.next-button');
+
+// Order Modal Elements
 const codNameInput = document.getElementById('cod-name');
 const codPhoneInput = document.getElementById('cod-phone');
 const codAddressInput = document.getElementById('cod-address');
+const confirmCodOrderButton = document.getElementById('confirm-cod-order');
 
-// Rating modal elements
-const ratingProductTitleSpan = document.getElementById('rating-product-title');
+// Rating Modal Elements
+const ratingProductTitle = document.getElementById('rating-product-title');
 const ratingStarsContainer = document.getElementById('rating-stars-container');
 const submitRatingButton = document.getElementById('submit-rating-button');
 
-let currentProduct = null;
-let currentOrderId = null; // To link rating to an order
-let selectedRating = 0; // Stores the user's selected rating
-let allProducts = {}; // Store all products fetched from Firebase
-
-// --- NEW GLOBAL VARIABLES FOR IMAGE GALLERY ---
-let currentProductImageUrls = [];
-let currentProductImageIndex = 0;
-
-const mainProductImage = document.getElementById('main-product-image');
-const prevButton = document.querySelector('.prev-button');
-const nextButton = document.querySelector('.next-button');
-
-// Element selections and functions for the enlarged image preview modal
-const imagePreviewModal = document.getElementById('image-preview-modal');
-const enlargedProductImage = document.getElementById('enlarged-product-image');
-const closeImagePreviewBtn = document.getElementById('close-image-preview-btn');
-
-function openImagePreviewModal(imageSrc) {
-    enlargedProductImage.src = imageSrc;
-    imagePreviewModal.style.display = 'flex';
-}
-
-function closeImagePreviewModal() {
-    imagePreviewModal.style.display = 'none';
-    enlargedProductImage.src = '';
-}
-// --- END NEW GLOBAL VARIABLES FOR IMAGE GALLERY ---
-
-
-// --- Custom Alert/Confirm Functions ---
-const customAlertModal = document.getElementById('custom-alert-modal');
+// Custom Alert Elements
 const customModalTitle = document.getElementById('custom-modal-title');
 const customModalMessage = document.getElementById('custom-modal-message');
 const customModalOkBtn = document.getElementById('custom-modal-ok-btn');
 const customModalCancelBtn = document.getElementById('custom-modal-cancel-btn');
 
-function showAlert(message, title = 'Notification') {
-    return new Promise(resolve => {
+// Image Preview Elements
+const enlargedProductImage = document.getElementById('enlarged-product-image');
+const closeImagePreviewBtn = document.getElementById('close-image-preview-btn');
+
+
+let currentProduct = null;
+let currentImageIndex = 0;
+let userSelectedRating = 0; // To store the rating selected by the user for analytics
+
+// To manage Firebase Realtime Database listener for reviews
+let currentReviewsListenerOff = null;
+
+
+// --- Helper Functions ---
+
+/**
+ * Displays a custom alert modal.
+ * @param {string} title - The title of the alert.
+ * @param {string} message - The message content.
+ * @param {boolean} showCancel - Whether to show the cancel button.
+ * @returns {Promise<boolean>} - Resolves true if OK, false if Cancel.
+ */
+function showCustomAlert(title, message, showCancel = false) {
+    return new Promise((resolve) => {
         customModalTitle.textContent = title;
         customModalMessage.textContent = message;
-        customModalOkBtn.textContent = 'OK';
-        customModalOkBtn.classList.remove('danger', 'secondary');
-        customModalOkBtn.classList.add('primary');
-        customModalCancelBtn.style.display = 'none';
+        customModalCancelBtn.style.display = showCancel ? 'inline-block' : 'none';
         customAlertModal.style.display = 'flex';
 
-        const okHandler = () => {
+        const handleOk = () => {
+            customModalOkBtn.removeEventListener('click', handleOk);
+            customModalCancelBtn.removeEventListener('click', handleCancel);
             customAlertModal.style.display = 'none';
-            customModalOkBtn.removeEventListener('click', okHandler);
             resolve(true);
         };
-        customModalOkBtn.addEventListener('click', okHandler);
-    });
-}
 
-function showConfirm(message, title = 'Confirm Action', okButtonText = 'Yes', cancelButtonText = 'No', okButtonClass = 'primary') {
-    return new Promise(resolve => {
-        customModalTitle.textContent = title;
-        customModalMessage.textContent = message;
-        customModalOkBtn.textContent = okButtonText;
-        customModalOkBtn.classList.remove('primary', 'secondary', 'danger');
-        customModalOkBtn.classList.add(okButtonClass);
-        customModalCancelBtn.textContent = cancelButtonText;
-        customModalCancelBtn.style.display = 'inline-block';
-        customAlertModal.style.display = 'flex';
-
-        const okHandler = () => {
+        const handleCancel = () => {
+            customModalOkBtn.removeEventListener('click', handleOk);
+            customModalCancelBtn.removeEventListener('click', handleCancel);
             customAlertModal.style.display = 'none';
-            customModalOkBtn.removeEventListener('click', okHandler);
-            customModalCancelBtn.removeEventListener('click', cancelHandler);
-            resolve(true);
-        };
-        const cancelHandler = () => {
-            customAlertModal.style.display = 'none';
-            customModalOkBtn.removeEventListener('click', okHandler);
-            customModalCancelBtn.removeEventListener('click', cancelHandler);
             resolve(false);
         };
 
-        customModalOkBtn.addEventListener('click', okHandler);
-        customModalCancelBtn.addEventListener('click', cancelHandler);
+        customModalOkBtn.addEventListener('click', handleOk);
+        if (showCancel) {
+            customModalCancelBtn.addEventListener('click', handleCancel);
+        }
     });
 }
 
-// --- Smooth Scrolling for Nav Links ---
-navLinks.forEach(link => {
-    link.addEventListener('click', function(e) {
-        e.preventDefault();
-        const targetId = this.getAttribute('href');
-        const targetElement = document.querySelector(targetId);
-        if (targetElement) {
-            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    });
-});
+function closeAllModals() {
+    productModal.style.display = 'none';
+    orderModal.style.display = 'none';
+    ratingModal.style.display = 'none';
+    customAlertModal.style.display = 'none';
+    imagePreviewModal.style.display = 'none';
 
-// --- Function to display products ---
+    // Detach the real-time review listener when the product modal closes
+    if (currentReviewsListenerOff) {
+        currentReviewsListenerOff(); // Call the unsubscribe function
+        currentReviewsListenerOff = null;
+    }
+}
+
+/**
+ * Generates a random fake rating with higher probability for 7 stars.
+ * @returns {number} - A rating between 5 and 7.
+ */
+function getRandomFakeRating() {
+    const rand = Math.random();
+    if (rand < 0.6) { // 60% chance for 7 stars
+        return 7;
+    } else if (rand < 0.85) { // 25% chance for 6 stars
+        return 6;
+    } else { // 15% chance for 5 stars
+        return 5;
+    }
+}
+
+/**
+ * Displays star icons in a given container based on a rating.
+ * @param {HTMLElement} container - The DOM element to append stars to.
+ * @param {number} rating - The numerical rating to display (e.g., 5, 6, 7).
+ */
+function displayRatingStars(container, rating) {
+    container.innerHTML = ''; // Clear previous stars
+    for (let i = 1; i <= 7; i++) {
+        const star = document.createElement('i');
+        star.classList.add('fa-solid', 'fa-star');
+        star.dataset.rating = i; // For clickable stars in rating modal
+        star.style.color = i <= rating ? 'gold' : 'lightgray';
+        container.appendChild(star);
+    }
+}
+
+
+// --- Product Display and Filtering ---
+
 function displayProducts(productsToDisplay) {
-    productContainer.innerHTML = ''; // Clear previous products
-    if (Object.keys(productsToDisplay).length === 0) {
-        productContainer.innerHTML = '<p class="no-products-message">No products match your criteria.</p>';
+    productContainer.innerHTML = ''; // Clear existing products
+    if (productsToDisplay.length === 0) {
+        productContainer.innerHTML = '<p>No products found.</p>';
         return;
     }
-    Object.values(productsToDisplay).forEach(product => {
+
+    productsToDisplay.forEach(product => {
         const productCard = document.createElement('div');
         productCard.classList.add('product-card');
-        productCard.dataset.productId = product.id;
 
-        // Calculate average rating for display
-        const averageRating = product.numberOfRatings > 0 ? (product.totalStarsSum / product.numberOfRatings).toFixed(1) : 'N/A';
-        const ratingStarsHtml = product.numberOfRatings > 0 ?
-            `<div class="product-card-rating">
-                <i class="fa-solid fa-star" style="color: var(--color-warning-yellow);"></i> ${averageRating} (${product.numberOfRatings} ratings)
-            </div>` :
-            `<div class="product-card-rating">No ratings yet</div>`;
+        const imageContainer = document.createElement('div');
+        imageContainer.classList.add('product-card-image-container');
+        const productImage = document.createElement('img');
+        // Ensure product.images is an array and has at least one element
+        productImage.src = product.images && product.images.length > 0 ? product.images[0] : 'https://via.placeholder.com/400x300?text=No+Image';
+        productImage.alt = product.name;
+        imageContainer.appendChild(productImage);
+        productCard.appendChild(imageContainer);
 
+        const productTitle = document.createElement('h3');
+        productTitle.textContent = product.name;
+        productCard.appendChild(productTitle);
 
-        productCard.innerHTML = `
-            <img src="${product.images && product.images.length > 0 ? product.images[0] : 'https://via.placeholder.com/300x200.png?text=No+Image'}" alt="${product.title}">
-            <div class="product-info">
-                <h3>${product.title}</h3>
-                <p class="product-brand-card"><strong>Brand:</strong> ${product.brand || 'N/A'}</p>
-                <p>${product.description.substring(0, 80)}...</p>
-                <p class="price">PKR ${product.price.toLocaleString()}</p>
-                ${ratingStarsHtml}
-            </div>
-        `;
+        const productBrand = document.createElement('p');
+        productBrand.innerHTML = `<strong>Brand:</strong> ${product.brand || 'N/A'}`; // Handle missing brand
+        productCard.appendChild(productBrand);
+
+        // --- Fake Rating System Display ---
+        const ratingDisplay = document.createElement('div');
+        ratingDisplay.classList.add('product-card-rating');
+        const fakeRating = getRandomFakeRating();
+        displayRatingStars(ratingDisplay, fakeRating); // Display fake stars on product card
+        productCard.appendChild(ratingDisplay);
+        // --- End Fake Rating System Display ---
+
+        const productPrice = document.createElement('p');
+        productPrice.classList.add('product-price');
+        productPrice.textContent = product.price;
+        productCard.appendChild(productPrice);
+
         productCard.addEventListener('click', () => openProductModal(product));
         productContainer.appendChild(productCard);
     });
 }
 
-// --- Fetch products from Firebase ---
-const productsRef = ref(database, 'products');
-onValue(productsRef, (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-        allProducts = data;
-        displayProducts(allProducts); // Display all products initially
-    } else {
-        allProducts = {}; // Ensure it's an empty object if no data
-        productContainer.innerHTML = '<p class="no-products-message">No products available at the moment. Please check back later!</p>';
-    }
-}, (error) => {
-    console.error("Firebase product read failed: " + error.message);
-    showAlert('Could not load products. Please try again later.', 'Error');
-});
+function filterProducts() {
+    const searchTerm = searchBar.value.toLowerCase();
+    const activeCategoryButton = document.querySelector('.category-button.active');
+    const selectedCategory = activeCategoryButton ? activeCategoryButton.dataset.category : 'All Products';
 
-// --- Category filtering ---
-categoryButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        const category = button.dataset.category;
-        // Highlight active button
-        categoryButtons.forEach(btn => btn.classList.remove('active'));
-        button.classList.add('active');
-
-        if (category === "All Products") {
-            displayProducts(allProducts);
-        } else {
-            const filteredProducts = Object.values(allProducts).filter(product => product.category === category);
-            displayProducts(filteredProducts);
-        }
-        searchBar.value = ''; // Clear search bar on category change
+    const filtered = products.filter(product => {
+        const matchesSearch = (product.name && product.name.toLowerCase().includes(searchTerm)) ||
+                              (product.description && product.description.toLowerCase().includes(searchTerm));
+        const matchesCategory = selectedCategory === 'All Products' || product.category === selectedCategory;
+        return matchesSearch && matchesCategory;
     });
-});
-
-// --- Search functionality ---
-searchBar.addEventListener('input', (e) => {
-    const searchTerm = e.target.value.toLowerCase().trim();
-    // Deselect category buttons when searching
-    categoryButtons.forEach(btn => btn.classList.remove('active'));
-
-    if (!searchTerm) {
-        displayProducts(allProducts); // Show all if search is cleared
-        return;
-    }
-
-    const filteredProducts = Object.values(allProducts).filter(product =>
-        product.title.toLowerCase().includes(searchTerm) ||
-        product.description.toLowerCase().includes(searchTerm) ||
-        (product.brand && product.brand.toLowerCase().includes(searchTerm))
-    );
-    displayProducts(filteredProducts);
-});
-
-
-// --- Open Product Modal (MODIFIED FOR IMAGE GALLERY) ---
-function openProductModal(product) {
-    currentProduct = product;
-    document.getElementById('modal-product-title').textContent = product.title;
-    document.getElementById('modal-product-brand').textContent = product.brand || 'N/A';
-    document.getElementById('modal-product-description').textContent = product.description;
-    document.getElementById('modal-product-price').textContent = `PKR ${product.price.toLocaleString()}`;
-    document.getElementById('modal-product-stock').textContent = product.stock !== undefined ? (product.stock > 0 ? `${product.stock} available` : 'Out of Stock') : 'N/A';
-    placeOrderButton.disabled = product.stock === 0; // Disable button if out of stock
-
-    // --- Start of NEW image gallery setup (REPLACES OLD IMAGE DISPLAY LOGIC) ---
-    currentProductImageUrls = product.images; // Assumes 'product.images' is an array of image URLs
-    currentProductImageIndex = 0; // Start with the first image
-
-    if (mainProductImage && currentProductImageUrls && currentProductImageUrls.length > 0) {
-        mainProductImage.src = currentProductImageUrls[currentProductImageIndex];
-        mainProductImage.alt = product.title;
-        if (currentProductImageUrls.length > 1) {
-            if (prevButton) prevButton.style.display = 'block';
-            if (nextButton) nextButton.style.display = 'block';
-        } else {
-            if (prevButton) prevButton.style.display = 'none';
-            if (nextButton) nextButton.style.display = 'none';
-        }
-    } else if (mainProductImage) {
-        // No images available, display a placeholder
-        mainProductImage.src = 'https://via.placeholder.com/300x200.png?text=No+Image';
-        mainProductImage.alt = 'No image available';
-        if (prevButton) prevButton.style.display = 'none';
-        if (nextButton) nextButton.style.display = 'none';
-    }
-    // --- End of NEW image gallery setup ---
-
-
-    const productVideo = document.getElementById('modal-product-video');
-    if (product.videoUrl) {
-        // Basic YouTube URL to Embed URL conversion
-        let embedUrl = product.videoUrl;
-        if (product.videoUrl.includes("watch?v=")) {
-            embedUrl = product.videoUrl.replace("watch?v=", "embed/");
-        }
-        // Remove other parameters like &list=...
-        const queryIndex = embedUrl.indexOf('?');
-        if (queryIndex !== -1) {
-             const videoIdPart = embedUrl.substring(0, queryIndex);
-             const params = new URLSearchParams(embedUrl.substring(queryIndex));
-             if (params.has('v')) { // For URLs like /embed/?v=VIDEO_ID
-                 embedUrl = `https://www.youtube.com/embed/${params.get('v')}`;
-             } else if (videoIdPart.includes("/embed/")) { // If it's already an embed link but with params
-                 embedUrl = videoIdPart;
-             }
-        }
-
-
-        productVideo.src = embedUrl;
-        productVideo.style.display = 'block';
-    } else {
-        productVideo.style.display = 'none';
-        productVideo.src = '';
-    }
-
-    productModal.style.display = 'flex';
+    displayProducts(filtered);
 }
 
-// --- Close Modals ---
-closeButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        productModal.style.display = 'none';
-        orderModal.style.display = 'none';
-        ratingModal.style.display = 'none'; // Close rating modal
-        codForm.style.display = 'none'; // Ensure form is hidden on modal close
-    });
+// --- Product Modal Logic ---
+
+function openProductModal(product) {
+    currentProduct = product;
+    currentImageIndex = 0; // Reset image index
+
+    modalProductTitle.textContent = product.name;
+    modalProductBrand.textContent = product.brand || 'N/A';
+    modalProductDescription.textContent = product.description;
+    modalProductStock.textContent = product.stock > 0 ? `${product.stock} in stock` : 'Out of Stock';
+    modalProductStock.style.color = product.stock > 0 ? 'green' : 'red';
+    modalProductPrice.textContent = product.price;
+
+    // Display image or video
+    updateProductMedia();
+
+    // Show/hide gallery navigation (only if there are multiple images and no video)
+    const hasMultipleImages = product.images && product.images.length > 1;
+    galleryNavPrevButton.style.display = (hasMultipleImages && !product.video) ? 'block' : 'none';
+    galleryNavNextButton.style.display = (hasMultipleImages && !product.video) ? 'block' : 'none';
+
+
+    // Disable place order button if out of stock
+    placeOrderButton.disabled = product.stock <= 0;
+    placeOrderButton.textContent = product.stock > 0 ? 'Place Order' : 'Out of Stock';
+
+    // --- Reviews Section (Front-end structure and real-time loading) ---
+    let reviewsSection = document.querySelector('.product-reviews');
+    if (!reviewsSection) {
+        reviewsSection = document.createElement('div');
+        reviewsSection.classList.add('product-reviews');
+        reviewsSection.innerHTML = `
+            <h4>Customer Reviews</h4>
+            <div id="reviews-list" class="reviews-list">
+                </div>
+            <div class="review-form">
+                <textarea id="review-comment" placeholder="Write your review..." rows="3"></textarea>
+                <button id="submit-review-button" class="place-order-button">Submit Review</button>
+            </div>
+        `;
+        document.querySelector('.product-details').appendChild(reviewsSection);
+    } else {
+        document.getElementById('reviews-list').innerHTML = '';
+        document.getElementById('review-comment').value = '';
+    }
+
+    // Load reviews for the current product (real-time with Firebase)
+    loadProductReviews(product.id);
+
+    productModal.style.display = 'block';
+}
+
+function updateProductMedia() {
+    if (currentProduct.video) {
+        modalProductVideo.src = currentProduct.video;
+        modalProductVideo.style.display = 'block';
+        mainProductImage.style.display = 'none';
+        modalProductVideo.load(); // Ensure video loads
+    } else {
+        mainProductImage.src = currentProduct.images && currentProduct.images.length > 0 ? currentProduct.images[currentImageIndex] : 'https://via.placeholder.com/400x300?text=No+Image';
+        mainProductImage.alt = currentProduct.name;
+        mainProductImage.style.display = 'block';
+        modalProductVideo.style.display = 'none';
+        modalProductVideo.pause(); // Pause any playing video
+        modalProductVideo.removeAttribute('src'); // Remove src to reset video player
+    }
+}
+
+// --- Image Gallery Navigation ---
+galleryNavPrevButton.addEventListener('click', (e) => {
+    e.stopPropagation(); // Prevent modal from closing if clicked on image
+    if (currentProduct && currentProduct.images && currentProduct.images.length > 1) {
+        currentImageIndex = (currentImageIndex - 1 + currentProduct.images.length) % currentProduct.images.length;
+        updateProductMedia();
+    }
 });
 
-window.addEventListener('click', (event) => {
-    if (event.target === productModal) {
-        productModal.style.display = 'none';
-    }
-    if (event.target === orderModal) {
-        orderModal.style.display = 'none';
-        codForm.style.display = 'none';
-    }
-    if (event.target === ratingModal) { // Close rating modal on outside click
-        ratingModal.style.display = 'none';
-    }
-    // --- NEW: Close image preview modal on outside click ---
-    if (event.target === imagePreviewModal) {
-        closeImagePreviewModal();
+galleryNavNextButton.addEventListener('click', (e) => {
+    e.stopPropagation(); // Prevent modal from closing if clicked on image
+    if (currentProduct && currentProduct.images && currentProduct.images.length > 1) {
+        currentImageIndex = (currentImageIndex + 1) % currentProduct.images.length;
+        updateProductMedia();
     }
 });
 
-// --- Place Order Button in Product Modal ---
+// --- Image Preview Logic ---
+mainProductImage.addEventListener('click', () => {
+    if (mainProductImage.style.display === 'block' && mainProductImage.src) {
+        enlargedProductImage.src = mainProductImage.src;
+        imagePreviewModal.style.display = 'flex';
+    }
+});
+
+closeImagePreviewBtn.addEventListener('click', () => {
+    imagePreviewModal.style.display = 'none';
+});
+
+
+// --- Order Modal Logic ---
 placeOrderButton.addEventListener('click', () => {
-    if (!currentProduct) {
-        showAlert("Error: Product details not loaded. Please try again.", "Error");
-        return;
-    }
-    if (currentProduct.stock === 0) {
-        showAlert("Sorry, this product is currently out of stock.", "Out of Stock");
-        return;
-    }
-    productModal.style.display = 'none'; // Close product modal
-    orderModal.style.display = 'flex'; // Open order modal
-    codForm.style.display = 'block'; // Ensure COD form is visible
+    closeAllModals(); // Close product modal
+    orderModal.style.display = 'block';
+    codNameInput.value = '';
+    codPhoneInput.value = '';
+    codAddressInput.value = '';
 });
 
-
-// --- Confirm Cash on Delivery Order ---
 confirmCodOrderButton.addEventListener('click', async () => {
     const name = codNameInput.value.trim();
     const phone = codPhoneInput.value.trim();
     const address = codAddressInput.value.trim();
 
     if (!name || !phone || !address) {
-        showAlert('Please fill in all delivery details.', 'Missing Details');
-        return;
-    }
-    if (!/^(03\d{2}[-\s]?\d{7})$/.test(phone) && !/^(03\d{9})$/.test(phone)) {
-         showAlert('Please enter a valid Pakistani phone number (e.g., 03XX-XXXXXXX or 03XXXXXXXXX).', 'Invalid Phone');
+        await showCustomAlert('Missing Information', 'Please fill in all delivery details.');
         return;
     }
 
-    if (!currentProduct) {
-        showAlert('Error: No product selected. Please close this form and select a product.', 'Error');
-        return;
-    }
-     if (currentProduct.stock === 0) {
-        showAlert("Sorry, this product just went out of stock.", "Out of Stock");
-        orderModal.style.display = 'none';
-        codForm.style.display = 'none';
-        return;
-    }
-
-
-    confirmCodOrderButton.disabled = true;
-    confirmCodOrderButton.textContent = 'Processing...';
+    const orderDetails = {
+        product: currentProduct.name,
+        productId: currentProduct.id,
+        customerName: name,
+        customerPhone: phone,
+        deliveryAddress: address,
+        price: currentProduct.price,
+        orderDate: serverTimestamp() // Use Firebase server timestamp for consistency
+    };
 
     try {
-        const newOrderRef = push(ref(database, 'orders'));
-        currentOrderId = newOrderRef.key; // Store order ID for rating
-        await set(newOrderRef, {
-            id: currentOrderId,
-            productId: currentProduct.id,
-            productTitle: currentProduct.title,
-            productPrice: currentProduct.price,
-            customerName: name,
-            customerPhone: phone,
-            customerAddress: address,
-            paymentMethod: 'Cash on Delivery',
-            orderDate: new Date().toISOString(),
-            status: "Pending"
-        });
+        // Save order details to Firebase Realtime Database
+        await push(ref(database, 'orders'), orderDetails);
 
-        await showAlert(`Order for "${currentProduct.title}" placed successfully! We will contact you soon for delivery.`, 'Order Placed!');
-        orderModal.style.display = 'none';
-        codForm.style.display = 'none';
+        await showCustomAlert('Order Confirmed!', 'Your order has been placed successfully. You will be contacted soon.');
+        closeAllModals(); // Close order modal
 
-        codNameInput.value = '';
-        codPhoneInput.value = '';
-        codAddressInput.value = '';
-
-        // Open the rating modal after successful order
+        // --- Trigger Rating Modal after Order Confirmation ---
         openRatingModal(currentProduct);
 
+        // Optionally, reduce stock (client-side simulation, ideally updated via backend)
+        const productRef = ref(database, `products/${currentProduct.id}`);
+        const snapshot = await get(productRef);
+        if (snapshot.exists()) {
+            const currentStock = snapshot.val().stock || 0;
+            if (currentStock > 0) {
+                await update(productRef, { stock: currentStock - 1 });
+            }
+        }
+
     } catch (error) {
-        console.error("Error placing order: ", error);
-        showAlert("Failed to place order. Please try again. Error: " + error.message, "Order Failed");
-    } finally {
-        confirmCodOrderButton.disabled = false;
-        confirmCodOrderButton.textContent = 'Confirm Order (Cash on Delivery)';
+        console.error('Error placing order:', error);
+        await showCustomAlert('Order Failed', 'There was an error placing your order. Please try again.');
     }
 });
 
-// --- Rating System Logic ---
+// --- Rating System Logic (User Input for Analytics) ---
+
 function openRatingModal(product) {
-    ratingProductTitleSpan.textContent = product.title;
-    selectedRating = 0; // Reset selected rating
-    updateStarDisplay(); // Reset star visuals
-    ratingModal.style.display = 'flex';
+    ratingProductTitle.textContent = product.name;
+    userSelectedRating = 0; // Reset user selected rating
+    displayRatingStars(ratingStarsContainer, userSelectedRating); // Clear stars
+
+    // Add event listeners for rating selection
+    ratingStarsContainer.addEventListener('mouseover', handleRatingMouseOver);
+    ratingStarsContainer.addEventListener('mouseout', handleRatingMouseOut);
+    ratingStarsContainer.addEventListener('click', handleRatingClick);
+
+    ratingModal.style.display = 'block';
 }
 
-ratingStarsContainer.addEventListener('click', (event) => {
-    if (event.target.classList.contains('fa-star')) {
-        selectedRating = parseInt(event.target.dataset.rating);
-        updateStarDisplay();
+function handleRatingMouseOver(e) {
+    const star = e.target.closest('.fa-star');
+    if (star) {
+        const rating = parseInt(star.dataset.rating);
+        displayRatingStars(ratingStarsContainer, rating);
     }
-});
+}
 
-function updateStarDisplay() {
-    const stars = ratingStarsContainer.querySelectorAll('.fa-star');
-    stars.forEach(star => {
-        const ratingValue = parseInt(star.dataset.rating);
-        if (ratingValue <= selectedRating) {
-            star.classList.add('selected');
-        } else {
-            star.classList.remove('selected');
-        }
-    });
+function handleRatingMouseOut() {
+    displayRatingStars(ratingStarsContainer, userSelectedRating); // Revert to selected rating
+}
+
+function handleRatingClick(e) {
+    const star = e.target.closest('.fa-star');
+    if (star) {
+        userSelectedRating = parseInt(star.dataset.rating);
+        displayRatingStars(ratingStarsContainer, userSelectedRating); // Solidify the selection
+        // Remove mouseover/mouseout listeners after a star is clicked to prevent accidental changes
+        ratingStarsContainer.removeEventListener('mouseover', handleRatingMouseOver);
+        ratingStarsContainer.removeEventListener('mouseout', handleRatingMouseOut);
+    }
 }
 
 submitRatingButton.addEventListener('click', async () => {
-    if (selectedRating === 0) {
-        showAlert('Please select a star rating before submitting.', 'No Rating Selected');
+    if (userSelectedRating === 0) {
+        await showCustomAlert('No Rating Selected', 'Please select a star rating before submitting.');
         return;
     }
 
-    submitRatingButton.disabled = true;
-    submitRatingButton.textContent = 'Submitting...';
+    const ratingData = {
+        productId: currentProduct.id,
+        productName: currentProduct.name,
+        rating: userSelectedRating,
+        timestamp: serverTimestamp(), // Use Firebase server timestamp
+        // Potentially add userId if users are logged in (e.g., from Firebase Auth)
+        userId: 'anonymous' // Placeholder for now
+    };
+
+    console.log('User Rating for Analytics:', ratingData);
 
     try {
-        // 1. Save individual rating to 'ratings' node
-        const newRatingRef = push(ref(database, 'ratings'));
-        await set(newRatingRef, {
-            productId: currentProduct.id,
-            orderId: currentOrderId, // Link to the order
-            stars: selectedRating,
-            timestamp: serverTimestamp()
-        });
+        // Save this user-submitted rating to a separate path for analytics
+        await push(ref(database, `userRatings/${currentProduct.id}`), ratingData);
 
-        // 2. Update product's aggregate rating in 'products' node
-        const productRef = ref(database, 'products/' + currentProduct.id);
-        const snapshot = await get(productRef);
-        const productData = snapshot.val();
-
-        if (productData) {
-            const oldTotalStarsSum = productData.totalStarsSum || 0;
-            const oldNumberOfRatings = productData.numberOfRatings || 0;
-
-            const newTotalStarsSum = oldTotalStarsSum + selectedRating;
-            const newNumberOfRatings = oldNumberOfRatings + 1;
-            const newAverageRating = newTotalStarsSum / newNumberOfRatings;
-
-            await update(productRef, {
-                totalStarsSum: newTotalStarsSum,
-                numberOfRatings: newNumberOfRatings,
-                averageRating: newAverageRating.toFixed(2) // Store as string with 2 decimal places
-            });
-        } else {
-            // This case should ideally not happen if product was just ordered
-            console.warn("Product not found when updating rating aggregates.");
-        }
-
-        await showAlert('Thank you for your rating!', 'Rating Submitted');
-        ratingModal.style.display = 'none';
-        currentProduct = null; // Clear current product after rating
-        currentOrderId = null; // Clear current order ID
-        selectedRating = 0; // Reset rating
+        await showCustomAlert('Rating Submitted!', 'Thank you for your feedback!');
+        closeAllModals();
 
     } catch (error) {
-        console.error("Error submitting rating: ", error);
-        showAlert("Failed to submit rating. Please try again. Error: " + error.message, "Rating Failed");
+        console.error('Error submitting rating:', error);
+        await showCustomAlert('Submission Failed', 'Could not submit your rating. Please try again.');
     } finally {
-        submitRatingButton.disabled = false;
-        submitRatingButton.textContent = 'Submit Rating';
+        // Always remove event listeners for a clean state, especially click listener
+        ratingStarsContainer.removeEventListener('mouseover', handleRatingMouseOver);
+        ratingStarsContainer.removeEventListener('mouseout', handleRatingMouseOut);
+        ratingStarsContainer.removeEventListener('click', handleRatingClick);
     }
 });
 
+
+// --- Review System Logic (Real-time with Firebase) ---
+
+async function loadProductReviews(productId) {
+    const reviewsList = document.getElementById('reviews-list');
+    if (!reviewsList) return; // Ensure element exists
+
+    reviewsList.innerHTML = 'Loading reviews...'; // Show loading state
+
+    // Detach any existing listener before attaching a new one for the current product
+    if (currentReviewsListenerOff) {
+        currentReviewsListenerOff();
+    }
+
+    // Attach a real-time listener to Firebase for reviews of this specific product
+    const reviewsRef = ref(database, `productReviews/${productId}`);
+    currentReviewsListenerOff = onValue(reviewsRef, (snapshot) => {
+        reviewsList.innerHTML = ''; // Clear previous reviews
+        const reviewsData = snapshot.val();
+        const reviewsArray = [];
+
+        if (reviewsData) {
+            for (const key in reviewsData) {
+                reviewsArray.push({ id: key, ...reviewsData[key] });
+            }
+        }
+
+        if (reviewsArray.length === 0) {
+            reviewsList.innerHTML = '<p>No reviews yet. Be the first to comment!</p>';
+        } else {
+            // Sort reviews by timestamp, newest first
+            reviewsArray.sort((a, b) => {
+                // Handle cases where timestamp might be a string or object (serverTimestamp resolves to a number)
+                const timeA = typeof a.timestamp === 'object' && a.timestamp !== null ? a.timestamp.valueOf() : a.timestamp;
+                const timeB = typeof b.timestamp === 'object' && b.timestamp !== null ? b.timestamp.valueOf() : b.timestamp;
+                return timeB - timeA;
+            });
+
+            reviewsArray.forEach(review => {
+                const reviewDiv = document.createElement('div');
+                reviewDiv.classList.add('review-item');
+
+                // Ensure review.timestamp exists before trying to format
+                const date = review.timestamp ? new Date(review.timestamp).toLocaleDateString() : 'N/A';
+                const time = review.timestamp ? new Date(review.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''; // e.g., "10:30 AM"
+
+                reviewDiv.innerHTML = `
+                    <p class="review-user"><strong>${review.user || 'Anonymous'}</strong> <span class="review-date">${date} ${time}</span></p>
+                    <p class="review-comment">${review.comment}</p>
+                `;
+                reviewsList.appendChild(reviewDiv);
+            });
+        }
+    }, (error) => {
+        console.error('Error loading reviews from Firebase:', error);
+        reviewsList.innerHTML = '<p>Could not load reviews. Please try again later.</p>';
+    });
+}
+
+// Event listener for submitting a new review
+document.addEventListener('click', async (e) => {
+    if (e.target.id === 'submit-review-button') {
+        const reviewCommentInput = document.getElementById('review-comment');
+        const comment = reviewCommentInput.value.trim();
+
+        if (!comment) {
+            await showCustomAlert('Empty Comment', 'Please write something before submitting your review.');
+            return;
+        }
+
+        if (!currentProduct) {
+            console.error('No product selected for review submission.');
+            await showCustomAlert('Error', 'Could not submit review. Please select a product first.');
+            return;
+        }
+
+        const reviewData = {
+            productId: currentProduct.id,
+            comment: comment,
+            user: 'Anonymous User', // In a real app, integrate Firebase Auth to get the actual user name/ID
+            timestamp: serverTimestamp() // Use Firebase server timestamp for consistency
+        };
+
+        try {
+            // Push the new review to the specific product's reviews path in Firebase
+            await push(ref(database, `productReviews/${currentProduct.id}`), reviewData);
+
+            reviewCommentInput.value = ''; // Clear the input field
+            await showCustomAlert('Review Submitted!', 'Your review has been added.');
+
+        } catch (error) {
+            console.error('Error submitting review to Firebase:', error);
+            await showCustomAlert('Submission Failed', 'Could not submit your review. Please try again.');
+        }
+    }
+});
+
+
+// --- Initial Load: Fetch Products from Firebase ---
 document.addEventListener('DOMContentLoaded', () => {
-    const homeView = document.getElementById('home-view');
-    const supportView = document.getElementById('support-view');
-    const supportNavLink = document.getElementById('support-nav-link');
-    const backToHomeButton = document.getElementById('back-to-home');
-    const navLinks = document.querySelectorAll('.nav-link'); // Select all other nav links
+    const productsRef = ref(database, 'products'); // Listen to the 'products' node in your database
 
-    function showView(viewToShow, viewToHide) {
-        viewToHide.style.display = 'none';
-        viewToShow.style.display = 'block'; // Or 'flex' if you use flexbox for its internal layout
-    }
+    onValue(productsRef, (snapshot) => {
+        products = []; // Clear current products array
+        const productsData = snapshot.val();
 
-    // Event listener for the "Support" navigation link
-    if (supportNavLink) {
-        supportNavLink.addEventListener('click', (event) => {
-            event.preventDefault(); // Prevent default link behavior (like jumping to #)
-            showView(supportView, homeView);
-            window.scrollTo(0, 0); // Scroll to top when switching view
-        });
-    }
-
-    // Event listener for the "Back" button within the Support view
-    if (backToHomeButton) {
-        backToHomeButton.addEventListener('click', () => {
-            showView(homeView, supportView);
-            window.scrollTo(0, 0); // Scroll to top when switching back
-        });
-    }
-
-    // --- NEW EVENT LISTENERS FOR IMAGE GALLERY ---
-    // Listener for previous button
-    if (prevButton) {
-        prevButton.addEventListener('click', () => {
-            if (currentProductImageUrls && currentProductImageUrls.length > 0) {
-                currentProductImageIndex = (currentProductImageIndex - 1 + currentProductImageUrls.length) % currentProductImageUrls.length;
-                mainProductImage.src = currentProductImageUrls[currentProductImageIndex];
+        if (productsData) {
+            for (const key in productsData) {
+                products.push({ id: key, ...productsData[key] });
             }
-        });
-    }
+        }
+        displayProducts(products); // Display fetched products
+        filterProducts(); // Apply any initial search/category filters
+    }, (error) => {
+        console.error("Error fetching products from Firebase:", error);
+        productContainer.innerHTML = '<p>Error loading products. Please check your Firebase connection and database rules.</p>';
+    });
+});
 
-    // Listener for next button
-    if (nextButton) {
-        nextButton.addEventListener('click', () => {
-            if (currentProductImageUrls && currentProductImageUrls.length > 0) {
-                currentProductImageIndex = (currentProductImageIndex + 1) % currentProductImageUrls.length;
-                mainProductImage.src = currentProductImageUrls[currentProductImageIndex];
-            }
-        });
-    }
+// --- Event Listeners ---
+searchBar.addEventListener('keyup', filterProducts);
 
-    // Listener to open image preview when the main product image is clicked
-    if (mainProductImage) {
-        mainProductImage.addEventListener('click', () => {
-            if (mainProductImage.src) {
-                openImagePreviewModal(mainProductImage.src);
-            }
-        });
-    }
+categoryButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        categoryButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        filterProducts();
+    });
+});
 
-    // --- IMPORTANT: Remove or comment out the old productImagesContainer listener ---
-    // Look for a block similar to this and remove/comment it out:
-    /*
-    const productImagesContainer = document.getElementById('modal-product-images'); // This was likely selected for old image display
-    if (productImagesContainer) {
-        productImagesContainer.addEventListener('click', (event) => {
-            const clickedImage = event.target;
-            if (clickedImage.tagName === 'IMG' && clickedImage.classList.contains('product-image')) {
-                // ... old logic to select image and open preview ...
-            }
-        });
-    }
-    */
-    // --- END REMOVAL ---
+closeButtons.forEach(button => {
+    button.addEventListener('click', closeAllModals);
+});
 
-}); // This closes the document.addEventListener('DOMContentLoaded' block
+// Close modal when clicking outside
+window.addEventListener('click', (e) => {
+    if (e.target === productModal || e.target === orderModal || e.target === ratingModal || e.target === customAlertModal || e.target === imagePreviewModal) {
+        closeAllModals();
+    }
+});
