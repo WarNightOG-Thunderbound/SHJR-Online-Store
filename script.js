@@ -673,3 +673,61 @@ window.addEventListener('click', (e) => {
         closeAllModals();
     }
 });
+/* style.css */
+
+/* Add this to your existing style.css */
+
+/* --- Product Prices (Fake Discount Styling) --- */
+.product-prices {
+    margin-top: 5px;
+    display: flex; /* Use flexbox for alignment */
+    align-items: baseline; /* Align prices at their baseline */
+    justify-content: center; /* Center horizontally in the card */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+.product-card .product-prices {
+    font-size: 1.1em; /* Slightly larger font for prices on cards */
+}
+
+.original-price {
+    color: var(--color-medium-gray); /* Subdued color for the old price */
+    text-decoration: line-through; /* Strikethrough effect */
+    margin-right: 8px; /* Space between original and current price */
+    font-size: 0.9em; /* Slightly smaller font size for original price */
+}
+
+.current-price {
+    color: var(--color-dark-gray); /* Prominent color for the current price */
+    font-weight: 700; /* Bold font for current price */
+    font-size: 1.1em; /* Emphasize the current price */
+}
+
+/* Styling for prices within the product modal (adjust as needed) */
+#modal-product-price {
+    font-size: 1.6em; /* Larger font for prices in the modal */
+    font-weight: bold;
+    display: flex; /* Use flexbox for alignment in modal */
+    align-items: baseline;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+#modal-product-price .original-price {
+    font-size: 0.8em; /* Original price smaller in modal */
+    margin-right: 15px; /* More space in modal */
+}
+
+#modal-product-price .current-price {
+    font-size: 1em; /* Current price normal size in modal relative to container */
+}
+
+/* Existing styles for the product card price (you can remove or adjust if it conflicts with .product-prices) */
+/*
+.product-price {
+    font-size: 1.2em;
+    color: var(--color-dark-gray);
+    margin-top: 10px;
+    font-weight: bold;
+}
+*/
