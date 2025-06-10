@@ -83,6 +83,36 @@ let currentReviewsListenerOff = null;
 // --- Helper Functions ---
 
 /**
+ * Formats a number into a currency string (e.g., "PKR - 5,000").
+ * @param {number|string} priceValue - The price number or string to format.
+ * @returns {string} The formatted price string.
+ */
+function formatPrice(priceValue) {
+    // Attempt to parse the price. If it's like "PKR 1500/meter", extract the number part.
+    let numericPrice;
+    if (typeof priceValue === 'string') {
+        const match = priceValue.match(/(\d[\d,\.]*)/); // Find number, including commas/dots
+        if (match) {
+            numericPrice = parseFloat(match[1].replace(/,/g, '')); // Remove commas, parse to float
+        }
+    } else if (typeof priceValue === 'number') {
+        numericPrice = priceValue;
+    }
+
+    if (isNaN(numericPrice)) {
+        return priceValue; // Return original if cannot parse
+    }
+
+    // Format with commas for thousands
+    const formatted = numericPrice.toLocaleString('en-PK', { // Use 'en-PK' for Pakistani locale if available, or 'en-US' for general comma formatting
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    });
+    return `PKR - ${formatted}`;
+}
+
+
+/**
  * Displays a custom alert modal.
  * @param {string} title - The title of the alert.
  * @param {string} message - The message content.
@@ -201,10 +231,31 @@ function displayProducts(productsToDisplay) {
         productCard.appendChild(ratingDisplay);
         // --- End Fake Rating System Display ---
 
-        const productPrice = document.createElement('p');
-        productPrice.classList.add('product-price');
-        productPrice.textContent = product.price;
-        productCard.appendChild(productPrice);
+        // --- Price Display with Fake Discount ---
+        const productPriceDiv = document.createElement('div');
+        productPriceDiv.classList.add('product-prices');
+
+        let currentPriceValue = parseFloat(product.price.replace(/[PKR\s,-/meter]/g, '')); // Extract numeric value
+        if (isNaN(currentPriceValue)) {
+            currentPriceValue = 0; // Default to 0 if price can't be parsed
+        }
+        const originalPriceValue = currentPriceValue + 1000; // Fake higher price
+
+        const originalPriceSpan = document.createElement('span');
+        originalPriceSpan.classList.add('original-price');
+        originalPriceSpan.style.textDecoration = 'line-through';
+        originalPriceSpan.style.marginRight = '10px';
+        originalPriceSpan.style.color = 'var(--color-medium-gray)'; // Or any subdued color
+        originalPriceSpan.innerHTML = formatPrice(originalPriceValue); // Use formatPrice helper
+        productPriceDiv.appendChild(originalPriceSpan);
+
+        const currentPriceSpan = document.createElement('span');
+        currentPriceSpan.classList.add('current-price');
+        currentPriceSpan.textContent = formatPrice(currentPriceValue); // Use formatPrice helper
+        productPriceDiv.appendChild(currentPriceSpan);
+
+        productCard.appendChild(productPriceDiv);
+        // --- End Price Display with Fake Discount ---
 
         productCard.addEventListener('click', () => openProductModal(product));
         productContainer.appendChild(productCard);
@@ -236,7 +287,30 @@ function openProductModal(product) {
     modalProductDescription.textContent = product.description;
     modalProductStock.textContent = product.stock > 0 ? `${product.stock} in stock` : 'Out of Stock';
     modalProductStock.style.color = product.stock > 0 ? 'green' : 'red';
-    modalProductPrice.textContent = product.price;
+    
+    // --- Modal Price Display with Fake Discount ---
+    let currentPriceValue = parseFloat(product.price.replace(/[PKR\s,-/meter]/g, ''));
+    if (isNaN(currentPriceValue)) {
+        currentPriceValue = 0;
+    }
+    const originalPriceValue = currentPriceValue + 1000; // Fake higher price
+
+    modalProductPrice.innerHTML = ''; // Clear previous price content
+    const originalModalPriceSpan = document.createElement('span');
+    originalModalPriceSpan.style.textDecoration = 'line-through';
+    originalModalPriceSpan.style.marginRight = '15px';
+    originalModalPriceSpan.style.fontSize = '1.1em'; // Slightly smaller than current price
+    originalModalPriceSpan.style.color = 'var(--color-medium-gray)';
+    originalModalPriceSpan.textContent = formatPrice(originalPriceValue);
+    modalProductPrice.appendChild(originalModalPriceSpan);
+
+    const currentModalPriceSpan = document.createElement('span');
+    currentModalPriceSpan.style.fontSize = '1.3em'; // Make current price slightly larger
+    currentModalPriceSpan.style.fontWeight = 'bold';
+    currentModalPriceSpan.textContent = formatPrice(currentPriceValue);
+    modalProductPrice.appendChild(currentModalPriceSpan);
+    // --- End Modal Price Display with Fake Discount ---
+
 
     // Display image or video
     updateProductMedia();
@@ -559,7 +633,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (productsData) {
             for (const key in productsData) {
-                products.push({ id: key, ...productsData[key] });
+                // Ensure 'images' and 'price' properties are handled
+                const product = { id: key, ...productsData[key] };
+                // Ensure images is an array, even if single string or null
+                if (typeof product.images === 'string') {
+                    product.images = [product.images];
+                } else if (!Array.isArray(product.images)) {
+                    product.images = [];
+                }
+                products.push(product);
             }
         }
         displayProducts(products); // Display fetched products
