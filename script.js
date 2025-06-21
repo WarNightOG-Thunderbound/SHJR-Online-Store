@@ -559,17 +559,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- END REMOVAL ---
 
 }); // This closes the document.addEventListener('DOMContentLoaded' block
-const params = new URLSearchParams(window.location.search);
-const targetId = params.get('id');
+const urlParams = new URLSearchParams(window.location.search);
+const productToOpen = urlParams.get('id');
 
-if (targetId) {
-  const scrollToProduct = setInterval(() => {
-    const target = document.querySelector(`[data-product-id="${targetId}"]`);
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth" });
-      target.style.outline = "3px solid cyan";
-      clearInterval(scrollToProduct);
+if (productToOpen) {
+  const interval = setInterval(() => {
+    const targetCard = document.querySelector(`[data-product-id="${productToOpen}"]`);
+    if (targetCard) {
+      // Option 1: Scroll to product
+      targetCard.scrollIntoView({ behavior: "smooth" });
+
+      // Option 2: Automatically trigger modal (if you want)
+      targetCard.click(); // or call your openModal(product) function
+
+      // Optional highlight
+      targetCard.style.outline = "3px solid cyan";
+      targetCard.style.borderRadius = "12px";
+
+      clearInterval(interval);
     }
-  }, 500); // Wait until product loads
+  }, 500); // Retry every 0.5s until the product loads
 }
 
