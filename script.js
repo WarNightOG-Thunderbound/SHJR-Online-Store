@@ -559,3 +559,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- END REMOVAL ---
 
 }); // This closes the document.addEventListener('DOMContentLoaded' block
+const params = new URLSearchParams(window.location.search);
+const targetId = params.get('id');
+
+if (targetId) {
+  const scrollToProduct = setInterval(() => {
+    const target = document.querySelector(`[data-product-id="${targetId}"]`);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth" });
+      target.style.outline = "3px solid cyan";
+      clearInterval(scrollToProduct);
+    }
+  }, 500); // Wait until product loads
+}
+
