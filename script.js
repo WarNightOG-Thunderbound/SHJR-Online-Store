@@ -559,6 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- END REMOVAL ---
 
 }); // This closes the document.addEventListener('DOMContentLoaded' block
+// 🔍 Auto-scroll to product from URL (?id=productId)
 const urlParams = new URLSearchParams(window.location.search);
 const productToOpen = urlParams.get('id');
 
@@ -566,18 +567,18 @@ if (productToOpen) {
   const interval = setInterval(() => {
     const targetCard = document.querySelector(`[data-product-id="${productToOpen}"]`);
     if (targetCard) {
-      // Option 1: Scroll to product
+      // ✅ Smooth scroll to the product
       targetCard.scrollIntoView({ behavior: "smooth" });
 
-      // Option 2: Automatically trigger modal (if you want)
-      targetCard.click(); // or call your openModal(product) function
-
-      // Optional highlight
+      // ✅ Optional: Highlight it visually
       targetCard.style.outline = "3px solid cyan";
       targetCard.style.borderRadius = "12px";
 
-      clearInterval(interval);
+      // ✅ Optional: Auto-open the modal if you already have a click handler
+      targetCard.click();
+
+      clearInterval(interval); // Stop once found
     }
-  }, 500); // Retry every 0.5s until the product loads
+  }, 500); // Keep trying until product is loaded
 }
 
